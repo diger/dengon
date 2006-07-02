@@ -32,7 +32,11 @@
 
 #ifdef POSIX
 extern "C" {
-#include <arpa/inet.h>
+#ifdef __BEOS__
+#include <bone/arpa/inet.h>
+#else
+#include <arpa/inet.h> 
+#endif
 }
 #endif
 
