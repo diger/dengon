@@ -31,22 +31,35 @@
 #ifdef COMPILER_MSVC
 typedef __int64 int64;
 #else
+#ifndef __BEOS__
 typedef long long int64;
+#endif /* __BEOS__ */
 #endif /* COMPILER_MSVC */
+#ifndef __BEOS__
 typedef long int32;
 typedef short int16;
 typedef char int8;
+#endif
 
 #ifdef COMPILER_MSVC
 typedef unsigned __int64 uint64;
 typedef __int64 int64;
 #else
+#ifndef __BEOS__
 typedef unsigned long long uint64;
 typedef long long int64;
+#endif /* __BEOS__ */
 #endif /* COMPILER_MSVC */
+
+#ifndef __BEOS__
 typedef unsigned long uint32;
 typedef unsigned short uint16;
 typedef unsigned char uint8;
+#endif
+
+#ifdef __BEOS__
+#include <be_prim.h>
+#endif
 
 #ifdef WIN32
 typedef int socklen_t;
