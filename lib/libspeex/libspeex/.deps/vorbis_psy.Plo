@@ -1,0 +1,4 @@
+vorbis_psy.lo : \
+ vorbis_psy.c ../config.h
+vorbis_psy.c :
+../config.h :

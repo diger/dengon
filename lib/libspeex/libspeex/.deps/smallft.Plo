@@ -1,0 +1,20 @@
+smallft.lo : \
+ smallft.c ../config.h \
+ /boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/math.h \
+ /boot/develop/headers/posix/be_setup.h \
+ /boot/develop/headers/be/BeBuild.h \
+ /boot/develop/headers/be/ProductFeatures.h smallft.h misc.h arch.h \
+ ../include/speex/speex_types.h /boot/develop/headers/posix/inttypes.h \
+ /boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/stddef.h
+smallft.c :
+../config.h :
+/boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/math.h :
+/boot/develop/headers/posix/be_setup.h :
+/boot/develop/headers/be/BeBuild.h :
+/boot/develop/headers/be/ProductFeatures.h :
+smallft.h :
+misc.h :
+arch.h :
+../include/speex/speex_types.h :
+/boot/develop/headers/posix/inttypes.h :
+/boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/stddef.h :

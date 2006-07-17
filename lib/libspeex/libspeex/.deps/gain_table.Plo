@@ -1,0 +1,3 @@
+gain_table.lo : \
+ gain_table.c
+gain_table.c :

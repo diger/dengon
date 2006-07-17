@@ -1,0 +1,3 @@
+exc_5_256_table.lo : \
+ exc_5_256_table.c
+exc_5_256_table.c :

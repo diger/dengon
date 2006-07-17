@@ -1,0 +1,26 @@
+stereo.lo : \
+ stereo.c ../config.h ../include/speex/speex_stereo.h \
+ ../include/speex/speex_types.h /boot/develop/headers/posix/inttypes.h \
+ /boot/develop/headers/posix/be_setup.h \
+ /boot/develop/headers/be/BeBuild.h \
+ /boot/develop/headers/be/ProductFeatures.h \
+ /boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/stddef.h \
+ ../include/speex/speex_bits.h ../include/speex/speex_callbacks.h \
+ ../include/speex/speex.h vq.h misc.h arch.h \
+ /boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/math.h
+stereo.c :
+../config.h :
+../include/speex/speex_stereo.h :
+../include/speex/speex_types.h :
+/boot/develop/headers/posix/inttypes.h :
+/boot/develop/headers/posix/be_setup.h :
+/boot/develop/headers/be/BeBuild.h :
+/boot/develop/headers/be/ProductFeatures.h :
+/boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/stddef.h :
+../include/speex/speex_bits.h :
+../include/speex/speex_callbacks.h :
+../include/speex/speex.h :
+vq.h :
+misc.h :
+arch.h :
+/boot/develop/tools/gnupro/lib/gcc-lib/i586-pc-beos/2.95.3-beos-041202/include/math.h :

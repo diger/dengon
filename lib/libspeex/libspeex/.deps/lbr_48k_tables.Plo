@@ -1,0 +1,4 @@
+lbr_48k_tables.lo : \
+ lbr_48k_tables.c ../config.h
+lbr_48k_tables.c :
+../config.h :
