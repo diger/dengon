@@ -1,0 +1,15 @@
+SubDir TOP compat pthread ;
+
+
+SharedLibrary libpthread.so
+	:
+	pthread.c
+	pthread_attr.c
+	pthread_key.c
+	pthread_mutex.c
+	pthread_mutexattr.c
+	;
+
+
+
+				

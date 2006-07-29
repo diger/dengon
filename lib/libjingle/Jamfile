@@ -1,0 +1,3 @@
+SubDir TOP lib libjingle ;
+SubInclude TOP lib libjingle talk ;
+

@@ -1,0 +1,4 @@
+SubDir TOP lib ;
+
+SubInclude TOP lib libjingle ;
+
