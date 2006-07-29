@@ -1,3 +1,6 @@
 SubDir TOP lib libjingle ;
+
+DEFINES = POSIX ;
+
 SubInclude TOP lib libjingle talk ;
 
