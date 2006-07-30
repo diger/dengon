@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdlib.h>
-#include "pthread_private.h"
 
 static const pthread_attr pthread_attr_default = {
 	PTHREAD_CREATE_JOINABLE,

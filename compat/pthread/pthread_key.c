@@ -7,7 +7,6 @@
 #include <TLS.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include "pthread_private.h"
 
 struct key_link {
 	struct key_link *next;

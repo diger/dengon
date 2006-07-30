@@ -5,7 +5,6 @@
 
 
 #include <pthread.h>
-#include "pthread_private.h"
 
 #include <stdlib.h>
 
