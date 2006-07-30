@@ -1,3 +1,0 @@
-hexc_table.lo : \
- hexc_table.c
-hexc_table.c :
