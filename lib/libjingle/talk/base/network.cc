@@ -29,7 +29,7 @@
 #include "talk/base/logging.h"
 #include "talk/base/network.h"
 #include "talk/base/socket.h" // this includes something that makes windows happy
-#include "talk/base/time.h"
+#include "talk/base/jtime.h"
 #include "talk/base/basicdefs.h"
 
 #include <algorithm>
@@ -43,6 +43,7 @@ extern "C" {
 #include <sys/utsname.h>
 #include <sys/ioctl.h>
 #include <net/if.h>
+#include <net/net_control.h>
 #include <unistd.h>
 #include <errno.h>
 }
@@ -177,43 +178,21 @@ namespace cricket {
 
 #ifdef POSIX
 void NetworkManager::CreateNetworks(std::vector<Network*>& networks) {
-  int fd;
-  if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-    PLOG(LERROR, errno) << "socket";
-    return;
-  }
 
-  struct ifconf ifc;
-  ifc.ifc_len = 64 * sizeof(struct ifreq);
-  ifc.ifc_buf = new char[ifc.ifc_len];
+   ifreq_t ifr;
+   status_t ic, i, st;
+   uint32 ip;
+  
+   ic = get_iface_count();
+ 
+   for (i=0;i<ic;i++) {
+      st = get_interface_by_index(i, &ifr);
+      if (ifr.ifr_addr.sa_family == AF_INET) {
+         ip = htohl(ifr.ifr_addr.s_addr);
+         networks.push_back(new Network(std::string(ifr.ifr_name), ip);
+      }
+   } 
 
-  if (ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
-    PLOG(LERROR, errno) << "ioctl";
-    return;
-  }
-  assert(ifc.ifc_len < static_cast<int>(64 * sizeof(struct ifreq)));
-
-  struct ifreq* ptr = reinterpret_cast<struct ifreq*>(ifc.ifc_buf);
-  struct ifreq* end =
-      reinterpret_cast<struct ifreq*>(ifc.ifc_buf + ifc.ifc_len);
-
-  while (ptr < end) {
-    struct sockaddr_in* inaddr =
-        reinterpret_cast<struct sockaddr_in*>(&ptr->ifr_ifru.ifru_addr);
-    if (inaddr->sin_family == AF_INET) {
-      uint32 ip = ntohl(inaddr->sin_addr.s_addr);
-      networks.push_back(new Network(std::string(ptr->ifr_name), ip));
-    }
-#ifdef _SIZEOF_ADDR_IFREQ
-    ptr = reinterpret_cast<struct ifreq*>(
-        reinterpret_cast<char*>(ptr) + _SIZEOF_ADDR_IFREQ(*ptr));
-#else
-    ptr++;
-#endif
-  }
-
-  delete [] ifc.ifc_buf;
-  close(fd);
 }
 #endif
 

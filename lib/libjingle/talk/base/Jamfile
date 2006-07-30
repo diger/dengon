@@ -8,7 +8,7 @@ SubDirHdrs [ FDirName $(TOP) lib libjingle ] ;
 StaticLibrary jingle_base
 	:
 	socketaddress.cc
-	time.cc
+	jtime.cc
 	asyncudpsocket.cc
 	messagequeue.cc
 	thread.cc

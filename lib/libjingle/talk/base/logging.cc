@@ -36,7 +36,7 @@
 
 #include "talk/base/logging.h"
 #include "talk/base/stream.h"
-#include "talk/base/time.h"
+#include "talk/base/jtime.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // Constant Labels
