@@ -1,5 +1,0 @@
-SubDir TOP ;
-
-SubInclude TOP compat ;
-SubInclude TOP lib ;
-

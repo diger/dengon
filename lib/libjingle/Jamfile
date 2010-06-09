@@ -1,7 +1,0 @@
-SubDir TOP lib libjingle ;
-
-DEFINES = POSIX HAVE_CONFIG_H _POSIX_THREADS ;
-C++ = g++ ;
-
-SubInclude TOP lib libjingle talk ;
-
