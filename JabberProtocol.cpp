@@ -602,6 +602,8 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 {
 	char buffer[4096];
 	
+	fprintf(stderr, "PRESENCE.\n");
+	
 	// get best asker name
 	const char *asker;
 					
@@ -615,7 +617,7 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		// they have no identity (illegal case)
 		asker = "<unknown>";
 	}
-
+	
 	// get presence
 	const char *availability = NULL;
 
@@ -624,23 +626,35 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	} else {
 		availability = "available";
 	}
+
+	fprintf(stderr, "ASKER: %s, TYPE: %s. BOOL: %i.\n", asker, availability, (int)(strcasecmp(availability, "subscribe") == 0));
 				
 	// reflect presence
-	if (user && !strcasecmp(availability, "unavailable")) {
+	if (user && !strcasecmp(availability, "unavailable"))
+	{
 		user->SetOnlineStatus(UserID::OFFLINE);
+		fprintf(stderr, "User %s is unavailable.\n", user->JabberHandle().c_str());
 	}
-	else if (user && !strcasecmp(availability, "available") ||
-			user && entity->Child("status") && entity->Child("status")->Data() )
+	else if (user && !strcasecmp(availability, "available")
+	//|| user && entity->Child("status") && entity->Child("status")->Data() 
+	)
 	{
 		user->SetOnlineStatus(UserID::ONLINE);
-		fprintf(stderr, "User %s is online.\n", user->JabberHandle().c_str());
-	} else if (!strcasecmp(availability, "unsubscribe")) {
-		sprintf(buffer, "%s no longer wishes to know your online status.", asker);
+		fprintf(stderr, "User %s is available.\n", user->JabberHandle().c_str());
+	}
+	else if (!strcasecmp(availability, "unsubscribe"))
+	{
+		fprintf(stderr, "User %s is unsubscribed from you.\n", user->JabberHandle().c_str());
+		sprintf(buffer, "User %s no longer wishes to know your online status.", asker);
 		ModalAlertFactory::NonModalAlert(buffer, "I feel so unloved.");
-	} else if (user && !strcasecmp(availability, "unsubscribed")) {
+	}
+	else if (user && !strcasecmp(availability, "unsubscribed"))
+	{
 		// do nothing?
 		user->SetOnlineStatus(UserID::UNKNOWN);
-	} else if (user && !strcasecmp(availability, "subscribed")) {
+	}
+	else if (user && !strcasecmp(availability, "subscribed"))
+	{
 		user->SetOnlineStatus(UserID::ONLINE);
 
 		if (entity->Child("status")) {
@@ -650,8 +664,12 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		}
 		
 		ModalAlertFactory::Alert(buffer, "Hooray!");
-	} else if (!strcasecmp(availability, "subscribe")) {
+	}
+	else if (!strcasecmp(availability, "subscribe"))
+	{
 		sprintf(buffer, "%s would like to subscribe to your presence so they may know if you're online or not.  Would you like to allow it?", asker);
+		
+		fprintf(stderr, "User %s want to subscribe to you.\n", asker);
 
 		// query for presence authorization (for users)
 		int32 answer = 0;
@@ -823,7 +841,7 @@ JabberProtocol::ReceiveData(BMessage *msg)
 			found_message_start = true;
 			
 			
-		if (found_roster_answer_start && data.FindFirst("</query>") >= 0)
+		if (found_roster_answer_start && data.FindFirst("</iq>") >= 0)
 			found_roster_answer_end = true;
 			
 		if (found_message_start && data.FindFirst("</message>") >= 0)

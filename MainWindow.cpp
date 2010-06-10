@@ -173,6 +173,35 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			break;
 		}
 		
+		case JAB_SUBSCRIBE_PRESENCE:
+		{
+			Lock();
+			RosterItem *item = _roster->CurrentItemSelection();
+			
+			if (item != NULL) {
+				UserID *user = (UserID*)item->GetUserID();
+				user->SetSubscriptionStatus("to");
+				jabber->SendSubscriptionRequest(user->JabberHandle());
+			}
+			_roster->UpdateRoster();
+			Unlock();
+			break;
+		}
+		
+		case JAB_UNSUBSCRIBE_PRESENCE:
+		{
+			Lock();
+			RosterItem *item = _roster->CurrentItemSelection();
+			
+			if (item != NULL) {
+				UserID *user = (UserID*)item->GetUserID();
+				user->SetSubscriptionStatus("from");
+				jabber->SendUnsubscriptionRequest(user->JabberHandle());
+			}
+			_roster->UpdateRoster();
+			Unlock();
+			break;
+		}
 		case SSL_ENABLED:
 		{
 			_ssl_port->SetEnabled(_ssl_enabled->Value());
