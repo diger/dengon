@@ -10,7 +10,7 @@ Socket::~Socket()
 }
 
 void
-Socket::Create(int domain, int sock_type, int protocol = 0)
+Socket::Create(int domain, int sock_type, int protocol)
 {
 	dom = domain;
 	type = sock_type;

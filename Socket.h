@@ -38,7 +38,7 @@ class Socket : public Adapter
 							
 							Socket() { }
 		virtual				~Socket();
-		virtual void		Create(int domain, int sock_type, int protocol = 0);
+		virtual void		Create(int domain, int sock_type, int protocol);
 		virtual	int			Open(BString hostname, int port);
 		virtual	int			SendData(BString xml);
 		virtual int 		ReceiveData(BMessage* data);

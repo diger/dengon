@@ -125,7 +125,7 @@ SSLAdapter::SSLAdapter():tls(false),ssl(NULL),ctx(NULL)
 void
 SSLAdapter::Create()
 {
-	Socket::Create(AF_INET, SOCK_STREAM);
+	Socket::Create(AF_INET, SOCK_STREAM, 0);
 }
 
 SSLAdapter::~SSLAdapter()
