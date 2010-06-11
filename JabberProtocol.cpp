@@ -509,7 +509,7 @@ JabberProtocol::SendUnsubscriptionRequest(string username)
 }
 
 void
-JabberProtocol::AddToRoster(const UserID *new_user)
+JabberProtocol::AddToRoster(UserID *new_user)
 {
 	XMLEntity *entity, *entity_query, *entity_item;
 	
@@ -551,7 +551,7 @@ JabberProtocol::AddToRoster(const UserID *new_user)
 }
 
 void
-JabberProtocol::RemoveFromRoster(const UserID *removed_user)
+JabberProtocol::RemoveFromRoster(UserID *removed_user)
 {
 	XMLEntity *entity, *entity_query, *entity_item;
 
@@ -602,8 +602,6 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 {
 	char buffer[4096];
 	
-	fprintf(stderr, "PRESENCE.\n");
-	
 	// get best asker name
 	const char *asker;
 					
@@ -627,8 +625,6 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		availability = "available";
 	}
 
-	fprintf(stderr, "ASKER: %s, TYPE: %s. BOOL: %i.\n", asker, availability, (int)(strcasecmp(availability, "subscribe") == 0));
-				
 	// reflect presence
 	if (user && !strcasecmp(availability, "unavailable"))
 	{

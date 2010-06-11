@@ -8,6 +8,8 @@
 #include "Agent.h"
 #include "AgentList.h"
 #include "JRoster.h"
+#include <string>
+#include <string.h>
 
 JRoster *JRoster::_instance = NULL;
 
@@ -76,7 +78,7 @@ void JRoster::RemoveAllUsers() {
 	}
 }
 	
-UserID *JRoster::FindUser(search_method search_type, string name) {
+UserID *JRoster::FindUser(search_method search_type, std::string name) {
 	if (search_type == JRoster::FRIENDLY_NAME) {
 		for (RosterIter i = _roster->begin(); i != _roster->end(); ++i) {
 			if (!strcasecmp(name.c_str(), (*i)->FriendlyName().c_str())) {
@@ -126,7 +128,8 @@ UserID *JRoster::FindUser(const UserID *comparing_user) {
 	return FindUser(JRoster::HANDLE, comparing_user->JabberHandle());
 }
 
-void JRoster::SetUserStatus(string username, UserID::online_status status) {
+void JRoster::SetUserStatus(std::string username, UserID::online_status status)
+{
 	UserID *user = const_cast<UserID *>(FindUser(COMPLETE_HANDLE, username));
 	
 	if (user != NULL) {
@@ -137,7 +140,8 @@ void JRoster::SetUserStatus(string username, UserID::online_status status) {
 	RefreshRoster();
 }
 
-const UserID::online_status JRoster::UserStatus(string username) {
+const UserID::online_status JRoster::UserStatus(std::string username)
+{
 	UserID *user = FindUser(COMPLETE_HANDLE, username);
 	
 	if (user != NULL) {

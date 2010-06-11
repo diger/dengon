@@ -69,9 +69,8 @@ class JabberProtocol : public XMLReader
 				string			GenerateUniqueID();
 				void			SendSubscriptionRequest(string username);
 				void			SendUnsubscriptionRequest(string username);
-				void			JabberProtocol::AddToRoster(const UserID *new_user);
-				void			RemoveFromRoster(const UserID *removed_user);
-				
+				void			AddToRoster(UserID *new_user);
+				void			RemoveFromRoster(UserID *removed_user);
 				
 				SSLAdapter		*socketAdapter;
 				sem_id			logged;

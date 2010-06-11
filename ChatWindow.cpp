@@ -42,7 +42,7 @@ string ChatWindow::GetGroupUsername()
 }
 
 ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
-				std::string group_username, bool follow_focus_rules = false)
+				std::string group_username)
 	:BWindow(BRect(100,100,500,400),"Travis",B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
 {
 	_chat_index = -1;

@@ -19,7 +19,7 @@ enum        talk_type {MESSAGE, CHAT, GROUP};
 enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER};
 			
 						ChatWindow(talk_type type, UserID *user, std::string group_room,
-				std::string group_username, bool follow_focus_rules = false);
+				std::string group_username);
 			void		MessageReceived(BMessage *msg);
 			bool		QuitRequested(void);
 			void		FrameResized(float width, float height);
