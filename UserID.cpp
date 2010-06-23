@@ -250,7 +250,7 @@ void UserID::SetAsk(std::string status) {
 
 void UserID::SetOnlineStatus(online_status status)
 {
-	fprintf(stderr, "SetOnlineStatus:: %s %i\n", _handle.c_str(), status);
+	//fprintf(stderr, "SetOnlineStatus:: %s %i\n", _handle.c_str(), status);
 	// special value
 	if (status == UNACCEPTED) {
 		status = UNKNOWN;
