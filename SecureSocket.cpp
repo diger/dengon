@@ -18,6 +18,8 @@
 // our synchronization routines (BLocker). Thus, whenever be called
 // SSL context always will know about thread context.
 
+#define DEBUG
+
 static BLocker** lock_cs = NULL;
 
 extern "C"
@@ -157,9 +159,9 @@ SSLAdapter::ReceiveData(BMessage *mdata)
 		data[length] = 0;
 		mdata->AddString("data", data);
 		
-//#ifdef DEBUG
+#ifdef DEBUG
 		fprintf(stderr, "RECV SSL: %s\n", data);
-//#endif
+#endif
 
 	}
 	
@@ -178,9 +180,9 @@ SSLAdapter::SendData(BString xml)
 {
 	if (!tls) return Socket::SendData(xml);
 	
-//#ifdef EDBUG	
+#ifdef DEBUG
 	fprintf(stderr, "SEND SSL: %s\n", xml.String());
-//#endif	
+#endif	
 	
 	return SSL_write(ssl, xml.String(), xml.Length());
 }

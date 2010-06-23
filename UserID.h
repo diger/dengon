@@ -11,8 +11,8 @@
 
 class UserID {
 public:
-	enum online_status  {UNKNOWN, UNACCEPTED, OFFLINE, ONLINE, TRANSPORT_ONLINE};
-	enum user_type      {INVALID, JABBER, AIM, ICQ, YAHOO, MSN, TRANSPORT};
+	enum online_status  {UNKNOWN, UNACCEPTED, OFFLINE, ONLINE, TRANSPORT_ONLINE, CONF_STATUS};
+	enum user_type      {INVALID, JABBER, AIM, ICQ, YAHOO, MSN, TRANSPORT, CONFERENCE };
 
 public:
           	             UserID(std::string username);
@@ -53,6 +53,7 @@ public:
 	void                 SetFriendlyName(std::string friendly_name);
 
 	void                 SetAsk(std::string status);
+	void                 SetUsertype(user_type usertype);
 	void                 SetOnlineStatus(online_status status);
 	void                 SetExactOnlineStatus(std::string exact_status);
 	void                 SetMoreExactOnlineStatus(std::string exact_status);

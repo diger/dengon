@@ -121,8 +121,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "iq"))
 	{
 		if (entity->Attribute("id")) {
-			iq_id = entity->Attribute("id");
-		}
+			//iq_id = entity->Attribute("id");
+		//}
 		
 		// handle roster retrival
 		if (!strcasecmp(entity->Attribute("type"), "result") &&
@@ -155,18 +155,42 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			Session();
 		}
 		
+		}
+		
 		if (!strcasecmp(entity->Attribute("type"), "get"))
 		{
 			string iq_from;   
 			if (entity->Attribute("from")) {
 				iq_from = entity->Attribute("from");
 			}
-		
+			
 			// handle version request
 			XMLEntity *query = entity->Child("query");
 			if (query && query->Attribute("xmlns")) {
 				if (!strcasecmp(query->Attribute("xmlns"), "jabber:iq:version")) {
 					ProcessVersionRequest(iq_id, iq_from);
+				}
+			}
+		}
+		
+		if (!strcasecmp(entity->Attribute("type"), "set"))
+		{
+			XMLEntity *query = entity->Child("query");
+			if (query && query->Attribute("xmlns")) {
+				if (!strcasecmp(query->Attribute("xmlns"), "jabber:iq:roster"))
+				{
+					XMLEntity *removed_user = query->Child("item");
+					string jid = removed_user->Attribute("jid");
+					
+					if (!strcasecmp(removed_user->Attribute("subscription"), "remove"))
+					{
+						JRoster::Instance()->RemoveUser(
+							JRoster::Instance()->FindUser(JRoster::HANDLE, jid));
+						
+						mainWindow->Lock();
+						mainWindow->PostMessage(BLAB_UPDATE_ROSTER);
+						mainWindow->Unlock();
+					}
 				}
 			}
 		}
@@ -433,22 +457,11 @@ string
 JabberProtocol::GenerateUniqueID()
 {
 	static long counter = 0;
-
-	// element #1: PID of process (same through application run-time)
 	pid_t pid = getpid();
-	
-	// element #2: seconds since Jan. 1, 1970 (new value every second)
 	time_t secs = time(NULL);
-	
-	// element #3: private counter (new value every call)
 	++counter;
-	
-	// glue number together
 	char buffer[100];
-	
 	sprintf(buffer, "%lu:%lu:%lu", pid, secs, counter);
-	
-	// return value
 	return string(buffer);
 }
 
@@ -511,11 +524,40 @@ JabberProtocol::SendUnsubscriptionRequest(string username)
 void
 JabberProtocol::AddToRoster(UserID *new_user)
 {
+	/*
+	<iq from='juliet@example.com/balcony' type='set' id='roster_2'>
+     <query xmlns='jabber:iq:roster'>
+       <item jid='nurse@example.com'
+             name='Nurse'>
+         <group>Servants</group>
+       </item>
+     </query>
+   </iq>
+   */
+   
+	BString xml = "<iq type='set'>"
+		"<query xmlns='jabber:iq:roster'>"
+		"<item jid='";
+	xml.Append(new_user->Handle().c_str());
+	xml << "' name='";
+	xml.Append(new_user->FriendlyName().c_str());
+	xml << "' subscription='to'>";
+	
+	if (new_user->UserType() == UserID::CONFERENCE)
+	{
+		xml << "<group>#Conference</group>";
+	}
+	
+	xml << "</item></query></iq>";
+	socketAdapter->SendData(xml);
+   
+   /*
 	XMLEntity *entity, *entity_query, *entity_item;
 	
 	char **atts       = CreateAttributeMemory(2);
 	char **atts_query = CreateAttributeMemory(2);
 	char **atts_item  = CreateAttributeMemory(6);
+	char **atts_group  = CreateAttributeMemory(2);
 	
 	// assemble attributes
 	strcpy(atts[0], "type");
@@ -534,6 +576,7 @@ JabberProtocol::AddToRoster(UserID *new_user)
 	entity = new XMLEntity("iq", (const char **)atts);
 	entity_query = new XMLEntity("query", (const char **)atts_query);
 	entity_item = new XMLEntity("item", (const char **)atts_item);
+	entity_group = new XMLEntity("group", (const char **)atts_item);
 
 	entity_query->AddChild(entity_item);
 	entity->AddChild(entity_query);
@@ -548,6 +591,7 @@ JabberProtocol::AddToRoster(UserID *new_user)
 	DestroyAttributeMemory(atts_item, 6);
 	
 	delete entity;
+	*/
 }
 
 void
@@ -712,6 +756,9 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 	// iterate through child 'item' tags
 	JRoster::Instance()->Lock();
 	for (int i=0; i<entity->CountChildren(); ++i) {
+		
+		fprintf(stderr, "ROSTER ITEM %i.\n", i);
+		
 		// handle the item child
 		if (!strcasecmp(entity->Child(i)->Name(), "item")) {
 			if (!entity->Child(i)->Attribute("jid")) {
@@ -722,8 +769,17 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 			UserID user(entity->Child(i)->Attribute("jid"));
 
 			// no resources supported
-			if (user.JabberResource().size()) {
-				continue;
+			//if (user.JabberResource().size()) {
+			//	continue;
+			//}
+			
+			if (entity->Child(i)->Child("group")) {
+				if (!strcasecmp(entity->Child(i)->Child("group")->Data(), "#Conference"))
+				{
+					user.SetUsertype(UserID::CONFERENCE);
+					user.SetOnlineStatus(UserID::CONF_STATUS);
+					fprintf(stderr, "CONFERENCE founded.\n");
+				}
 			}
 
 			// set friendly name
@@ -769,7 +825,7 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				roster_user = new UserID(entity->Child(i)->Attribute("jid"));
 
 				*roster_user = user;
-
+				
 				// add to the list
 				JRoster::Instance()->AddRosterUser(roster_user);
 				
@@ -811,8 +867,8 @@ JabberProtocol::ReceiveData(BMessage *msg)
 	BMessage packet(PORT_TALKER_DATA);
 	BString msgData;
 	
-	bool found_roster_answer_start = false;
-	bool found_roster_answer_end = false;
+	bool found_iq_start = false;
+	bool found_iq_end = false;
 	
 	bool found_message_start = false;
 	bool found_message_end = false;
@@ -830,15 +886,19 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		packet.FindString("data", &data);
 		packet.FindInt32("length", &length);
 
-		if (data.FindFirst("roster_2") >= 0)
-			found_roster_answer_start = true;
+		if (data.FindFirst("<iq ") >= 0)
+			found_iq_start = true;
 			
 		if (data.FindFirst("<message ") >= 0)
 			found_message_start = true;
 			
 			
-		if (found_roster_answer_start && data.FindFirst("</iq>") >= 0)
-			found_roster_answer_end = true;
+		if (found_iq_start && data.FindFirst("</iq>") >= 0
+			|| found_iq_start && data.FindFirst("result'/>") >= 0
+			|| found_iq_start && data.FindFirst("result\"/>") >= 0
+			|| found_iq_start && data.FindFirst("sess_1\"/>") >= 0)
+			
+			found_iq_end = true;
 			
 		if (found_message_start && data.FindFirst("</message>") >= 0)
 			found_message_end = true;
@@ -847,12 +907,12 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		
 #ifdef DEBUG
 
-		if (found_roster_answer_start)
+//		if (found_iq_start)
 			fprintf(stderr, "IQ PACKET %i LEN: %i.\n", no++, length);
 			
 #endif
 		
-	} while (found_roster_answer_start && !found_roster_answer_end
+	} while (found_iq_start && !found_iq_end
 			|| found_message_start && !found_message_end);
 	
 	msg->AddString("data", msgData);

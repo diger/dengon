@@ -102,7 +102,8 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		char buffer[2048];
 		
 		if (entity->Child("error")) {
-			sprintf(buffer, "An error occurred when you tried sending a message to %s.  The reason is as follows:\n\n%s", entity->Attribute("from"), entity->Child("error")->Data());
+			const char *text = entity->Child("error")->Child("text") ? entity->Child("error")->Child("text")->Data() : "Unknown";
+			sprintf(buffer, "An error occurred when you tried sending a message to %s.  The reason is as follows:\n\n%s", entity->Attribute("from"), text);
 			ModalAlertFactory::Alert(buffer, "Oh, well.", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT);
 		}
 		

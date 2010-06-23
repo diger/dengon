@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 #include "MainWindow.h"
+#include "BuddyWindow.h"
 #include "AppLocation.h"
 #include "Messages.h"
 #include "ChatWindow.h"
@@ -156,6 +157,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			break;
 		}
 	
+		case JAB_OPEN_CHAT_WITH_DOUBLE_CLICK:
 		case JAB_OPEN_CHAT:
 		{
 			// if there's a current selection, begin chat with that user
@@ -202,6 +204,45 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			Unlock();
 			break;
 		}
+		
+		case JAB_OPEN_ADD_BUDDY_WINDOW:
+		{
+			Lock();
+			BuddyWindow::Instance()->SetUser(NULL);
+			BuddyWindow::Instance()->Show();
+			Unlock();
+			break;
+		}
+		
+		case JAB_OPEN_EDIT_BUDDY_WINDOW:
+		{
+			Lock();
+			RosterItem *item = _roster->CurrentItemSelection();
+			if (item != NULL) {
+				UserID *user = const_cast<UserID *>(item->GetUserID());
+				BuddyWindow::Instance()->SetUser(user);
+				BuddyWindow::Instance()->Show();
+			}
+			Unlock();
+			break;
+		}
+		
+		case JAB_REMOVE_BUDDY:
+		{
+			Lock();
+			RosterItem *item = _roster->CurrentItemSelection();
+			UserID *user = NULL;
+			
+			if (item != NULL)
+			{
+				user = (UserID *)item->GetUserID();
+				jabber->RemoveFromRoster(user);
+				
+			}
+			Unlock();
+			break;
+		}
+		
 		case SSL_ENABLED:
 		{
 			_ssl_port->SetEnabled(_ssl_enabled->Value());
@@ -246,14 +287,14 @@ void BlabberMainWindow::MenusBeginning() {
 		// if a  item is selected
 		sprintf(buffer, "Edit %s", item->GetUserID()->FriendlyName().c_str());
 		_change_buddy_item->SetLabel(buffer);
-		//_change_buddy_item->SetEnabled(true);
+		_change_buddy_item->SetEnabled(true);
 
 		sprintf(buffer, "Remove %s", item->GetUserID()->FriendlyName().c_str());
 		_remove_buddy_item->SetLabel(buffer);
-		//_remove_buddy_item->SetEnabled(true);
+		_remove_buddy_item->SetEnabled(true);
 
-		//_user_info_item->SetEnabled(true);
-		//_user_chatlog_item->SetEnabled(BlabberSettings::Instance()->Tag("autoopen-chatlog"));
+		_user_info_item->SetEnabled(true);
+		_user_chatlog_item->SetEnabled(BlabberSettings::Instance()->Tag("autoopen-chatlog"));
 	} else {		
 		sprintf(buffer, "Edit Buddy");
 		_change_buddy_item->SetLabel(buffer);
@@ -356,7 +397,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	// EDIT MENU
 	_edit_menu = new BMenu("Roster");
 
-		_add_buddy_item = new BMenuItem("Add New Buddy", new BMessage(JAB_OPEN_ADD_BUDDY_WINDOW));
+		_add_buddy_item = new BMenuItem("Add Contact...", new BMessage(JAB_OPEN_ADD_BUDDY_WINDOW));
 		_add_buddy_item->SetShortcut('N', 0);
 
 		_change_buddy_item = new BMenuItem("Edit Buddy", new BMessage(JAB_OPEN_EDIT_BUDDY_WINDOW));
@@ -374,12 +415,11 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 		_preferences_item = new BMenuItem("Preferences...", new BMessage(JAB_PREFERENCES));
 
 	_edit_menu->AddItem(_add_buddy_item);
-	_edit_menu->AddItem(_change_buddy_item);
-	_edit_menu->AddItem(_remove_buddy_item);
-	_edit_menu->AddSeparatorItem();
-	_edit_menu->AddItem(_user_info_item);
-	_edit_menu->AddSeparatorItem();
-	_edit_menu->AddItem(_user_chatlog_item);
+	//_edit_menu->AddItem(_change_buddy_item);
+	//_edit_menu->AddItem(_remove_buddy_item);
+	//_edit_menu->AddSeparatorItem();
+	//_edit_menu->AddItem(_user_info_item);
+	//_edit_menu->AddItem(_user_chatlog_item);
 	_edit_menu->AddSeparatorItem();
 	_edit_menu->AddItem(_preferences_item);
 	_edit_menu->SetTargetForItems(this);
@@ -411,7 +451,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	_talk_menu->SetTargetForItems(this);
 
 	_menubar->AddItem(_file_menu);
-	//_menubar->AddItem(_edit_menu);
+	_menubar->AddItem(_edit_menu);
 	//_menubar->AddItem(_talk_menu);
 
 	// tabbed view
@@ -454,11 +494,11 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	
 	
 
-	_login_realname = new BTextControl(rect, NULL, "Nickname: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
+	_login_realname = new BTextControl(rect, NULL, "Username: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
 	
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	
-	_login_username = new BTextControl(rect, NULL, "XMPP ID: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
+	_login_username = new BTextControl(rect, NULL, "Jabber ID: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
 		
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	

@@ -69,6 +69,7 @@ private:
 	RosterSuperitem   *_unknown;
 	RosterSuperitem   *_unaccepted;
 	RosterSuperitem   *_transports;
+	RosterSuperitem   *_conferences;
 };
 
 #endif

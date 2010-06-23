@@ -13,29 +13,33 @@
 
 JRoster *JRoster::_instance = NULL;
 
-JRoster *JRoster::Instance() {
+JRoster *
+JRoster::Instance()
+{
 	if (_instance == NULL) {
 		_instance = new JRoster();
 	}
-	
 	return _instance;	
 }
 
-JRoster::~JRoster() {
+JRoster::~JRoster()
+{
 	_instance = NULL;
-
 	// destroy semaphore
 	delete_sem(_roster_lock);
 }
 	    
-void JRoster::AddRosterUser(UserID *roster_user) {
+void
+JRoster::AddRosterUser(UserID *roster_user)
+{
 	_roster->push_back(roster_user);
-	
 	// refresh all roster views
 	RefreshRoster();
 }
 
-void JRoster::AddNewUser(UserID *new_user) {
+void
+JRoster::AddNewUser(UserID *new_user)
+{
 	_roster->push_back(new_user);
 
 	// communicate the new user to the server
@@ -45,7 +49,9 @@ void JRoster::AddNewUser(UserID *new_user) {
 	RefreshRoster();
 }
 
-void JRoster::RemoveUser(const UserID *removed_user) {
+void
+JRoster::RemoveUser(const UserID *removed_user)
+{
 	for (RosterIter i = _roster->begin(); i != _roster->end(); ++i) {
 		if (*i == removed_user) {
 			_roster->erase(i);
@@ -67,7 +73,9 @@ void JRoster::RemoveUser(const UserID *removed_user) {
 	}
 }
 
-void JRoster::RemoveAllUsers() {
+void
+JRoster::RemoveAllUsers()
+{
 	// BUGBUG need more elegant way of deleting all users (check STL guide)
 	while(_roster->begin() != _roster->end()) {
 		RosterIter i = _roster->begin();
@@ -78,7 +86,9 @@ void JRoster::RemoveAllUsers() {
 	}
 }
 	
-UserID *JRoster::FindUser(search_method search_type, std::string name) {
+UserID *
+JRoster::FindUser(search_method search_type, std::string name)
+{
 	if (search_type == JRoster::FRIENDLY_NAME) {
 		for (RosterIter i = _roster->begin(); i != _roster->end(); ++i) {
 			if (!strcasecmp(name.c_str(), (*i)->FriendlyName().c_str())) {
@@ -114,7 +124,9 @@ UserID *JRoster::FindUser(search_method search_type, std::string name) {
 	return NULL;
 }
 
-bool JRoster::ExistingUserObject(const UserID *comparing_user) {
+bool
+JRoster::ExistingUserObject(const UserID *comparing_user)
+{
 	for (RosterIter i = _roster->begin(); i != _roster->end(); ++i) {
 		if ((*i) == comparing_user) {
 			return true;
@@ -124,11 +136,14 @@ bool JRoster::ExistingUserObject(const UserID *comparing_user) {
 	return false;
 }
 
-UserID *JRoster::FindUser(const UserID *comparing_user) {
+UserID *
+JRoster::FindUser(const UserID *comparing_user)
+{
 	return FindUser(JRoster::HANDLE, comparing_user->JabberHandle());
 }
 
-void JRoster::SetUserStatus(std::string username, UserID::online_status status)
+void
+JRoster::SetUserStatus(std::string username, UserID::online_status status)
 {
 	UserID *user = const_cast<UserID *>(FindUser(COMPLETE_HANDLE, username));
 	
@@ -140,40 +155,50 @@ void JRoster::SetUserStatus(std::string username, UserID::online_status status)
 	RefreshRoster();
 }
 
-const UserID::online_status JRoster::UserStatus(std::string username)
+const
+UserID::online_status JRoster::UserStatus(std::string username)
 {
 	UserID *user = FindUser(COMPLETE_HANDLE, username);
-	
-	if (user != NULL) {
+	if (user != NULL)
+	{
 		return user->OnlineStatus();
 	}
 }
 
-JRoster::ConstRosterIter JRoster::BeginIterator() {
+JRoster::ConstRosterIter
+JRoster::BeginIterator()
+{
 	return _roster->begin();
 }
 
-JRoster::ConstRosterIter JRoster::EndIterator() {
+JRoster::ConstRosterIter
+JRoster::EndIterator()
+{
 	return _roster->end();
 }
 
-void JRoster::RefreshRoster() {
+void
+JRoster::RefreshRoster()
+{
 	// update everyone to the change
-	//MessageRepeater::Instance()->PostMessage(BLAB_UPDATE_ROSTER);
+	MessageRepeater::Instance()->PostMessage(BLAB_UPDATE_ROSTER);
 	//MessageRepeater::Instance()->PostMessage(TRANSPORT_UPDATE);
 }
 
-void JRoster::Lock() {
+void
+JRoster::Lock()
+{
 	acquire_sem(_roster_lock);
 }
 
-void JRoster::Unlock() {
+void
+JRoster::Unlock()
+{
 	release_sem(_roster_lock);
 }
 
-JRoster::JRoster() {
+JRoster::JRoster()
+{
 	_roster = new RosterList;
-	
-	// create semaphore
 	_roster_lock = create_sem(1, "roster sempahore");
 }

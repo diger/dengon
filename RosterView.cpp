@@ -6,10 +6,8 @@
 #include <cstdio>
 #include <MenuItem.h>
 #include "Settings.h"
-//#include "BuddyInfoWindow.h"
 #include "Messages.h"
 #include "ModalAlertFactory.h"
-//#include "SoundSystem.h"
 #include <strings.h>
 
 RosterView::RosterView(BRect frame)
@@ -25,7 +23,10 @@ RosterView::~RosterView() {
 	BlabberSettings::Instance()->SetTag("unknown-collapsed", !_unknown->IsExpanded());
 	BlabberSettings::Instance()->SetTag("offline-collapsed", !_offline->IsExpanded());
 	BlabberSettings::Instance()->SetTag("transports-collapsed", !_transports->IsExpanded());
+	BlabberSettings::Instance()->SetTag("conferences-collapsed", !_conferences->IsExpanded());
 	BlabberSettings::Instance()->WriteToFile();
+	
+	SetInvocationMessage(new BMessage(JAB_OPEN_CHAT_WITH_DOUBLE_CLICK));
 }
 
 int RosterView::ListComparison(const void *a, const void *b) {
@@ -40,7 +41,7 @@ void RosterView::AttachedToWindow() {
 	BOutlineListView::AttachedToWindow();
 
 	// on double-click
-	SetInvocationMessage(new BMessage(JAB_OPEN_CHAT_WITH_DOUBLE_CLICK));
+	//SetInvocationMessage(new BMessage(JAB_OPEN_CHAT_WITH_DOUBLE_CLICK));
 
 	// popup menu
 	_popup = new BPopUpMenu(NULL, false, false);
@@ -48,9 +49,9 @@ void RosterView::AttachedToWindow() {
 		_chat_item         = new BMenuItem("Chat...", new BMessage(JAB_OPEN_CHAT));
 		_chat_item->SetEnabled(false);
 		//_message_item      = new BMenuItem("Send Message...", new BMessage(JAB_OPEN_MESSAGE));
-		_change_user_item  = new BMenuItem("Edit Buddy", new BMessage(JAB_OPEN_EDIT_BUDDY_WINDOW));
+		_change_user_item  = new BMenuItem("Edit Username", new BMessage(JAB_OPEN_EDIT_BUDDY_WINDOW));
 		_change_user_item->SetEnabled(false);
-		_remove_user_item  = new BMenuItem("Remove Buddy", new BMessage(JAB_REMOVE_BUDDY));
+		_remove_user_item  = new BMenuItem("Remove From Roster", new BMessage(JAB_REMOVE_BUDDY));
 		_remove_user_item->SetEnabled(false);
 		_user_info_item    = new BMenuItem("Get User Info", new BMessage(JAB_USER_INFO));
 		_user_info_item->SetEnabled(false);
@@ -84,7 +85,9 @@ void RosterView::AttachedToWindow() {
 	AddItem(_unaccepted = new RosterSuperitem("Pending Presence"));
 	AddItem(_unknown = new RosterSuperitem("No Presence"));
 	AddItem(_offline = new RosterSuperitem("Offline"));
+	AddItem(_conferences = new RosterSuperitem("Conferences"));
 	AddItem(_transports = new RosterSuperitem("Live Transports"));
+	
 	
 	// make maps (BUGBUG better way to do two-way map?)
 	_item_to_status_map[_offline] = UserID::OFFLINE;
@@ -92,18 +95,21 @@ void RosterView::AttachedToWindow() {
 	_item_to_status_map[_unknown] = UserID::UNKNOWN;
 	_item_to_status_map[_unaccepted] = UserID::UNACCEPTED;
 	_item_to_status_map[_transports] = UserID::TRANSPORT_ONLINE;
+	_item_to_status_map[_conferences] = UserID::CONF_STATUS;
 
 	// ignore online...doesn't seem to work...?
 	_offline->SetExpanded(!BlabberSettings::Instance()->Tag("offline-collapsed"));
 	_unknown->SetExpanded(!BlabberSettings::Instance()->Tag("unknown-collapsed"));
 	_unaccepted->SetExpanded(!BlabberSettings::Instance()->Tag("unaccepted-collapsed"));
 	_transports->SetExpanded(!BlabberSettings::Instance()->Tag("transports-collapsed"));
+	_conferences->SetExpanded(!BlabberSettings::Instance()->Tag("conferences-collapsed"));
 
 	_status_to_item_map[UserID::OFFLINE] = _offline;
 	_status_to_item_map[UserID::ONLINE]  = _online;
 	_status_to_item_map[UserID::UNKNOWN] = _unknown;
 	_status_to_item_map[UserID::TRANSPORT_ONLINE] = _transports;
 	_status_to_item_map[UserID::UNACCEPTED] = _unaccepted;
+	_status_to_item_map[UserID::CONF_STATUS] = _conferences;
 	
 	// BUGBUG events
 	_presence->SetTargetForItems(Window());
@@ -177,11 +183,18 @@ void RosterView::SelectionChanged() {
 }
 
 void RosterView::LinkUser(const UserID *added_user) {
-	AddUnder(new RosterItem(added_user), _offline);
+	if (added_user->UserType() == UserID::CONFERENCE)
+	{
+		AddUnder(new RosterItem(added_user), _conferences);
+		fprintf(stderr, "Link under Conferences.\n");
+	}
+	
+	else
+		AddUnder(new RosterItem(added_user), _offline);
 }
 
 void RosterView::LinkTransport(const UserID *added_transport) {
-	//AddUnder(new TransportItem(added_transport), _transports);
+	AddUnder(new TransportItem(added_transport), _transports);
 }
 
 void RosterView::UnlinkUser(const UserID *removed_user) {
@@ -196,13 +209,13 @@ void RosterView::UnlinkUser(const UserID *removed_user) {
 void RosterView::UnlinkTransport(const UserID *removed_transport) {
 	// does transport exist
 	return;
-	/*
+	
 	uint32 index = FindTransport(removed_transport);
 	
 	if (index >= 0) {
 		RemoveItem(index);	
 	}
-	*/
+	
 }
 
 int32 RosterView::FindUser(const UserID *compare_user) {
@@ -231,7 +244,7 @@ int32 RosterView::FindUser(const UserID *compare_user) {
 
 int32 RosterView::FindTransport(const UserID *compare_transport) {
 	// handle NULL argument
-	/*
+	
 	if (compare_transport == NULL) {
 		return -1;
 	}
@@ -249,12 +262,14 @@ int32 RosterView::FindTransport(const UserID *compare_transport) {
 			return i;
 		}
 	}
-	*/
+	
 	// no match
 	return -1;
 }
 
-void RosterView::UpdatePopUpMenu() {
+void
+RosterView::UpdatePopUpMenu()
+{
 	char buffer[1024];
 
 	RosterItem *item = CurrentItemSelection();
@@ -266,16 +281,16 @@ void RosterView::UpdatePopUpMenu() {
 		_chat_item->SetEnabled(true);
 		//_message_item->SetEnabled(true);
 
-		sprintf(buffer, "Edit %s", item->GetUserID()->FriendlyName().c_str());
-		_change_user_item->SetLabel(buffer);
-		//_change_user_item->SetEnabled(true);
+		//sprintf(buffer, "Edit %s", item->GetUserID()->FriendlyName().c_str());
+		//_change_user_item->SetLabel(buffer);
+		_change_user_item->SetEnabled(true);
 
-		sprintf(buffer, "Remove %s", item->GetUserID()->FriendlyName().c_str());
-		_remove_user_item->SetLabel(buffer);
-		//_remove_user_item->SetEnabled(true);
+		//sprintf(buffer, "Remove %s", item->GetUserID()->FriendlyName().c_str());
+		//_remove_user_item->SetLabel(buffer);
+		_remove_user_item->SetEnabled(true);
 
-		//_user_info_item->SetEnabled(true);
-		//_user_chatlog_item->SetEnabled(BlabberSettings::Instance()->Tag("autoopen-chatlog"));
+		_user_info_item->SetEnabled(true);
+		_user_chatlog_item->SetEnabled(BlabberSettings::Instance()->Tag("autoopen-chatlog"));
 
 		_presence->SetEnabled(true);
 
@@ -291,12 +306,12 @@ void RosterView::UpdatePopUpMenu() {
 		_chat_item->SetEnabled(false);
 		///_message_item->SetEnabled(false);
 
-		sprintf(buffer, "Edit Buddy");
-		_change_user_item->SetLabel(buffer);
+		//sprintf(buffer, "Edit Buddy");
+		//_change_user_item->SetLabel(buffer);
 		_change_user_item->SetEnabled(false);
 
-		sprintf(buffer, "Remove Buddy");
-		_remove_user_item->SetLabel(buffer);
+		//sprintf(buffer, "Remove Buddy");
+		//_remove_user_item->SetLabel(buffer);
 		_remove_user_item->SetEnabled(false);
 
 		_user_info_item->SetEnabled(false);
@@ -331,7 +346,7 @@ void RosterView::UpdateRoster() {
 		if (item == NULL && transport_item == NULL) {
 			continue;
 		}
-
+		
 		if (item) {
 			// process removals
 			if (!roster->ExistingUserObject(item->GetUserID()) || !roster->FindUser(item->GetUserID())) {
@@ -342,7 +357,8 @@ void RosterView::UpdateRoster() {
 			}
 		
 			// change of statuses
-			if (item->GetUserID()->OnlineStatus() != _item_to_status_map[Superitem(item)]) {
+			if (item->GetUserID()->OnlineStatus() != _item_to_status_map[Superitem(item)])
+			{
 				UserID::online_status old_status = _item_to_status_map[Superitem(item)];
 				
 				// remove the item from the current superitem...

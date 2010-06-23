@@ -39,6 +39,7 @@ UserID::UserID(const UserID &copied_userid) {
 	SetSubscriptionStatus(copied_userid.SubscriptionStatus());
 	SetOnlineStatus(copied_userid.OnlineStatus());
 	SetExactOnlineStatus(copied_userid.ExactOnlineStatus());
+	SetUsertype(copied_userid.UserType());
 	SetMoreExactOnlineStatus(copied_userid.MoreExactOnlineStatus());
 }
 
@@ -51,6 +52,8 @@ UserID &UserID::operator=(const UserID &rhs) {
 
 	SetAsk(rhs.Ask());
 	SetSubscriptionStatus(rhs.SubscriptionStatus());
+	SetUsertype(rhs.UserType());
+	SetOnlineStatus(rhs.OnlineStatus());
 
 	return *this;
 }
@@ -108,7 +111,12 @@ bool UserID::HaveSubscriptionTo() const {
 }
 
 bool UserID::IsUser() const {
-	return (UserType() == JABBER || UserType() == AIM || UserType() == ICQ || UserType() == YAHOO || UserType() == MSN);
+	return (UserType() == JABBER || UserType() == CONFERENCE || UserType() == AIM || UserType() == ICQ || UserType() == YAHOO || UserType() == MSN);
+}
+
+void UserID::SetUsertype(user_type type)
+{
+	_user_type = type;
 }
 
 const std::string UserID::JabberHandle() const {
@@ -240,7 +248,9 @@ void UserID::SetAsk(std::string status) {
 	_ask = status;
 }
 
-void UserID::SetOnlineStatus(online_status status) {
+void UserID::SetOnlineStatus(online_status status)
+{
+	fprintf(stderr, "SetOnlineStatus:: %s %i\n", _handle.c_str(), status);
 	// special value
 	if (status == UNACCEPTED) {
 		status = UNKNOWN;
@@ -257,6 +267,7 @@ void UserID::SetOnlineStatus(online_status status) {
 		SetExactOnlineStatus("");
 		SetMoreExactOnlineStatus("");
 	}
+	
 }
 
 void UserID::SetExactOnlineStatus(std::string exact_status) {
@@ -289,6 +300,8 @@ void UserID::SetSubscriptionStatus(std::string status) {
 	// changing subscription may change status
 	if (!HaveSubscriptionTo()) {
 		SetOnlineStatus(UserID::UNKNOWN);
+		if (UserType() == CONFERENCE)
+			_status = CONF_STATUS;
 	} else {
 		if (OnlineStatus() == UserID::UNKNOWN) {
 			SetOnlineStatus(UserID::OFFLINE);

@@ -2,10 +2,9 @@
 // Blabber [RosterSuperitem.cpp]
 //////////////////////////////////////////////////
 
-#ifndef ROSTER_SUPERITEM_H
-	#include "RosterSuperitem.h"
-#endif
+#include "RosterSuperitem.h"
 #include <iostream>
+
 RosterSuperitem::RosterSuperitem(const char *text)
 	: BStringItem(text) {
 }
