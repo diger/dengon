@@ -757,8 +757,6 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 	JRoster::Instance()->Lock();
 	for (int i=0; i<entity->CountChildren(); ++i) {
 		
-		fprintf(stderr, "ROSTER ITEM %i.\n", i);
-		
 		// handle the item child
 		if (!strcasecmp(entity->Child(i)->Name(), "item")) {
 			if (!entity->Child(i)->Attribute("jid")) {
