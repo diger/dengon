@@ -894,6 +894,7 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		if (found_iq_start && data.FindFirst("</iq>") >= 0
 			|| found_iq_start && data.FindFirst("result'/>") >= 0
 			|| found_iq_start && data.FindFirst("result\"/>") >= 0
+			|| found_iq_start && data.FindFirst("sess_1'/>") >= 0
 			|| found_iq_start && data.FindFirst("sess_1\"/>") >= 0)
 			
 			found_iq_end = true;
