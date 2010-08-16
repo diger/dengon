@@ -122,8 +122,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "iq"))
 	{
 		if (entity->Attribute("id")) {
-			//iq_id = entity->Attribute("id");
-		//}
+			iq_id = entity->Attribute("id");
+		}
 		
 		// handle roster retrival
 		if (!strcasecmp(entity->Attribute("type"), "result") &&
@@ -132,7 +132,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			ParseRosterList(entity);
 		}
 		
-		// handle roster retrival
+		// handle session retrival
 		if (!strcasecmp(entity->Attribute("type"), "result") &&
 			!strcasecmp(entity->Attribute("id"), "sess_1"))
 		{
@@ -143,7 +143,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			mainWindow->Unlock();
 		}
 		
-		// handle jid retrival
+		// handle binding retrival
 		if (!strcasecmp(entity->Attribute("type"), "result") &&
 			!strcasecmp(entity->Attribute("id"), "bind_0"))
 		{
@@ -154,8 +154,6 @@ JabberProtocol::OnTag(XMLEntity *entity)
 #endif
 
 			Session();
-		}
-		
 		}
 		
 		if (!strcasecmp(entity->Attribute("type"), "get"))
@@ -197,7 +195,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		}
 	}
 	
-	// handle presence messages
+	// handle authorization success
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "success"))
 	{
 		InitSession();
@@ -210,7 +208,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		ProcessPresence(entity);
 	}
 	
-	// handle connection error
+	// handle stream error
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:error")) {
 		sprintf(buffer, "An stream error has occurred.");
 		ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
@@ -218,7 +216,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		Disconnect();
 	}
 	
-	// handle connection error
+	// handle failures
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "failure")) {
 		if (entity->Child("not-authorized") != NULL)
 			sprintf(buffer, "Not authorized failure.");
@@ -283,7 +281,7 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 
 	entity_iq->AddChild(entity_query);
 	
-	entity_query->AddChild("name", NULL, "Gossip");
+	entity_query->AddChild("name", NULL, "Dengon");
 	entity_query->AddChild("version", NULL, "1.0");
 
 	string strVersion("Haiku");
@@ -552,47 +550,6 @@ JabberProtocol::AddToRoster(UserID *new_user)
 	xml << "</item></query></iq>";
 	socketAdapter->SendData(xml);
    
-   /*
-	XMLEntity *entity, *entity_query, *entity_item;
-	
-	char **atts       = CreateAttributeMemory(2);
-	char **atts_query = CreateAttributeMemory(2);
-	char **atts_item  = CreateAttributeMemory(6);
-	char **atts_group  = CreateAttributeMemory(2);
-	
-	// assemble attributes
-	strcpy(atts[0], "type");
-	strcpy(atts[1], "set");
-
-	strcpy(atts_query[0], "xmlns");
-	strcpy(atts_query[1], "jabber:iq:roster");
-
-	strcpy(atts_item[0], "jid");
-	strcpy(atts_item[1], new_user->Handle().c_str());
-	strcpy(atts_item[2], "name");
-	strcpy(atts_item[3], new_user->FriendlyName().c_str());
-	strcpy(atts_item[4], "subscription");
-	strcpy(atts_item[5], "to");
-
-	entity = new XMLEntity("iq", (const char **)atts);
-	entity_query = new XMLEntity("query", (const char **)atts_query);
-	entity_item = new XMLEntity("item", (const char **)atts_item);
-	entity_group = new XMLEntity("group", (const char **)atts_item);
-
-	entity_query->AddChild(entity_item);
-	entity->AddChild(entity_query);
-
-	// send XML command
-	char *str = entity->ToString();
-	socketAdapter->SendData(BString(str));
-	free(str);
-	
-	DestroyAttributeMemory(atts, 2);
-	DestroyAttributeMemory(atts_query, 2);
-	DestroyAttributeMemory(atts_item, 6);
-	
-	delete entity;
-	*/
 }
 
 void
@@ -864,9 +821,10 @@ void
 JabberProtocol::ReceiveData(BMessage *msg)
 {
 	BMessage packet(PORT_TALKER_DATA);
-	BString msgData = "";
+	BString msgData;
 	
 	bool found_stream_start = false;
+	bool found_stream_end = false;
 	
 	int no = 0;
 	
@@ -884,6 +842,9 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		if (data.FindFirst("<stream:stream") >= 0)
 			found_stream_start = true;
 			
+		if (data.FindFirst("</stream:stream") >= 0)
+			found_stream_end = true;
+			
 		msgData.Append(data);
 		
 #ifdef DEBUG
@@ -892,14 +853,15 @@ JabberProtocol::ReceiveData(BMessage *msg)
 			
 #endif
 
-	} while (CheckXML(msgData.String()) == NULL && !found_stream_start);
+	} while (CheckXML(msgData.String()) == NULL && 
+				!found_stream_start && !found_stream_end);
 	
-	BString msgDataRooted = "<dengon>";
-	msgDataRooted << msgData;
-	msgDataRooted << "</dengon>";
-	
-	msg->AddString("data", msgDataRooted);
 	msg->AddInt32("length", msgData.Length());
+	
+	msgData = msgData.Prepend("<dengon>").Append("</dengon>");
+	
+	msg->AddString("data", msgData);
+	
 }
 
 void
@@ -909,59 +871,9 @@ JabberProtocol::ReceivedMessageHandler(BMessage *msg)
 	msg->FindString("data", &data);
 	int length = msg->FindInt32("length");
 	
-	/////// DEBUG SECTION
-	
-	if (length == 0)
-	{
-
-		if (zeroReceived < 10)
-		{
-
-#ifdef DEBUG
-			fprintf(stderr, "ERROR: ZERO received.\n");
-#endif
-
-		}
-		else 
-		{
-			char buffer[50];
-			sprintf(buffer, "Session error. Zero received.");
-			ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
-		
-			Disconnect();
-		}
-			
-		zeroReceived++;
-	}
-	else if (length == 1)
-	{
-		
-		if (separatorReceived < 10)
-		{
-			
-#ifdef DEBUG
-			fprintf(stderr, "SEPARATOR received.\n");
-#endif
-
-		}
-		else
-		{
-			// 10 separators received. what to do ? stop printing ?
-		}
-
-		separatorReceived++;
-
-	}
-	else
-	{
-		
 #ifdef DEBUG
 		fprintf(stderr, "DATA received %i: %s\n", (int)data.Length(), data.String());
 #endif
-
-	}
-	
-	///// END OF DEBUG SECTION
 
 	Reset();
 	LockXMLReader();
