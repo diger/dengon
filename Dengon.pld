@@ -1,5 +1,6 @@
 NAME=Dengon
 TARGETNAME=Gossip
+PLATFORM=Haiku
 GROUP=Source Files
 EXPANDGROUP=yes
 SOURCEFILE=App.cpp
@@ -14,6 +15,7 @@ DEPENDENCY=/boot/home/projects/xmpp/RosterItem.cpp|/boot/home/projects/xmpp/Rost
 SOURCEFILE=UserID.cpp
 DEPENDENCY=/boot/home/projects/xmpp/UserID.cpp|/boot/home/projects/xmpp/Agent.h /boot/home/projects/xmpp/AgentList.h|/boot/home/projects/xmpp/UserID.
 SOURCEFILE=BuddyWindow.cpp
+DEPENDENCY=/boot/home/dengon/BuddyWindow.h /boot/home/dengon/UserID.h|/boot/home/dengon/Agent.h /boot/home/dengon/AgentList.h|/boot/home/dengon/AppLocation.h /boot/home/dengon/Settings.h|/boot/home/dengon/FileXMLReader.h /boot/home/dengon/XMLReader.h|/boot/home/dengon/XMLEntity.h /boot/home/dengon/GenericFunctions.h|/boot/home/dengon/Messages.h /boot/home/dengon/ModalAlertFactory.h|/boot/home/dengon/JRoster.h /boot/home/dengon/TalkManager.h|/boot/home/dengon/ChatWindow.h /boot/home/dengon/StatusView.h|/boot/home/dengon/SplitView.h /boot/home/dengon/JabberProtocol.h|/boot/home/dengon/SecureSocket.h /boot/home/dengon/Socket.h
 SOURCEFILE=TalkManager.cpp
 DEPENDENCY=/boot/home/projects/xmpp/TalkManager.cpp|/boot/home/projects/xmpp/Settings.h|/boot/home/projects/xmpp/FileXMLReader.h|/boot/home/projects/xmpp/XMLReader.h|/boot/home/projects/xmpp/XMLEntity.h|/boot/home/projects/xmpp/ChatWindow.h|/boot/home/projects/xmpp/StatusView.h|/boot/home/projects/xmpp/SplitView.h|/boot/home/projects/xmpp/JabberProtocol.h|/boot/home/projects/xmpp/SecureSocket.h|/boot/home/projects/xmpp/Socket.h /boot/home/projects/xmpp/UserID.h|/boot/home/projects/xmpp/JRoster.h|/boot/home/projects/xmpp/MessageRepeater.h|/boot/home/projects/xmpp/Messages.h|/boot/home/projects/xmpp/ModalAlertFactory.h|/boot/home/projects/xmpp/TalkManager.h|/boot/home/projects/xmpp/GenericFunctions.
 SOURCEFILE=StatusView.cpp

@@ -103,12 +103,13 @@ JabberProtocol::OnStartTag(XMLEntity *entity)
 void
 JabberProtocol::OnEndTag(XMLEntity *entity)
 {
+	OnTag(entity);
 }
 
 void
 JabberProtocol::OnEndEntity(XMLEntity *entity)
 {
-	OnTag(entity);
+	
 }
 
 void
@@ -914,7 +915,11 @@ JabberProtocol::ReceiveData(BMessage *msg)
 	} while (found_iq_start && !found_iq_end
 			|| found_message_start && !found_message_end);
 	
-	msg->AddString("data", msgData);
+	BString msgDataRooted = "<dengon>";
+	msgDataRooted << msgData;
+	msgDataRooted << "</dengon>";
+	
+	msg->AddString("data", msgDataRooted);
 	msg->AddInt32("length", msgData.Length());
 }
 
@@ -923,10 +928,11 @@ JabberProtocol::ReceivedMessageHandler(BMessage *msg)
 {
 	BString data;
 	msg->FindString("data", &data);
+	int length = msg->FindInt32("length");
 	
 	/////// DEBUG SECTION
 	
-	if (data.Length() == 0)
+	if (length == 0)
 	{
 
 		if (zeroReceived < 10)
@@ -948,7 +954,7 @@ JabberProtocol::ReceivedMessageHandler(BMessage *msg)
 			
 		zeroReceived++;
 	}
-	else if (data.Length() == 1)
+	else if (length == 1)
 	{
 		
 		if (separatorReceived < 10)
