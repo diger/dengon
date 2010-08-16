@@ -23,7 +23,7 @@ App::App(void)
 void
 App::AboutRequested()
 {
-	BAlert *alert = new BAlert("about", "Gossip\n\n"
+	BAlert *alert = new BAlert("about", "Dengon\n\n"
 		"By Maxim Sokhatsky.\n"
 		"Based on Jabber for BeOS by John Blanco.\n\n", "Chat!");
 	BTextView *view = alert->TextView();

@@ -864,13 +864,9 @@ void
 JabberProtocol::ReceiveData(BMessage *msg)
 {
 	BMessage packet(PORT_TALKER_DATA);
-	BString msgData;
+	BString msgData = "";
 	
-	bool found_iq_start = false;
-	bool found_iq_end = false;
-	
-	bool found_message_start = false;
-	bool found_message_end = false;
+	bool found_stream_start = false;
 	
 	int no = 0;
 	
@@ -885,35 +881,18 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		packet.FindString("data", &data);
 		packet.FindInt32("length", &length);
 
-		if (data.FindFirst("<iq ") >= 0)
-			found_iq_start = true;
+		if (data.FindFirst("<stream:stream") >= 0)
+			found_stream_start = true;
 			
-		if (data.FindFirst("<message ") >= 0)
-			found_message_start = true;
-			
-			
-		if (found_iq_start && data.FindFirst("</iq>") >= 0
-			|| found_iq_start && data.FindFirst("result'/>") >= 0
-			|| found_iq_start && data.FindFirst("result\"/>") >= 0
-			|| found_iq_start && data.FindFirst("sess_1'/>") >= 0
-			|| found_iq_start && data.FindFirst("sess_1\"/>") >= 0)
-			
-			found_iq_end = true;
-			
-		if (found_message_start && data.FindFirst("</message>") >= 0)
-			found_message_end = true;
-		
 		msgData.Append(data);
 		
 #ifdef DEBUG
 
-//		if (found_iq_start)
-			fprintf(stderr, "IQ PACKET %i LEN: %i.\n", no++, length);
+		fprintf(stderr, "IQ PACKET %i LEN: %i.\n", no++, length);
 			
 #endif
-		
-	} while (found_iq_start && !found_iq_end
-			|| found_message_start && !found_message_end);
+
+	} while (CheckXML(msgData.String()) == NULL && !found_stream_start);
 	
 	BString msgDataRooted = "<dengon>";
 	msgDataRooted << msgData;

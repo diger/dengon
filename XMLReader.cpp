@@ -111,6 +111,67 @@ void XMLReader::_OnStartTag(const char *name, const char **atts) {
 	OnStartTag(_curr_entity);
 }
 
+const char *FXMLSkipHead(const char *xml) {
+	const char *ptr = xml;
+	const char *tmp;
+	int nopen = 0;
+	assert(xml != NULL);
+	if(ptr == NULL) return NULL;
+	ptr = strchr(ptr , '<');
+	if(ptr == NULL) return NULL;
+	if(*(ptr+1) == '?') {
+		ptr = strchr(ptr , '>');
+		if(ptr == NULL) return NULL;
+		if(*(ptr-1) != '?')	return NULL;
+		ptr = strchr(ptr , '<');
+		if(ptr == NULL) return NULL;
+	}
+	tmp = ptr;
+	while(*tmp) {
+		if(*tmp == '<') {
+			//printf("FXMLSkipHead: %c%c%c%c\n", *tmp, *(tmp+1), *(tmp+2), *(tmp+3));
+			nopen++;
+			if(nopen > 1) return NULL;
+		} else if(*tmp == '>') {
+			nopen--;
+			if(nopen < 0) return NULL;
+		}
+		tmp++;
+	}
+	return (nopen == 0) ? ptr : NULL;
+}
+
+
+const char *FXMLCheck(const char *xml) {
+	const char *ptr;
+	const char *tmp;
+	int nopen = 0;
+	assert(xml != NULL);
+	ptr = FXMLSkipHead(xml);
+	tmp = ptr;
+	while(tmp) {
+		//printf("FXMLCheck: %c%c%c%c\n", *tmp, *(tmp+1), *(tmp+2), *(tmp+3));
+		if(*(tmp+1) == '/') {
+			nopen--;
+			if(nopen < 0) return NULL;
+			tmp = strchr(tmp, '>');
+			if(tmp == NULL) return NULL;
+		} else {
+			nopen++;
+			tmp = strchr(tmp, '>');
+			if(tmp == NULL) return NULL;
+			if(*(tmp-1) == '/') nopen--;
+		}
+		tmp = strchr(tmp, '<');
+	}
+	return (nopen == 0) ? ptr : NULL;
+}
+
+const char *XMLReader::CheckXML(const char *data)
+{
+	return FXMLCheck(data);
+}
+
 void XMLReader::_OnEndTag(const char *name) {
 	// Add existing character data to entity
 	if (_curr_character_data.size() > 0)

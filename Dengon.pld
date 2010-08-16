@@ -1,5 +1,5 @@
 NAME=Dengon
-TARGETNAME=Gossip
+TARGETNAME=Dengon
 PLATFORM=Haiku
 GROUP=Source Files
 EXPANDGROUP=yes

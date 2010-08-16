@@ -1,4 +1,4 @@
-NAME= Gossip
+NAME= Dengon
 TYPE= APP
 SRCS= App.cpp JRoster.cpp TransportItem.cpp RosterItem.cpp UserID.cpp BuddyWindow.cpp TalkManager.cpp StatusView.cpp Agent.cpp RosterView.cpp AppLocation.cpp RosterSuperitem.cpp AgentList.cpp ModalAlertFactory.cpp XMLEntity.cpp Settings.cpp MessageRepeater.cpp XMLReader.cpp FileXMLReader.cpp MainWindow.cpp ChatWindow.cpp EditingFilter.cpp GenericFunctions.cpp Socket.cpp SecureSocket.cpp JabberProtocol.cpp SplitView.cpp Base64.cpp
 RSRCS= Resources.rsrc

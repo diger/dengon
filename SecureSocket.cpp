@@ -18,7 +18,7 @@
 // our synchronization routines (BLocker). Thus, whenever be called
 // SSL context always will know about thread context.
 
-//#define DEBUG
+#define DEBUG
 
 static BLocker** lock_cs = NULL;
 

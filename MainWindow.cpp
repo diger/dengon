@@ -333,7 +333,7 @@ bool BlabberMainWindow::QuitRequested() {
 }
 
 BlabberMainWindow::BlabberMainWindow(BRect frame)
-	: BWindow(frame, "Gossip", B_DOCUMENT_WINDOW, 0) {
+	: BWindow(frame, "Dengon", B_DOCUMENT_WINDOW, 0) {
 
 	// editing filter for taksing
 //	AddCommonFilter(new RotateChatFilter(NULL));
@@ -380,7 +380,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 		_disconnect_item = new BMenuItem("Log Off", new BMessage(JAB_DISCONNECT));
 		_disconnect_item->SetShortcut('B', 0);
 
-		_about_item = new BMenuItem("About Gossip...", new BMessage(B_ABOUT_REQUESTED));
+		_about_item = new BMenuItem("About Messanger...", new BMessage(B_ABOUT_REQUESTED));
 		_about_item->SetTarget(be_app);
 
 		_quit_item = new BMenuItem("Quit", new BMessage(JAB_QUIT));
