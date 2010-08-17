@@ -743,10 +743,10 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	}
 	else if (!strcasecmp(availability, "error"))
 	{
-		if (entity->Child("text"))
+		if (entity->Child("error") && entity->Child("error")->Child("text"))
 		{
-			fprintf(stderr, "Presence Error: %s.\n", entity->Child("text")->Data());
-			sprintf(buffer, "Following Error Occured:\n\n %s.", entity->Child("text")->Data());
+			fprintf(stderr, "Presence Error: %s.\n", entity->Child("error")->Child("text")->Data());
+			sprintf(buffer, "Following Error Occured:\n\n %s.", entity->Child("error")->Child("text")->Data());
 		
 			ModalAlertFactory::NonModalAlert(buffer, "Why?.");
 		}

@@ -142,7 +142,8 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	}
 	
 	// submit the chat
-	if (window) {
+	if (window)
+	{
 		window->Lock();
 		
 		if (type == ChatWindow::CHAT)
@@ -150,9 +151,9 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		else if (type == ChatWindow::GROUP)
 		{
 			if (UserID(sender).JabberResource() == "")
-			window->NewMessage(UserID(sender).JabberUsername(), entity->Child("body")->Data());
+				window->NewMessage(UserID(sender).JabberUsername(), entity->Child("body")->Data());
 			else
-			window->NewMessage(UserID(sender).JabberResource(), entity->Child("body")->Data());
+				window->NewMessage(UserID(sender).JabberResource(), entity->Child("body")->Data());
 			
 		}
 		

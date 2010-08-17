@@ -184,7 +184,9 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 				UserID *user = (UserID*)item->GetUserID();
 				if (user->UserType() == UserID::CONFERENCE)
 				{
-					ChatWindow *window = TalkManager::Instance()->CreateTalkSession(ChatWindow::GROUP, user, user->JabberHandle(), string(jabber->user));
+					ChatWindow *window = 
+						TalkManager::Instance()->CreateTalkSession(
+							ChatWindow::GROUP, user, user->JabberHandle(), string(jabber->user));
 				} else
 
 				// open chat window
