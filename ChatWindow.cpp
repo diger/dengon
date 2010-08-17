@@ -254,15 +254,11 @@ ChatWindow::FrameResized(float width, float height)
 void
 ChatWindow::NewMessage(string new_message)
 {
-	//if (_type == ChatWindow::GROUP) {
-	//	return; // GCHAT
-	//} else {
-		if (!_user->FriendlyName().empty()) {
-			AddToTalk(_user->FriendlyName(), new_message, MAIN_RECIPIENT);
-		} else {
-			AddToTalk(_user->JabberUsername(), new_message, MAIN_RECIPIENT);
-		}
-	//}
+	if (!_user->FriendlyName().empty()) {
+		AddToTalk(_user->FriendlyName(), new_message, MAIN_RECIPIENT);
+	} else {
+		AddToTalk(_user->JabberUsername(), new_message, MAIN_RECIPIENT);
+	}
 }
 
 void
