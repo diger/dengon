@@ -23,7 +23,7 @@ App::App(void)
 void
 App::AboutRequested()
 {
-	BAlert *alert = new BAlert("about", "Dengon\n\n"
+	BAlert *alert = new BAlert("about", "Chat\n\n"
 		"By Maxim Sokhatsky.\n"
 		"Based on Jabber for BeOS by John Blanco.\n\n", "Chat!");
 	BTextView *view = alert->TextView();
@@ -32,7 +32,7 @@ App::AboutRequested()
 	view->GetFont(&font);
 	font.SetSize(font.Size()+7.0f);
 	font.SetFace(B_BOLD_FACE);
-	view->SetFontAndColor(0,6,&font);
+	view->SetFontAndColor(0,4,&font);
 	alert->Go();
 }
 

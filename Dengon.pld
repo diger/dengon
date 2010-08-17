@@ -1,5 +1,5 @@
 NAME=Dengon
-TARGETNAME=Dengon
+TARGETNAME=Chat
 PLATFORM=Haiku
 GROUP=Source Files
 EXPANDGROUP=yes

@@ -353,7 +353,7 @@ bool BlabberMainWindow::QuitRequested() {
 }
 
 BlabberMainWindow::BlabberMainWindow(BRect frame)
-	: BWindow(frame, "Dengon", B_DOCUMENT_WINDOW, 0) {
+	: BWindow(frame, "Chat", B_DOCUMENT_WINDOW, 0) {
 
 	// editing filter for taksing
 //	AddCommonFilter(new RotateChatFilter(NULL));
