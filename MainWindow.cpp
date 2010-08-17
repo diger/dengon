@@ -186,7 +186,10 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 				{
 					ChatWindow *window = 
 						TalkManager::Instance()->CreateTalkSession(
-							ChatWindow::GROUP, user, user->JabberHandle(), string(jabber->user));
+							ChatWindow::GROUP, user, user->JabberHandle(),
+								//string(jabber->user.Append(GenericFunctions::GenerateUniqueID().c_str()).String())
+								string(jabber->user)
+								);
 				} else
 
 				// open chat window

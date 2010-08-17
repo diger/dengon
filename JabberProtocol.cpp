@@ -357,30 +357,6 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 
 		// circumvent groupchat presences
 		string room, server, user;
-		
-		// split it all out
-		int tokens = GenericFunctions::SeparateGroupSpecifiers(entity->Attribute("from"), room, server, user);
-
-		if (tokens == 3 &&
-			!TalkManager::Instance()->IsExistingWindowToGroup(room + '@' + server).empty())
-		{
-			BMessage msg;
-			msg.AddString("room", (room + '@' + server).c_str());
-			msg.AddString("server", server.c_str());
-			msg.AddString("username", user.c_str());
-
-			if (!entity->Attribute("type") || !strcasecmp(entity->Attribute("type"), "available"))
-			{
-				msg.what = JAB_GROUP_CHATTER_ONLINE;
-			} else if (!strcasecmp(entity->Attribute("type"), "unavailable")) {
-				msg.what = JAB_GROUP_CHATTER_OFFLINE;
-			}
-
-			MessageRepeater::Instance()->PostMessage(&msg);
-
-			roster->Unlock();
-			return;
-		}
 
 		for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i) {
 			UserID *user = NULL;
@@ -680,6 +656,8 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	} else {
 		availability = "available";
 	}
+	
+	fprintf(stderr, "Presence type: %s.\n", availability);
 
 	// reflect presence
 	if (user && !strcasecmp(availability, "unavailable"))
@@ -743,10 +721,11 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	}
 	else if (!strcasecmp(availability, "error"))
 	{
-		if (entity->Child("error") && entity->Child("error")->Child("text"))
+		//if (entity->Child("error") && entity->Child("error")->Child("text"))
 		{
+			string username = entity->Attribute("from");
 			fprintf(stderr, "Presence Error: %s.\n", entity->Child("error")->Child("text")->Data());
-			sprintf(buffer, "Following Error Occured:\n\n %s.", entity->Child("error")->Child("text")->Data());
+			sprintf(buffer, "Following error occured from %s:\n\n %s.", username.c_str(), entity->Child("error")->Child("text")->Data());
 		
 			ModalAlertFactory::NonModalAlert(buffer, "Why?.");
 		}
