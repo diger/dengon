@@ -405,7 +405,10 @@ ChatWindow::MessageReceived(BMessage *msg)
 			string messageTextSTL = messageTextView->Text();
 			BString message = BString(messageTextANSI);
 			string s = OurRepresentation().String();
-			AddToTalk(s, messageTextSTL, LOCAL);
+			
+			if (_type != GROUP)
+				AddToTalk(s, messageTextSTL, LOCAL);
+				
 			messageTextView->SetText("");
 			messageTextView->MakeFocus(true);
 			if (_type == GROUP)

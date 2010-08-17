@@ -62,6 +62,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	ChatWindow::talk_type type;
 	string                thread_id;
 	string                sender;
+	string				  receiver;
 	ChatWindow           *window = NULL;
 
 	string                group_room;
@@ -107,7 +108,9 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	
 	// configure sender
 	sender = entity->Attribute("from");
-	
+	receiver = entity->Attribute("to");
+	group_username = UserID(sender).JabberResource();
+
 	if (type == ChatWindow::CHAT || type == ChatWindow::GROUP)
 	{
 		if (IsExistingWindowToUser(UserID(sender).JabberHandle()) != "")
@@ -150,10 +153,21 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			window->NewMessage(entity->Child("body")->Data());
 		else if (type == ChatWindow::GROUP)
 		{
+			if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
+			{
+				window->Unlock();
+				return;
+			}
+							
 			if (UserID(sender).JabberResource() == "")
 				window->NewMessage(UserID(sender).JabberUsername(), entity->Child("body")->Data());
-			else
-				window->NewMessage(UserID(sender).JabberResource(), entity->Child("body")->Data());
+			else {
+				//fprintf(stderr, "jid : %s\n", jabber->jid.String());
+				//fprintf(stderr, "group_username : %s\n", group_username.c_str());
+				
+				//if (group_username != UserID(jabber->jid.String()).JabberUsername())
+					window->NewMessage(group_username, entity->Child("body")->Data());
+			}
 			
 		}
 		
