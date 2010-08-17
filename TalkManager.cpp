@@ -35,31 +35,39 @@ ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *u
 {
 	ChatWindow *window = NULL;
 	
-	if (type == ChatWindow::CHAT && IsExistingWindowToUser(user->JabberHandle()).size())
+	if (/*type == ChatWindow::CHAT &&*/ IsExistingWindowToUser(user->JabberHandle()).size())
 	{
 		window = _talk_map[IsExistingWindowToUser(user->JabberHandle())];
 		window->Lock();
 		window->Activate();
 		window->Unlock();
 	} 
-	else if (type == ChatWindow::GROUP && IsExistingWindowToGroup(group_room).size())
+	else
+	/*
+	else if (type == ChatWindow::GROUP && IsExistingWindowToGroup(user->JabberHandle()).size())
 	{
-		window = _talk_map[IsExistingWindowToGroup(group_room)];
+		window = _talk_map[IsExistingWindowToGroup(user->JabberHandle())];
 		window->Lock();
 		window->Activate();
 		window->Unlock();
 	}
-	else if (type == ChatWindow::CHAT)
-	{
+	else if (type == ChatWindow::CHAT || type == ChatWindow::GROUP)
+	/*{
 		window = new ChatWindow(type, user, "", "");
 		window->jabber = jabber;
 		_talk_map[user->JabberHandle()] = window;
 	}
 	else if (type == ChatWindow::GROUP)
+	*/
 	{
 		window = new ChatWindow(type, user, group_room, group_username);
 		window->jabber = jabber;
 		_talk_map[user->JabberHandle()] = window;
+		
+		if (type == ChatWindow::GROUP)
+		{
+			jabber->SendGroupPresence(group_room, group_username);
+		}
 	}
 	
 	return window;
@@ -116,11 +124,13 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	// configure sender
 	sender = entity->Attribute("from");
 	
-	if (type == ChatWindow::CHAT)
+	if (type == ChatWindow::CHAT || type == ChatWindow::GROUP)
 	{
 		if (IsExistingWindowToUser(UserID(sender).JabberHandle()) != "")
 		{
 			window = _talk_map[IsExistingWindowToUser(UserID(sender).JabberHandle())];
+			if (window != NULL)
+				fprintf(stderr, "Redirected to Existed Window: %s.\n",window->GetUserID()->JabberHandle().c_str());
 		}
 		else
 		{
@@ -139,16 +149,29 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 
 			JRoster::Instance()->Unlock();
 			
-			window = CreateTalkSession(type, user, "", "");
-			window->jabber = jabber;
-			
+			if (type==ChatWindow::CHAT)
+			{
+				window = CreateTalkSession(type, user, "", "");
+				window->jabber = jabber;
+			}
 		}
 	}
 	
 	// submit the chat
 	if (window) {
 		window->Lock();
-		window->NewMessage(entity->Child("body")->Data());
+		
+		if (type == ChatWindow::CHAT)
+			window->NewMessage(entity->Child("body")->Data());
+		else if (type == ChatWindow::GROUP)
+		{
+			if (UserID(sender).JabberResource() == "")
+			window->NewMessage(UserID(sender).JabberUsername(), entity->Child("body")->Data());
+			else
+			window->NewMessage(UserID(sender).JabberResource(), entity->Child("body")->Data());
+			
+		}
+		
 		window->Unlock();
 	}
 }

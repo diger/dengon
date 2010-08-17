@@ -48,6 +48,7 @@ class JabberProtocol : public XMLReader
 				void			RequestInfo();
 				void			Session();
 				void			SendMessage(BString to, BString text);
+				void			SendGroupchatMessage(BString to, BString text);
 				void			SetStatus(BString status, BString message);
 				void			ReceiveData(BMessage *msg);
 				void			ReceivedMessageHandler(BMessage *jabberMessage);
@@ -71,6 +72,9 @@ class JabberProtocol : public XMLReader
 				void			SendUnsubscriptionRequest(string username);
 				void			AddToRoster(UserID *new_user);
 				void			RemoveFromRoster(UserID *removed_user);
+				void			SendMUCConferenceRequest(BString conference);
+				void			SendMUCRoomRequest(BString room);
+				void			SendGroupPresence(string _group_room, string _group_username);
 				
 				SSLAdapter		*socketAdapter;
 				sem_id			logged;

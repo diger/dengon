@@ -18,8 +18,11 @@ public:
 enum        talk_type {MESSAGE, CHAT, GROUP};
 enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER};
 			
-						ChatWindow(talk_type type, UserID *user, std::string group_room,
-				std::string group_username);
+						ChatWindow(talk_type type,
+							UserID *user,
+							std::string group_room,
+							std::string group_username);
+							
 			void		MessageReceived(BMessage *msg);
 			bool		QuitRequested(void);
 			void		FrameResized(float width, float height);
@@ -29,6 +32,9 @@ enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER};
 			BString		OurRepresentation();
 			string		GetGroupUsername();
 			string		GetGroupRoom();
+			void 		AddGroupChatter(string user);
+			void		RemoveGroupChatter(string username);
+			
 	const	UserID		*GetUserID();
 			void		SetThreadID(string id);
 
@@ -49,15 +55,18 @@ private:
 			UserID::online_status  _current_status;
 			talk_type              _type;
 			std::string            _thread;
+			BListView          *_people;
 	
 			BMenuBar	*menu;
 			StatusView	*statusView;
 			SplitPane	*chatView;
+			SplitPane          *_split_group_people;
 			BView		*messageView;
 			BView		*historyView;
 			BView		*mainView;
 			BScrollView	*messageScroller;
 			BScrollView	*historyScroller;
+			BScrollView        *_scrolled_people_pane;
 			BTextView	*historyTextView;
 			BTextView	*messageTextView;
 

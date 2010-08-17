@@ -7,6 +7,7 @@
 #include "GenericFunctions.h"
 #include "JabberProtocol.h"
 #include "TalkManager.h"
+#include "PeopleListItem.h"
 
 #include <malloc.h>
 #include <stdlib.h>
@@ -115,7 +116,27 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 		b.left = b.right + 2;
 		BView *historyView = new BView(b, NULL, B_FOLLOW_ALL, 0);
 		historyView->AddChild(historyScroller);
-	
+		
+		// Group Chat People View
+
+		BView *peopleView;
+		if (_type == GROUP)
+		{
+			BRect people_rect = Bounds();
+			_people = new BListView(people_rect, NULL, B_SINGLE_SELECTION_LIST, B_FOLLOW_ALL);
+			_scrolled_people_pane = new BScrollView(NULL, _people, B_FOLLOW_ALL, false, true);
+			peopleView = new BView(b, NULL, B_FOLLOW_ALL, 0);
+			peopleView->AddChild(_scrolled_people_pane);	
+			_split_group_people = new SplitPane(people_rect, historyView, peopleView, B_FOLLOW_ALL);
+			_split_group_people->SetAlignment(B_VERTICAL);
+			_split_group_people->SetMinSizeOne(300.0);
+			_split_group_people->SetMinSizeTwo(100.0);
+			_split_group_people->SetBarThickness(splitterHeight);
+			_split_group_people->SetBarAlignmentLocked(true);
+			_split_group_people->SetBarPosition(400);
+
+		}	
+
 		// Message View
 	
 		BRect text_rect2(ori);
@@ -133,18 +154,23 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 		messageView = new BView(b, NULL, B_FOLLOW_ALL, 0);
 		messageView->AddChild(messageScroller);
 	
-		// Split View
+		// Main Horizontal Split View (Chat Window View)
 		
 		ori.top += menuHeight;
 		ori.bottom -= statusHeight;
 		ori.left -= 2;
-		chatView = new SplitPane(ori, historyView, messageView, B_FOLLOW_TOP_BOTTOM | B_FOLLOW_LEFT_RIGHT);
+		if (_type == GROUP)
+			chatView = new SplitPane(ori, _split_group_people, messageView, B_FOLLOW_TOP_BOTTOM | B_FOLLOW_LEFT_RIGHT);
+		else
+			chatView = new SplitPane(ori, historyView, messageView, B_FOLLOW_TOP_BOTTOM | B_FOLLOW_LEFT_RIGHT);
 		chatView->SetAlignment(B_HORIZONTAL);
 		chatView->SetBarThickness(splitterHeight);
 		chatView->SetBarAlignmentLocked(true);
 		chatView->SetMinSizeTwo(split);
 		chatView->SetMinSizeOne(split);
 		chatView->SetBarPosition(ori.bottom);
+		
+		
 		
 	// Status View
 	
@@ -154,12 +180,15 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	std::string statusMessage = "online";
 	statusView->SetMessage(statusMessage);
 	
+	// group chat people list
+	
+
+	
 	AddCommonFilter(new EditingFilter(messageTextView, this));
 	
 	mainView->AddChild(menu);
 	mainView->AddChild(chatView);
 	mainView->AddChild(statusView);
-	
 	AddChild(mainView);
 	
 	messageTextView->MakeFocus(true);
@@ -177,7 +206,11 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	
 	Show();
 	
-	fprintf(stderr, "Show Chat Window %s.\n", user->JabberCompleteHandle().c_str());
+	if (_type != GROUP)
+		fprintf(stderr, "Show Chat Window %s.\n", user->JabberCompleteHandle().c_str());
+	else
+		fprintf(stderr, "Show Group Chat Window Room %s Username %s.\n", group_room.c_str(), group_username.c_str());
+		
 	
 }
 
@@ -221,15 +254,15 @@ ChatWindow::FrameResized(float width, float height)
 void
 ChatWindow::NewMessage(string new_message)
 {
-	if (_type == ChatWindow::GROUP) {
-		return; // GCHAT
-	} else {
+	//if (_type == ChatWindow::GROUP) {
+	//	return; // GCHAT
+	//} else {
 		if (!_user->FriendlyName().empty()) {
 			AddToTalk(_user->FriendlyName(), new_message, MAIN_RECIPIENT);
 		} else {
 			AddToTalk(_user->JabberUsername(), new_message, MAIN_RECIPIENT);
 		}
-	}
+	//}
 }
 
 void
@@ -278,6 +311,82 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	historyTextView->ScrollTo(0.0, historyTextView->Bounds().bottom);
 }
 
+void
+ChatWindow::AddGroupChatter(string user)
+{
+	int i;
+
+	// create a new entry
+	PeopleListItem *people_item = new PeopleListItem(_group_username, user);
+	
+	// exception
+	if (_people->CountItems() == 0) {
+		// add the new user
+		_people->AddItem(people_item);
+
+		return;
+	}
+
+	// add it to the list
+	for (i=0; i < _people->CountItems(); ++i) {
+		PeopleListItem *iterating_item = dynamic_cast<PeopleListItem *>(_people->ItemAt(i));
+
+		if (strcasecmp(iterating_item->User().c_str(), user.c_str()) > 0) {
+			// add the new user
+			_people->AddItem(people_item, i);
+			break;
+		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) && strcmp(iterating_item->User().c_str(), user.c_str()) > 0) {
+			// add the new user
+			_people->AddItem(people_item, i);
+			break;
+		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) && !strcmp(iterating_item->User().c_str(), user.c_str())) {
+			_people->InvalidateItem(i);
+			break;
+		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) && strcmp(iterating_item->User().c_str(), user.c_str()) < 0) {
+			if (i == (_people->CountItems() - 1)) {
+				// add the new user
+				_people->AddItem(people_item);
+			} else {
+				PeopleListItem *next_item = dynamic_cast<PeopleListItem *>(_people->ItemAt(i + 1));
+				
+				if (!next_item) {
+					// add the new user
+					_people->AddItem(people_item);
+
+					break;					
+				}
+
+				if (strcasecmp(user.c_str(), next_item->User().c_str()) < 0) {
+					// add the new user
+					_people->AddItem(people_item, i + 1);
+				} else if (!strcasecmp(user.c_str(), next_item->User().c_str())) {
+					continue;
+				}
+			}
+
+			break;
+		} else if ((strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) && (i == (_people->CountItems() - 1))) {
+			// add the new user
+			_people->AddItem(people_item);
+
+			break;
+		} else if (strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) {
+			continue;
+		}
+	}
+}
+
+void
+ChatWindow::RemoveGroupChatter(string username)
+{
+	// remove user
+	for (int i=0; i < _people->CountItems(); ++i) {
+		if (dynamic_cast<PeopleListItem *>(_people->ItemAt(i))->User() == username) {
+			_people->RemoveItem(i);
+		}
+	}
+}
+
 BString
 ChatWindow::OurRepresentation()
 {
@@ -286,6 +395,8 @@ ChatWindow::OurRepresentation()
 	representation << jabber->user << "@" << jabber->domain;
 	return representation;
 }
+
+
 
 void
 ChatWindow::MessageReceived(BMessage *msg)
@@ -301,10 +412,41 @@ ChatWindow::MessageReceived(BMessage *msg)
 			AddToTalk(s, messageTextSTL, LOCAL);
 			messageTextView->SetText("");
 			messageTextView->MakeFocus(true);
-			jabber->SendMessage(BString(_user->JabberHandle().c_str()), message);
+			if (_type == GROUP)
+				jabber->SendGroupchatMessage(BString(_user->JabberHandle().c_str()), message);
+			else
+				jabber->SendMessage(BString(_user->JabberHandle().c_str()), message);
 
 			break;
 		}
+		
+		case JAB_GROUP_CHATTER_ONLINE:
+		{
+			// only for groupchat
+			if (_type != GROUP) {
+				break;
+			}
+
+			if (GetGroupRoom() == msg->FindString("room"))
+			{
+				AddGroupChatter(msg->FindString("username"));
+			}
+			
+			break;
+		}
+
+		case JAB_GROUP_CHATTER_OFFLINE:
+		{
+			// only for groupchat
+			if (_type != GROUP) {
+				break;
+			}
+
+			RemoveGroupChatter(msg->FindString("username"));
+			
+			break;
+		}
+	
 		default:
 		{
 			BWindow::MessageReceived(msg);

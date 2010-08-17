@@ -8,6 +8,7 @@
 #include "GenericFunctions.h"
 #include "ModalAlertFactory.h"
 #include "MainWindow.h"
+#include "MessageRepeater.h"
 #include "TalkManager.h"
 #include "Messages.h"
 #include "Base64.h"
@@ -123,7 +124,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	{
 		if (entity->Attribute("id")) {
 			iq_id = entity->Attribute("id");
-		}
+		//}
 		
 		// handle roster retrival
 		if (!strcasecmp(entity->Attribute("type"), "result") &&
@@ -154,6 +155,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 #endif
 
 			Session();
+		}
+		
 		}
 		
 		if (!strcasecmp(entity->Attribute("type"), "get"))
@@ -255,6 +258,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	}
 }
 
+
+
 void
 JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 {
@@ -294,7 +299,7 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 		if (sscanf(uname_info.version, "r%ld", &revision) == 1) {
 			char version[16];
 			snprintf(version, sizeof(version), "%ld", revision);
-			os_info += " (Rev. ";
+			os_info += " (Revision: ";
 			os_info += version;
 			os_info += ")";
 		}
@@ -313,6 +318,31 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 	delete entity_iq;
 }
 
+void
+JabberProtocol::SendGroupPresence(string _group_room, string _group_username)
+{
+	XMLEntity             *entity_presence;
+	char **atts_presence = CreateAttributeMemory(2);
+
+	// assemble group ID
+	string group_presence = _group_room + "/" + _group_username;	
+	
+	// assemble attributes;
+	strcpy(atts_presence[0], "to");
+	strcpy(atts_presence[1], group_presence.c_str());
+
+	// construct XML tagset
+	entity_presence = new XMLEntity("presence", (const char **)atts_presence);
+	
+	// send XML command
+	char *str = entity_presence->ToString();
+	socketAdapter->SendData(BString(str));
+	free(str);
+
+	DestroyAttributeMemory(atts_presence, 2);
+	
+	delete entity_presence;
+}
 
 void
 JabberProtocol::ProcessPresence(XMLEntity *entity)
@@ -327,6 +357,30 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 
 		// circumvent groupchat presences
 		string room, server, user;
+		
+		// split it all out
+		int tokens = GenericFunctions::SeparateGroupSpecifiers(entity->Attribute("from"), room, server, user);
+
+		if (tokens == 3 &&
+			!TalkManager::Instance()->IsExistingWindowToGroup(room + '@' + server).empty())
+		{
+			BMessage msg;
+			msg.AddString("room", (room + '@' + server).c_str());
+			msg.AddString("server", server.c_str());
+			msg.AddString("username", user.c_str());
+
+			if (!entity->Attribute("type") || !strcasecmp(entity->Attribute("type"), "available"))
+			{
+				msg.what = JAB_GROUP_CHATTER_ONLINE;
+			} else if (!strcasecmp(entity->Attribute("type"), "unavailable")) {
+				msg.what = JAB_GROUP_CHATTER_OFFLINE;
+			}
+
+			MessageRepeater::Instance()->PostMessage(&msg);
+
+			roster->Unlock();
+			return;
+		}
 
 		for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i) {
 			UserID *user = NULL;
@@ -687,6 +741,16 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 			RejectPresence(entity->Attribute("from"));
 		}
 	}
+	else if (!strcasecmp(availability, "error"))
+	{
+		if (entity->Child("text"))
+		{
+			fprintf(stderr, "Presence Error: %s.\n", entity->Child("text")->Data());
+			sprintf(buffer, "Following Error Occured:\n\n %s.", entity->Child("text")->Data());
+		
+			ModalAlertFactory::NonModalAlert(buffer, "Why?.");
+		}
+	}
 
 	if (user && (!strcasecmp(availability, "available") || !strcasecmp(availability, "unavailable"))) {
 		if (entity->Child("show") && entity->Child("show")->Data()) {
@@ -894,6 +958,18 @@ JabberProtocol::SendMessage(BString to, BString text)
 	socketAdapter->SendData(xml);
 }
 
+void
+JabberProtocol::SendGroupchatMessage(BString to, BString text)
+{
+	BString xml = "<message type='groupchat' to='";
+	xml = xml.Append(to);
+	xml << "'><body>";
+	xml = xml.Append(text);
+	xml << "</body></message>";
+	
+	socketAdapter->SendData(xml);
+}
+
 void 
 JabberProtocol::RequestInfo()
 {
@@ -917,6 +993,39 @@ JabberProtocol::RequestRoster()
 		
 	socketAdapter->SendData(xml);
 	
+}
+
+void
+JabberProtocol::SendMUCConferenceRequest(BString conference)
+{
+	BString xml = "<iq from='";
+	xml = xml.Append(jid);
+	xml << "' id='disco1' to='";
+	xml = xml.Append(conference);
+	xml << "' type='get'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
+	
+	socketAdapter->SendData(xml);
+}
+
+void
+JabberProtocol::SendMUCRoomRequest(BString room)
+{
+	/*
+		<iq from='hag66@shakespeare.lit/pda'
+    	id='disco3'
+    	to='darkcave@chat.shakespeare.lit'
+    	type='get'>
+  		<query xmlns='http://jabber.org/protocol/disco#info'/>
+		</iq>
+	*/
+	
+	BString xml = "<iq from='";
+	xml = xml.Append(jid);
+	xml << "' id='disco3' to='";
+	xml = xml.Append(room);
+	xml << "' type='get'><query xmlns='http://jabber.org/protocol/disco#info'/></iq>";
+	
+	socketAdapter->SendData(xml);
 }
 
 void

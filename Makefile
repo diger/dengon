@@ -1,6 +1,6 @@
 NAME= Dengon
 TYPE= APP
-SRCS= App.cpp JRoster.cpp TransportItem.cpp RosterItem.cpp UserID.cpp BuddyWindow.cpp TalkManager.cpp StatusView.cpp Agent.cpp RosterView.cpp AppLocation.cpp RosterSuperitem.cpp AgentList.cpp ModalAlertFactory.cpp XMLEntity.cpp Settings.cpp MessageRepeater.cpp XMLReader.cpp FileXMLReader.cpp MainWindow.cpp ChatWindow.cpp EditingFilter.cpp GenericFunctions.cpp Socket.cpp SecureSocket.cpp JabberProtocol.cpp SplitView.cpp Base64.cpp
+SRCS= App.cpp JRoster.cpp TransportItem.cpp RosterItem.cpp UserID.cpp BuddyWindow.cpp PeopleListItem.cpp TalkManager.cpp StatusView.cpp Agent.cpp RosterView.cpp AppLocation.cpp RosterSuperitem.cpp AgentList.cpp ModalAlertFactory.cpp XMLEntity.cpp Settings.cpp MessageRepeater.cpp XMLReader.cpp FileXMLReader.cpp MainWindow.cpp ChatWindow.cpp EditingFilter.cpp GenericFunctions.cpp Socket.cpp SecureSocket.cpp JabberProtocol.cpp SplitView.cpp Base64.cpp
 RSRCS= Resources.rsrc
 LIBS= /boot/develop/lib/x86/libbe.so /boot/develop/lib/x86/libroot.so /boot/common/lib/libssl.so /boot/common/lib/libcrypto.so /boot/develop/lib/x86/libnetwork.so /boot/develop/lib/x86/libtranslation.so /boot/common/lib/libexpat.so /boot/develop/lib/x86/libstdc++.r4.so
 LIBPATHS=

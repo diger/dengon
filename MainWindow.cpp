@@ -15,6 +15,8 @@
 #include <Path.h>
 #include <FindDirectory.h>
 #include <stdlib.h>
+#include <sys/utsname.h>
+#include <unistd.h>
 
 #include "MainWindow.h"
 #include "BuddyWindow.h"
@@ -123,8 +125,21 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			
 			jabber->RequestRoster();
 			
-			jabber->SetStatus("online", "Haiku OS");
-
+			utsname uname_info;
+			if (uname(&uname_info) == 0) {
+				char buffer[1000];
+				string os_info = uname_info.sysname;
+				long revision = 0;
+				if (sscanf(uname_info.version, "r%ld", &revision) == 1) {
+					char version[16];
+					snprintf(version, sizeof(version), "%ld", revision);
+					os_info += " (Revision: ";
+					os_info += version;
+					os_info += ")";
+				}
+				jabber->SetStatus("online", os_info.c_str());
+			}
+				
 			BlabberSettings::Instance()->SetData("last-realname", _login_realname->Text());
 			BlabberSettings::Instance()->SetData("last-login", _login_username->Text());
 			BlabberSettings::Instance()->SetData("last-password", _login_password->Text());
@@ -156,7 +171,8 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 	
 			break;
 		}
-	
+		
+		
 		case JAB_OPEN_CHAT_WITH_DOUBLE_CLICK:
 		case JAB_OPEN_CHAT:
 		{
@@ -166,6 +182,10 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
+				if (user->UserType() == UserID::CONFERENCE)
+				{
+					ChatWindow *window = TalkManager::Instance()->CreateTalkSession(ChatWindow::GROUP, user, user->JabberHandle(), string(jabber->user));
+				} else
 
 				// open chat window
 				ChatWindow *window = TalkManager::Instance()->CreateTalkSession(ChatWindow::CHAT, user, "", "");
