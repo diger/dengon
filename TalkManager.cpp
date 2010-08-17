@@ -35,7 +35,7 @@ ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *u
 {
 	ChatWindow *window = NULL;
 	
-	if (/*type == ChatWindow::CHAT &&*/ IsExistingWindowToUser(user->JabberHandle()).size())
+	if (IsExistingWindowToUser(user->JabberHandle()).size())
 	{
 		window = _talk_map[IsExistingWindowToUser(user->JabberHandle())];
 		window->Lock();
@@ -43,22 +43,6 @@ ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *u
 		window->Unlock();
 	} 
 	else
-	/*
-	else if (type == ChatWindow::GROUP && IsExistingWindowToGroup(user->JabberHandle()).size())
-	{
-		window = _talk_map[IsExistingWindowToGroup(user->JabberHandle())];
-		window->Lock();
-		window->Activate();
-		window->Unlock();
-	}
-	else if (type == ChatWindow::CHAT || type == ChatWindow::GROUP)
-	/*{
-		window = new ChatWindow(type, user, "", "");
-		window->jabber = jabber;
-		_talk_map[user->JabberHandle()] = window;
-	}
-	else if (type == ChatWindow::GROUP)
-	*/
 	{
 		window = new ChatWindow(type, user, group_room, group_username);
 		window->jabber = jabber;
