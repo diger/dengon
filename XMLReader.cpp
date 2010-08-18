@@ -115,7 +115,7 @@ const char *FXMLSkipHead(const char *xml) {
 	const char *ptr = xml;
 	const char *tmp;
 	int nopen = 0;
-	assert(xml != NULL);
+	if (xml == NULL) return NULL;
 	if(ptr == NULL) return NULL;
 	ptr = strchr(ptr , '<');
 	if(ptr == NULL) return NULL;
@@ -146,7 +146,7 @@ const char *FXMLCheck(const char *xml) {
 	const char *ptr;
 	const char *tmp;
 	int nopen = 0;
-	assert(xml != NULL);
+	if (xml == NULL) return NULL;
 	ptr = FXMLSkipHead(xml);
 	tmp = ptr;
 	while(tmp) {

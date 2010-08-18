@@ -3,6 +3,7 @@
 #include "StatusView.h"
 #include "Settings.h"
 #include "Messages.h"
+#include "MessageRepeater.h"
 #include "EditingFilter.h"
 #include "GenericFunctions.h"
 #include "JabberProtocol.h"
@@ -48,7 +49,7 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 {
 	_chat_index = -1;
 	
-	//MessageRepeater::Instance()->AddTarget(this);
+	MessageRepeater::Instance()->AddTarget(this);
 
 	_type           = type;
 	_user           = user;
@@ -209,7 +210,9 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	if (_type != GROUP)
 		fprintf(stderr, "Show Chat Window %s.\n", user->JabberCompleteHandle().c_str());
 	else
-		fprintf(stderr, "Show Group Chat Window Room %s Username %s.\n", group_room.c_str(), group_username.c_str());
+		fprintf(stderr, "Show Group Chat Window Room %s Username %s.\n", 
+			group_room.c_str(),
+			group_username.c_str());
 		
 	
 }
@@ -423,6 +426,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 		
 		case JAB_GROUP_CHATTER_ONLINE:
 		{
+			
 			// only for groupchat
 			if (_type != GROUP) {
 				break;

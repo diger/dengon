@@ -21,6 +21,7 @@ class XMLEntity {
 		XMLEntity            *Parent();
 		XMLEntity            *Child(int index);
 		XMLEntity            *Child(const char *name);
+		XMLEntity			 *Child(const char *name, char *attribute, char *value);
 
 		const char           *Name();
 		const char           *Attribute(const char *key);

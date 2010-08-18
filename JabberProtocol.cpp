@@ -357,6 +357,32 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 
 		// circumvent groupchat presences
 		string room, server, user;
+		
+		if (entity->Child("x", "xmlns", "http://jabber.org/protocol/muc#user"))
+		{
+			UserID from = UserID(entity->Attribute("from"));
+			room = from.JabberUsername();
+			server = from.JabberServer();
+			user = from.JabberResource();
+			fprintf(stderr, "Group Presence in room %s from user %s.\n", 
+				(room + '@' + server).c_str(), user.c_str());
+						
+			BMessage msg;
+			msg.AddString("room", (room + '@' + server).c_str());
+			msg.AddString("server", server.c_str());
+			msg.AddString("username", user.c_str());
+			
+			if (!entity->Attribute("type") || !strcasecmp(entity->Attribute("type"), "available")) {
+				msg.what = JAB_GROUP_CHATTER_ONLINE;
+			} else if (!strcasecmp(entity->Attribute("type"), "unavailable")) {
+				msg.what = JAB_GROUP_CHATTER_OFFLINE;
+			}
+
+			MessageRepeater::Instance()->PostMessage(&msg);
+
+			roster->Unlock();
+			return;
+		}		
 
 		for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i) {
 			UserID *user = NULL;
@@ -657,7 +683,7 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		availability = "available";
 	}
 	
-	fprintf(stderr, "Presence type: %s.\n", availability);
+	//fprintf(stderr, "Presence type: %s.\n", availability);
 
 	// reflect presence
 	if (user && !strcasecmp(availability, "unavailable"))
@@ -892,7 +918,7 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		
 #ifdef DEBUG
 
-		fprintf(stderr, "IQ PACKET %i LEN: %i.\n", no++, length);
+		//fprintf(stderr, "IQ PACKET %i LEN: %i.\n", no++, length);
 			
 #endif
 
@@ -915,7 +941,9 @@ JabberProtocol::ReceivedMessageHandler(BMessage *msg)
 	int length = msg->FindInt32("length");
 	
 #ifdef DEBUG
+
 		fprintf(stderr, "DATA received %i: %s\n", (int)data.Length(), data.String());
+
 #endif
 
 	Reset();

@@ -59,6 +59,18 @@ XMLEntity *XMLEntity::Child(const char *name) {
 	return NULL;
 }
 
+XMLEntity *XMLEntity::Child(const char *name, char *attribute, char *value)
+{
+	if (name) {
+		for (int i=0; i<CountChildren(); ++i)
+			if (!strcasecmp(Child(i)->Name(), name) && 
+			!strcasecmp(Child(i)->Attribute(attribute), value))
+				return Child(i);
+	}
+	
+	return NULL;
+}
+
 const char *XMLEntity::Name() {
 	return _name;
 }
