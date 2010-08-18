@@ -9,7 +9,7 @@
 
 
 App::App(void)
-	:	BApplication("application/x-vnd.Be-elfexecutable")
+	:	BApplication("application/Chat")
 {
 	
 	MessageRepeater::Instance()->Run();
