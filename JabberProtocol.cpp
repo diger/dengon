@@ -721,7 +721,7 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	}
 	else if (!strcasecmp(availability, "error"))
 	{
-		//if (entity->Child("error") && entity->Child("error")->Child("text"))
+		if (entity->Child("error") && entity->Child("error")->Child("text"))
 		{
 			string username = entity->Attribute("from");
 			fprintf(stderr, "Presence Error: %s.\n", entity->Child("error")->Child("text")->Data());
