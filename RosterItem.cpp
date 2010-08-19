@@ -19,7 +19,7 @@ RosterItem::RosterItem(const UserID *userid)
 	: BStringItem(userid->FriendlyName().c_str()) {
 	_userid           = userid;
 	_is_stale_pointer = false;
-
+/*
 	// intitialize static members
 	if (_offline_icon == NULL) {
 		std::string graphic;
@@ -72,6 +72,7 @@ RosterItem::RosterItem(const UserID *userid)
 		// load graphic
 		_msn_icon = BTranslationUtils::GetBitmap(graphic.c_str());
 	}
+	*/
 }
 
 RosterItem::~RosterItem() {
@@ -109,7 +110,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
 	}
 
 	owner->FillRect(frame);
-
+/*
 	// draw a graphic
 	owner->SetDrawingMode(B_OP_ALPHA);
 	owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
@@ -133,7 +134,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
 			owner->DrawBitmapAsync(_unknown_icon, BPoint(frame.left + 1, frame.top + 4));
 		}
 	}
-
+*/
 	float height;
 
 	// construct name
@@ -172,7 +173,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
 	height = fh.ascent + fh.descent;
 
 	// draw name
-	owner->DrawString(name.c_str(), BPoint(frame.left + 13, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
+	owner->DrawString(name.c_str(), BPoint(frame.left/* + 13*/, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
 
 	// draw show
 	if (!GetUserID()->MoreExactOnlineStatus().empty()) {

@@ -310,11 +310,13 @@ void XMLEntity::SetAttributes(const char **atts) {
 	for (i=0; atts[i] && *atts[i] && atts[i+1]; i+=2);
 
 	if (i > 0) {
-		_atts = (char **)malloc((i+2) * sizeof(char *));
+		_atts = (char **)malloc((i+4) * sizeof(char *));
+		//fprintf(stderr, "Entity %s has %i attributes.\n", Name(), i);
 	
 		for(int j=0; j<i; j+=2) {
 			_atts[j]   = strdup(atts[j]);
 			_atts[j+1] = strdup(atts[j+1]);
+			//fprintf(stderr, "%s='%s'\n", _atts[j],_atts[j+1]);
 		}
 
 		_atts[i] = NULL;

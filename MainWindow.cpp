@@ -154,6 +154,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 		
 		case JAB_DISCONNECT:
 		{
+			TalkManager::Instance()->Reset();
 			Lock();
 			_status_view->SetMessage("disconnect");
 			jabber->Disconnect();

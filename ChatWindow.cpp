@@ -52,7 +52,7 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	MessageRepeater::Instance()->AddTarget(this);
 
 	_type           = type;
-	_user           = user;
+	_user           = new UserID(*user);
 	_group_room     = group_room;
 	_group_username = group_username;
 	
@@ -404,6 +404,11 @@ ChatWindow::MessageReceived(BMessage *msg)
 {
 	switch (msg->what)
 	{
+		case JAB_CLOSE_TALKS: {
+			PostMessage(B_QUIT_REQUESTED);
+			break;
+		}
+		
 		case JAB_CHAT_SENT:
 		{
 			const char *messageTextANSI = messageTextView->Text();

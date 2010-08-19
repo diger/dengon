@@ -270,5 +270,5 @@ void TalkManager::RotateToNextWindow(ChatWindow *current, rotation direction) {
 
 void TalkManager::Reset() {
 	MessageRepeater::Instance()->PostMessage(JAB_CLOSE_TALKS);
-	_talk_map.clear();
+	//_talk_map.clear();
 }

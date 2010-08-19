@@ -182,7 +182,8 @@ void RosterView::SelectionChanged() {
 	BOutlineListView::SelectionChanged();
 }
 
-void RosterView::LinkUser(const UserID *added_user) {
+void RosterView::LinkUser(const UserID *added_user)
+{
 	if (added_user->UserType() == UserID::CONFERENCE)
 	{
 		AddUnder(new RosterItem(added_user), _conferences);

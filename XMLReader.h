@@ -22,6 +22,8 @@ class XMLReader {
 		void                  Reset();
 		void			      FeedData(const char *data, int len); 
 		const char *		  CheckXML(const char *data);
+		const char *		  FXMLCheck(const char *xml);
+		const char *		  FXMLSkipHead(const char *xml);
 
 		virtual void		  OnStartTag(XMLEntity *entity) {};
 		virtual void		  OnEndTag(XMLEntity *entity) {};

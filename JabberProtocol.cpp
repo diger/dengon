@@ -173,6 +173,15 @@ JabberProtocol::OnTag(XMLEntity *entity)
 					ProcessVersionRequest(iq_id, iq_from);
 				}
 			}
+			
+			// handle version request
+			query = entity->Child("ping");
+			if (query && query->Attribute("xmlns")) {
+				if (!strcasecmp(query->Attribute("xmlns"), "urn:xmpp:ping"))
+				{
+					Pong(BString(entity->Attribute("id")), BString(entity->Attribute("from")));
+				}
+			}
 		}
 		
 		if (!strcasecmp(entity->Attribute("type"), "set"))
@@ -258,7 +267,23 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	}
 }
 
+void
+JabberProtocol::Pong(BString id, BString from)
+{
+	BString xml = "<iq from='";
+	xml = xml.Append(jid);
+	xml << "' id='";
+	xml = xml.Append(id);
+	xml << "' to='";
+	xml = xml.Append(from);
+	xml << "' type='result'/>";
 
+#ifdef DEBUG	
+	fprintf(stderr, "Pong reply to %s.\n", from.String());
+#endif
+	
+	socketAdapter->SendData(xml);
+}
 
 void
 JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
@@ -782,6 +807,7 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 
 	// iterate through child 'item' tags
 	JRoster::Instance()->Lock();
+	
 	for (int i=0; i<entity->CountChildren(); ++i) {
 		
 		// handle the item child
@@ -792,12 +818,9 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 
 			// make a user
 			UserID user(entity->Child(i)->Attribute("jid"));
-
-			// no resources supported
-			//if (user.JabberResource().size()) {
-			//	continue;
-			//}
 			
+			fprintf(stderr,  "Roster item %s.\n", user.JabberHandle().c_str());
+		
 			if (entity->Child(i)->Child("group")) {
 				if (!strcasecmp(entity->Child(i)->Child("group")->Data(), "#Conference"))
 				{
@@ -816,27 +839,28 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 			if (entity->Child(i)->Attribute("subscription")) {
 				user.SetSubscriptionStatus(entity->Child(i)->Attribute("subscription"));
 			}
-
+/*
 			// set ask
 			if (entity->Child(i)->Attribute("ask")) {
 				user.SetAsk(entity->Child(i)->Attribute("ask"));
 			}
-
+*/
 			// obtain a handle to the user (is there a new one?)
 			UserID *roster_user;
 			
 			if (user.IsUser()) {
 				roster_user = JRoster::Instance()->FindUser(JRoster::HANDLE, user.JabberHandle());
-			} else if (user.UserType() == UserID::TRANSPORT) {
+			} /*else if (user.UserType() == UserID::TRANSPORT) {
 				roster_user = JRoster::Instance()->FindUser(JRoster::TRANSPORT_ID, user.TransportID());
 			} else {
 				continue;
-			}
+			}*/
 
 			// if we have duplicates, settle disputes
 			if (roster_user) {
 				// process if it's a removal
-				if (entity->Child(i)->Attribute("subscription") && !strcasecmp(entity->Child(i)->Attribute("subscription"), "remove")) {
+				if (entity->Child(i)->Attribute("subscription") && 
+						!strcasecmp(entity->Child(i)->Attribute("subscription"), "remove")) {
 					// remove from the list
 					JRoster::Instance()->RemoveUser(roster_user);
 
@@ -927,7 +951,7 @@ JabberProtocol::ReceiveData(BMessage *msg)
 	
 	msg->AddInt32("length", msgData.Length());
 	
-	msgData = msgData.Prepend("<dengon>").Append("</dengon>");
+	msgData = BString(FXMLSkipHead(msgData.String())).Prepend("<dengon>").Append("</dengon>");
 	
 	msg->AddString("data", msgData);
 	
@@ -942,7 +966,7 @@ JabberProtocol::ReceivedMessageHandler(BMessage *msg)
 	
 #ifdef DEBUG
 
-		fprintf(stderr, "DATA received %i: %s\n", (int)data.Length(), data.String());
+		fprintf(stderr, "\nDATA received %i: %s\n", (int)data.Length(), data.String());
 
 #endif
 

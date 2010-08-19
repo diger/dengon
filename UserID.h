@@ -58,8 +58,6 @@ public:
 	void                 SetExactOnlineStatus(std::string exact_status);
 	void                 SetMoreExactOnlineStatus(std::string exact_status);
 	void                 SetSubscriptionStatus(std::string status);
-
-private:
 	void                 _ProcessHandle();
 
 	// identification

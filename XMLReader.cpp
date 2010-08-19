@@ -40,6 +40,7 @@ XMLReader::~XMLReader() {
 
 void XMLReader::Reset() {
 	_please_reset = true;
+
 }
 
 void XMLReader::FeedData(const char *data, int len) {
@@ -111,7 +112,7 @@ void XMLReader::_OnStartTag(const char *name, const char **atts) {
 	OnStartTag(_curr_entity);
 }
 
-const char *FXMLSkipHead(const char *xml) {
+const char *XMLReader::FXMLSkipHead(const char *xml) {
 	const char *ptr = xml;
 	const char *tmp;
 	int nopen = 0;
@@ -142,7 +143,7 @@ const char *FXMLSkipHead(const char *xml) {
 }
 
 
-const char *FXMLCheck(const char *xml) {
+const char *XMLReader::FXMLCheck(const char *xml) {
 	const char *ptr;
 	const char *tmp;
 	int nopen = 0;
@@ -173,6 +174,8 @@ const char *XMLReader::CheckXML(const char *data)
 }
 
 void XMLReader::_OnEndTag(const char *name) {
+	
+
 	// Add existing character data to entity
 	if (_curr_character_data.size() > 0)
 		_curr_entity->SetCharacterData(_curr_character_data.c_str());

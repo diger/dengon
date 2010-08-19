@@ -54,6 +54,7 @@ class JabberProtocol : public XMLReader
 				void			ReceivedMessageHandler(BMessage *jabberMessage);
 				void			ProcessVersionRequest(string req_id, string req_from);
 				void			Disconnect();
+				void			Pong(BString id, BString from);
 				void			LockXMLReader();
 				void			UnlockXMLReader();
 				void			OnStartTag(XMLEntity *entity);

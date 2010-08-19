@@ -3,57 +3,50 @@
 //////////////////////////////////////////////////
 
 #include <algorithm>
-
-#ifndef __CSTRING__
-	#include <cstring>
-#endif
-
-#ifndef AGENT_H
-	#include "Agent.h"
-#endif
-
-#ifndef AGENT_LIST_H
-	#include "AgentList.h"
-#endif
-
-#ifndef USER_ID_H
-	#include "UserID.h"
-#endif
+#include <string>
+#include "Agent.h"
+#include "AgentList.h"
+#include "UserID.h"
 
 UserID::UserID(std::string handle) {
 	// initialize values
 	SetHandle(handle);
-
-	// bare defaults
-	SetOnlineStatus(UserID::UNKNOWN);
-	SetAsk("");
-	SetExactOnlineStatus("chat");
+	SetUsertype(UserID::JABBER);
 	SetSubscriptionStatus("none");
+	SetOnlineStatus(UserID::OFFLINE);
+	
+	//SetAsk("");
+	//SetExactOnlineStatus("chat");
+	//SetSubscriptionStatus("none");
 }
 
-UserID::UserID(const UserID &copied_userid) {
+UserID::UserID(const UserID &copied_userid)
+{
 	SetHandle(copied_userid.Handle());
 	SetFriendlyName(copied_userid.FriendlyName());
-
-	SetAsk(copied_userid.Ask());
 	SetSubscriptionStatus(copied_userid.SubscriptionStatus());
 	SetOnlineStatus(copied_userid.OnlineStatus());
-	SetExactOnlineStatus(copied_userid.ExactOnlineStatus());
 	SetUsertype(copied_userid.UserType());
-	SetMoreExactOnlineStatus(copied_userid.MoreExactOnlineStatus());
+	
+	//SetAsk(copied_userid.Ask());
+	//SetExactOnlineStatus(copied_userid.ExactOnlineStatus());
+	//SetMoreExactOnlineStatus(copied_userid.MoreExactOnlineStatus());
 }
 
 UserID::~UserID() {
 }
 
-UserID &UserID::operator=(const UserID &rhs) {
+UserID &UserID::operator=(const UserID &rhs)
+{
 	SetHandle(rhs.Handle());
 	SetFriendlyName(rhs.FriendlyName());
-
-	SetAsk(rhs.Ask());
 	SetSubscriptionStatus(rhs.SubscriptionStatus());
-	SetUsertype(rhs.UserType());
 	SetOnlineStatus(rhs.OnlineStatus());
+	SetUsertype(rhs.UserType());
+
+	//SetAsk(rhs.Ask());
+	//SetExactOnlineStatus(rhs.ExactOnlineStatus());
+	//SetMoreExactOnlineStatus(rhs.MoreExactOnlineStatus());
 
 	return *this;
 }
@@ -111,7 +104,8 @@ bool UserID::HaveSubscriptionTo() const {
 }
 
 bool UserID::IsUser() const {
-	return (UserType() == JABBER || UserType() == CONFERENCE || UserType() == AIM || UserType() == ICQ || UserType() == YAHOO || UserType() == MSN);
+	return (UserType() == JABBER || UserType() == CONFERENCE ||
+	UserType() == AIM || UserType() == ICQ || UserType() == YAHOO || UserType() == MSN);
 }
 
 void UserID::SetUsertype(user_type type)
@@ -120,6 +114,8 @@ void UserID::SetUsertype(user_type type)
 }
 
 const std::string UserID::JabberHandle() const {
+	return JabberUsername() + '@'+ JabberServer();
+	/*
 	std::string handle;
 
 	std::string username = JabberUsername();
@@ -135,6 +131,7 @@ const std::string UserID::JabberHandle() const {
 	}
 
 	return handle;
+	*/
 }
 
 const std::string UserID::JabberCompleteHandle() const {
@@ -264,8 +261,8 @@ void UserID::SetOnlineStatus(online_status status)
 			SetOnlineStatus(TRANSPORT_ONLINE);
 		}
 
-		SetExactOnlineStatus("");
-		SetMoreExactOnlineStatus("");
+		//SetExactOnlineStatus("");
+		//SetMoreExactOnlineStatus("");
 	}
 	
 }
@@ -309,7 +306,8 @@ void UserID::SetSubscriptionStatus(std::string status) {
 	}
 }
 
-void UserID::_ProcessHandle() {
+void UserID::_ProcessHandle()
+{
 	////////// Split into Jabber pieces
 	{
 		uint squigly_pos, slash_pos;
@@ -346,9 +344,11 @@ void UserID::_ProcessHandle() {
 			}
 		}
 	}
+	
+	//StripJabberResource();
 
 	FINISH_JABBER_PARSE:;
-
+/*
 	////////// Split into Transport pieces
 	{
 		uint slash_pos, arguments_pos;
@@ -459,4 +459,5 @@ void UserID::_ProcessHandle() {
 	} else {
 		_user_type = INVALID;
 	}
+	*/
 }
