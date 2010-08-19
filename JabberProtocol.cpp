@@ -17,6 +17,8 @@
 #include <Roster.h>
 #include <unistd.h>
 
+#include "version.h"
+
 #define DEBUG 
 
 static int32 SessionDispatcher(void *args);
@@ -312,7 +314,7 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 	entity_iq->AddChild(entity_query);
 	
 	entity_query->AddChild("name", NULL, "Dengon");
-	entity_query->AddChild("version", NULL, "1.0");
+	entity_query->AddChild("version", NULL, "1.0 (rev: "DENGON_SVNVERSION")");
 
 	string strVersion("Haiku");
 	
@@ -324,7 +326,7 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 		if (sscanf(uname_info.version, "r%ld", &revision) == 1) {
 			char version[16];
 			snprintf(version, sizeof(version), "%ld", revision);
-			os_info += " (Revision: ";
+			os_info += " (rev: ";
 			os_info += version;
 			os_info += ")";
 		}

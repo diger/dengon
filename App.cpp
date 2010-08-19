@@ -6,7 +6,7 @@
 #include "SecureSocket.h"
 #include "JabberProtocol.h"
 
-
+#include "version.h"
 
 App::App(void)
 	:	BApplication("application/Chat")
@@ -25,7 +25,9 @@ App::AboutRequested()
 {
 	BAlert *alert = new BAlert("about", "Chat\n\n"
 		"By Maxim Sokhatsky.\n"
-		"Based on Jabber for BeOS by John Blanco.\n\n", "Chat!");
+		"Based on Jabber for BeOS by John Blanco.\n\n"
+		"revision: "DENGON_SVNVERSION"\n"
+		"rev date: "DENGON_SVNDATE"\n", "Chat!");
 	BTextView *view = alert->TextView();
 	BFont font;
 	view->SetStylable(true);
