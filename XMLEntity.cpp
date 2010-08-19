@@ -177,7 +177,7 @@ char *XMLEntity::ToString(bool encoded, int level) {
 	// possible point of memory leak - needs resolution
 	return strdup(text.c_str());	
 }
-
+/*
 char *XMLEntity::StartToString(bool encoded) {
 	// piece together text-version XML from XMLEntity
 	string text = "";
@@ -214,7 +214,7 @@ char *XMLEntity::EndToString() {
 	// possible point of memory leak - needs resolution
 	return strdup(text.c_str());	
 }
-
+*/
 int XMLEntity::CountChildren() {
 	return _children->size();
 }
@@ -366,7 +366,7 @@ string XMLEntity::EscapeText(string text) {
 
 	return text;
 }
-
+/*
 string XMLEntity::DeEscapeText(string text) {
 	unsigned int replacement;
 
@@ -388,3 +388,4 @@ string XMLEntity::DeEscapeText(string text) {
 	return text;
 
 }
+*/
