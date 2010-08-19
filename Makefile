@@ -6,7 +6,7 @@ LIBS= /boot/develop/lib/x86/libbe.so /boot/develop/lib/x86/libroot.so /boot/comm
 LIBPATHS=
 SYSTEM_INCLUDE_PATHS= /boot/develop/headers/be
 LOCAL_INCLUDE_PATHS=
-OPTIMIZE=NONE
+OPTIMIZE=FULL
 #	specify any preprocessor symbols to be defined.  The symbols will not
 #	have their values set automatically; you must supply the value (if any)
 #	to use.  For example, setting DEFINES to "DEBUG=1" will cause the
