@@ -18,7 +18,7 @@ LIBS= stdc++.r4 be root network translation \
 LIBPATHS= /boot/develop/lib/x86/ /boot/common/lib/ 
 SYSTEM_INCLUDE_PATHS= /boot/develop/headers/be
 LOCAL_INCLUDE_PATHS=
-OPTIMIZE=NONE
+OPTIMIZE=-O3
 #	specify any preprocessor symbols to be defined.  The symbols will not
 #	have their values set automatically; you must supply the value (if any)
 #	to use.  For example, setting DEFINES to "DEBUG=1" will cause the

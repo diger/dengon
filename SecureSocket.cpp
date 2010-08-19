@@ -18,7 +18,7 @@
 // our synchronization routines (BLocker). Thus, whenever be called
 // SSL context always will know about thread context.
 
-//#define DEBUG
+#define DEBUG
 
 static BLocker** lock_cs = NULL;
 
@@ -160,7 +160,7 @@ SSLAdapter::ReceiveData(BMessage *mdata)
 		mdata->AddString("data", data);
 		
 #ifdef DEBUG
-		fprintf(stderr, "RECV SSL: %s\n", data);
+		//fprintf(stderr, "RECV SSL: %s\n", data);
 #endif
 
 	}
