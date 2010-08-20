@@ -979,9 +979,12 @@ JabberProtocol::ReceivedMessageHandler(BMessage *msg)
 
 }
 
+
+
 void
 JabberProtocol::SendMessage(BString to, BString text)
 {
+	/*
 	BString xml = "<message type='chat' to='";
 	xml = xml.Append(to);
 	xml << "'><body>";
@@ -989,11 +992,37 @@ JabberProtocol::SendMessage(BString to, BString text)
 	xml << "</body></message>";
 	
 	socketAdapter->SendData(xml);
+	*/
+	
+	XMLEntity   *entity;
+	char **atts = CreateAttributeMemory(4);
+
+	// assemble attributes;
+	strcpy(atts[0], "to");
+	strcpy(atts[1], to.String());
+	strcpy(atts[2], "type");
+	strcpy(atts[3], "chat");
+	
+	// construct XML tagset
+	entity = new XMLEntity("message", (const char **)atts);
+
+	entity->AddChild("body", NULL, text.String());
+	//entity->AddChild("thread", NULL, thread_id.c_str());
+
+	// send XML command
+	char *str = entity->ToString();
+	socketAdapter->SendData(str);
+	free(str);
+
+	DestroyAttributeMemory(atts, 4);
+	
+	delete entity;
 }
 
 void
 JabberProtocol::SendGroupchatMessage(BString to, BString text)
 {
+	/*
 	BString xml = "<message type='groupchat' to='";
 	xml = xml.Append(to);
 	xml << "'><body>";
@@ -1001,6 +1030,29 @@ JabberProtocol::SendGroupchatMessage(BString to, BString text)
 	xml << "</body></message>";
 	
 	socketAdapter->SendData(xml);
+	*/
+	XMLEntity   *entity;
+	char **atts = CreateAttributeMemory(4);
+
+	// assemble attributes;
+	strcpy(atts[0], "to");
+	strcpy(atts[1], to.String());
+	strcpy(atts[2], "type");
+	strcpy(atts[3], "groupchat");
+	
+	// construct XML tagset
+	entity = new XMLEntity("message", (const char **)atts);
+
+	entity->AddChild("body", NULL, text.String());
+
+	// send XML command
+	char *str = entity->ToString();
+	socketAdapter->SendData(str);
+	free(str);
+
+	DestroyAttributeMemory(atts, 4);
+	
+	delete entity;
 }
 
 void 
