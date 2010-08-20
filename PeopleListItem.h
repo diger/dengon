@@ -6,17 +6,14 @@
 #ifndef PEOPLE_LIST_ITEM_H
 #define PEOPLE_LIST_ITEM_H
 
-#ifndef __STRING__
-	#include <string>
-#endif
+#include <string>
+#include <interface/ListItem.h>
 
-#ifndef LIST_ITEM_H
-	#include <interface/ListItem.h>
-#endif
 
 class PeopleListItem : public BListItem {
 public:
-	              PeopleListItem(std::string whoami, std::string user);
+	              PeopleListItem(std::string whoami, std::string user,
+	              	string show, string status, string role, string affiliation);
    	             ~PeopleListItem();
 
 	virtual void  DrawItem(BView *owner, BRect rect, bool complete);
@@ -27,6 +24,10 @@ public:
 private:
 	std::string   _user;
 	std::string   _whoami;
+	string		_show;
+	string		_status;
+	string		_affiliation;
+	string		_role;
 };
 
 #endif

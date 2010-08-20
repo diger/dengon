@@ -7,22 +7,30 @@
 #include <interface/View.h>
 #include "JabberProtocol.h"
 
-PeopleListItem::PeopleListItem(std::string whoami, std::string user)
-	: BListItem() {
+PeopleListItem::PeopleListItem(std::string whoami, std::string user,
+	string show, string status, string role, string affiliation)
+	: BListItem()
+{
 	_user   = user;
 	_whoami = whoami;
+	_show = show;
+	_status = status;
+	_role = role;
+	_affiliation = affiliation;
 }
 
 PeopleListItem::~PeopleListItem() {
 }
 
-void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete) {
+void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
+{
 	// text characteristics
 	owner->SetFont(be_plain_font);
 	owner->SetFontSize(11.0);
 
 	// clear rectangle
 	if (IsSelected()) {
+		/*
 		if (User() == _whoami) {
 			owner->SetHighColor(255, 200, 200);
 		} else {
@@ -30,6 +38,15 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete) {
 		}
 
 		owner->SetLowColor(owner->HighColor());
+		*/
+		
+		// font color is based on online status
+		if (_show == "xa") 		  owner->SetHighColor(255, 220, 220, 255);
+		else if (_show == "away") owner->SetHighColor(255, 230, 210, 255); 
+		else if (_show == "dnd")  owner->SetHighColor(255, 192, 192, 255); 
+		else 					  owner->SetHighColor(192, 255, 192, 255); 
+		owner->SetLowColor(owner->HighColor());
+
 	} else {
 		owner->SetHighColor(owner->ViewColor());
 		owner->SetLowColor(owner->HighColor());
@@ -44,14 +61,27 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete) {
 	float height = fh.ascent + fh.descent;
 
 	// standard text color
+	/*
 	if (User() == _whoami) {
 		owner->SetHighColor(255, 0, 0);
 	} else {
 		owner->SetHighColor(0, 0, 255);
-	}
+	}*/
+	if (_show == "xa") 		   owner->SetHighColor(139, 0, 0, 255);
+	else if (_show == "away")  owner->SetHighColor(255, 140, 0, 255);
+	else if (_show == "dnd")   owner->SetHighColor(255, 0, 0, 255);
+	else					   owner->SetHighColor(0, 100, 0, 255);
 
 	// draw information
 	owner->DrawString(User().c_str(), BPoint(frame.left + 5.0, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
+	
+	if (!_status.empty()) {
+		owner->SetHighColor(0, 0, 0, 255);
+
+		owner->DrawString(" ");
+		owner->DrawString(_status.c_str());
+		owner->DrawString("");
+	}
 }
 
 void PeopleListItem::Update(BView *owner, const BFont *font) {

@@ -399,9 +399,27 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			msg.AddString("server", server.c_str());
 			msg.AddString("username", user.c_str());
 			
-			if (!entity->Attribute("type") || !strcasecmp(entity->Attribute("type"), "available")) {
+			if (!entity->Attribute("type") || !strcasecmp(entity->Attribute("type"), "available"))
+			{
+				if (entity->Child("show") && entity->Child("show")->Data())
+				{
+					msg.AddString("show", entity->Child("show")->Data());
+				} else
+					msg.AddString("show", "online");
+
+				if (entity->Child("status") && entity->Child("status")->Data())
+				{
+					msg.AddString("status", entity->Child("status")->Data());
+				} else
+					msg.AddString("status", "");
+					
+				msg.AddString("role", "admin");
+				msg.AddString("affiliation", "none");
+		
 				msg.what = JAB_GROUP_CHATTER_ONLINE;
-			} else if (!strcasecmp(entity->Attribute("type"), "unavailable")) {
+			}
+			else if (!strcasecmp(entity->Attribute("type"), "unavailable"))
+			{
 				msg.what = JAB_GROUP_CHATTER_OFFLINE;
 			}
 

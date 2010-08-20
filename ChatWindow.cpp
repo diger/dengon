@@ -313,12 +313,12 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 }
 
 void
-ChatWindow::AddGroupChatter(string user)
+ChatWindow::AddGroupChatter(string user, string show, string status, string role, string affiliation)
 {
 	int i;
 
 	// create a new entry
-	PeopleListItem *people_item = new PeopleListItem(_group_username, user);
+	PeopleListItem *people_item = new PeopleListItem(_group_username, user, show, status, role, affiliation);
 	
 	// exception
 	if (_people->CountItems() == 0) {
@@ -439,7 +439,21 @@ ChatWindow::MessageReceived(BMessage *msg)
 
 			if (GetGroupRoom() == msg->FindString("room"))
 			{
-				AddGroupChatter(msg->FindString("username"));
+				
+				fprintf(stderr, "username: %s.\n", msg->FindString("username"));
+				fprintf(stderr, "show: %s.\n", msg->FindString("show"));
+				fprintf(stderr, "status: %s.\n", msg->FindString("status"));
+				fprintf(stderr, "role: %s.\n", msg->FindString("role"));
+				fprintf(stderr, "affiliation: %s.\n", msg->FindString("affiliation"));
+				
+				AddGroupChatter(
+				
+					msg->FindString("username"),
+					msg->FindString("show"),
+					msg->FindString("status"),
+					msg->FindString("role"),
+					msg->FindString("affiliation"));
+				
 			}
 			
 			break;

@@ -32,7 +32,7 @@ enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER};
 			BString		OurRepresentation();
 			string		GetGroupUsername();
 			string		GetGroupRoom();
-			void 		AddGroupChatter(string user);
+			void 		AddGroupChatter(string user, string show, string status, string role, string affiliation);
 			void		RemoveGroupChatter(string username);
 			
 	const	UserID		*GetUserID();
