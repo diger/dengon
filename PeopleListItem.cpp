@@ -8,7 +8,7 @@
 #include "JabberProtocol.h"
 
 PeopleListItem::PeopleListItem(std::string whoami, std::string user,
-	string show, string status, string role, string affiliation)
+	std::string show, std::string status, std::string role, std::string affiliation)
 	: BListItem()
 {
 	_user   = user;
