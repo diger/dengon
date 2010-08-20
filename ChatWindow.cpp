@@ -329,21 +329,33 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 	}
 
 	// add it to the list
-	for (i=0; i < _people->CountItems(); ++i) {
+	for (i=0; i < _people->CountItems(); ++i)
+	{
 		PeopleListItem *iterating_item = dynamic_cast<PeopleListItem *>(_people->ItemAt(i));
+		
 
 		if (strcasecmp(iterating_item->User().c_str(), user.c_str()) > 0) {
 			// add the new user
 			_people->AddItem(people_item, i);
 			break;
-		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) && strcmp(iterating_item->User().c_str(), user.c_str()) > 0) {
+		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
+					strcmp(iterating_item->User().c_str(), user.c_str()) > 0) {
 			// add the new user
 			_people->AddItem(people_item, i);
 			break;
-		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) && !strcmp(iterating_item->User().c_str(), user.c_str())) {
+		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
+				   !strcmp(iterating_item->User().c_str(), user.c_str()))
+		{
+
+			iterating_item->_show = show;
+			iterating_item->_status = status;
+			iterating_item->_role = role;
+			iterating_item->_affiliation = role;
+			
 			_people->InvalidateItem(i);
 			break;
-		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) && strcmp(iterating_item->User().c_str(), user.c_str()) < 0) {
+		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
+					strcmp(iterating_item->User().c_str(), user.c_str()) < 0) {
 			if (i == (_people->CountItems() - 1)) {
 				// add the new user
 				_people->AddItem(people_item);
@@ -366,7 +378,8 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 			}
 
 			break;
-		} else if ((strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) && (i == (_people->CountItems() - 1))) {
+		} else if ((strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) &&
+					(i == (_people->CountItems() - 1))) {
 			// add the new user
 			_people->AddItem(people_item);
 
@@ -374,6 +387,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 		} else if (strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) {
 			continue;
 		}
+
 	}
 }
 

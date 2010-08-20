@@ -21,7 +21,6 @@ public:
 
 	std::string   User() const;
 
-private:
 	std::string   _user;
 	std::string   _whoami;
 	std::string		_show;
