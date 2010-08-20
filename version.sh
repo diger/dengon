@@ -13,3 +13,6 @@ cat <<EOF > version.h
 #define DENGON_SVNDATE "$svndate"
 
 EOF
+
+touch JabberProtocol.cpp
+touch App.cpp
