@@ -7,7 +7,7 @@ cat <<EOF > version.h
 
 // Do not edit!
 //
-// generated from $0 at $gendate
+// generated from $0 on $gendate
 
 #define DENGON_SVNVERSION "$svnversion"
 #define DENGON_SVNDATE "$svndate"
