@@ -130,8 +130,8 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 			peopleView->AddChild(_scrolled_people_pane);	
 			_split_group_people = new SplitPane(people_rect, historyView, peopleView, B_FOLLOW_ALL);
 			_split_group_people->SetAlignment(B_VERTICAL);
-			_split_group_people->SetMinSizeOne(300.0);
-			_split_group_people->SetMinSizeTwo(100.0);
+			_split_group_people->SetMinSizeOne(50.0);
+			_split_group_people->SetMinSizeTwo(120.0);
 			_split_group_people->SetBarThickness(splitterHeight);
 			_split_group_people->SetBarAlignmentLocked(true);
 			_split_group_people->SetBarPosition(400);

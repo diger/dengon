@@ -76,9 +76,9 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	owner->DrawString(User().c_str(), BPoint(frame.left + 5.0, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
 	
 	if (!_status.empty()) {
-		owner->SetHighColor(0, 0, 0, 255);
+		owner->SetHighColor(90, 90, 90, 255);
 
-		owner->DrawString(" ");
+		owner->DrawString(": ");
 		owner->DrawString(_status.c_str());
 		owner->DrawString("");
 	}

@@ -168,9 +168,9 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete)
 
 	// draw show
 	if (!GetUserID()->MoreExactOnlineStatus().empty()) {
-		owner->SetHighColor(0, 0, 0, 255);
+		owner->SetHighColor(90, 90, 90, 255);
 
-		owner->DrawString(" ");
+		owner->DrawString(": ");
 		owner->DrawString(GetUserID()->MoreExactOnlineStatus().c_str());
 		owner->DrawString("");
 	}
