@@ -24,10 +24,10 @@ public:
 private:
 	std::string   _user;
 	std::string   _whoami;
-	string		_show;
-	string		_status;
-	string		_affiliation;
-	string		_role;
+	std::string		_show;
+	std::string		_status;
+	std::string		_affiliation;
+	std::string		_role;
 };
 
 #endif
