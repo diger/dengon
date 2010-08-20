@@ -267,22 +267,14 @@ void UserID::SetOnlineStatus(online_status status)
 	
 }
 
-void UserID::SetExactOnlineStatus(std::string exact_status) {
-	// only set legal status
-	if (exact_status == "away" || exact_status == "chat" || exact_status == "xa" || exact_status == "dnd") {
-		_exact_status = exact_status;
-
-		// when this changes we must reset the more exact status
-		SetMoreExactOnlineStatus("");
-	}
+void UserID::SetExactOnlineStatus(std::string exact_status)
+{
+	_exact_status = exact_status;
+	SetMoreExactOnlineStatus("");
 }
 
-void UserID::SetMoreExactOnlineStatus(std::string more_exact_status) {
-	// ignore certain values
-	if (more_exact_status == "Autoreply" || more_exact_status == "Online") {
-		return;
-	}
-
+void UserID::SetMoreExactOnlineStatus(std::string more_exact_status)
+{
 	_more_exact_status = more_exact_status;
 }
 

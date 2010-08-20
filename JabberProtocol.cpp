@@ -379,7 +379,8 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 	int num_matches = 0;
 
 	// verify we have a username
-	if (entity->Attribute("from")) {
+	if (entity->Attribute("from"))
+	{
 		roster->Lock();
 
 		// circumvent groupchat presences
@@ -429,28 +430,29 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			return;
 		}		
 
-		for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i) {
+		for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i)
+		{
 			UserID *user = NULL;
 
-			if ((*i)->IsUser() && !strcasecmp(UserID(entity->Attribute("from")).JabberHandle().c_str(), (*i)->JabberHandle().c_str())) {
-				// found another match
+			if ((*i)->IsUser() &&
+				!strcasecmp(UserID(entity->Attribute("from")).JabberHandle().c_str(), (*i)->JabberHandle().c_str()))
+			{
 				++num_matches;
-
 				user = *i;
-
 				ProcessUserPresence(user, entity);
-			} else if ((*i)->UserType() == UserID::TRANSPORT && !strcasecmp(UserID(entity->Attribute("from")).TransportID().c_str(), (*i)->TransportID().c_str())) {
-				// found another match
+			}
+			else if ((*i)->UserType() == UserID::TRANSPORT &&
+					!strcasecmp(UserID(entity->Attribute("from")).TransportID().c_str(), (*i)->TransportID().c_str()))
+			{
 				++num_matches;
-
 				user = *i;
 				ProcessUserPresence(user, entity);
 			}
 		}
 		
-		if (num_matches == 0) {
+		if (num_matches == 0)
+		{
 			UserID user(entity->Attribute("from"));
-			
 			ProcessUserPresence(&user, entity);
 		}
 			
@@ -736,9 +738,7 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		user->SetOnlineStatus(UserID::OFFLINE);
 		fprintf(stderr, "User %s is unavailable.\n", user->JabberHandle().c_str());
 	}
-	else if (user && !strcasecmp(availability, "available")
-	//|| user && entity->Child("status") && entity->Child("status")->Data() 
-	)
+	else if (user && !strcasecmp(availability, "available"))
 	{
 		user->SetOnlineStatus(UserID::ONLINE);
 		fprintf(stderr, "User %s is available.\n", user->JabberHandle().c_str());
@@ -802,14 +802,21 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		}
 	}
 
-	if (user && (!strcasecmp(availability, "available") || !strcasecmp(availability, "unavailable"))) {
+	if (user && (!strcasecmp(availability, "available") ||
+		!strcasecmp(availability, "unavailable")))
+	{
 		if (entity->Child("show") && entity->Child("show")->Data()) {
 			user->SetExactOnlineStatus(entity->Child("show")->Data());
-		}
+		} else {
+			user->SetExactOnlineStatus("chat");
+			fprintf(stderr, "Process User Presence show %s.\n", "chat");
+		}	
 
 		if (entity->Child("status") && entity->Child("status")->Data()) {
 			user->SetMoreExactOnlineStatus(entity->Child("status")->Data());
-		}
+		} else
+			user->SetMoreExactOnlineStatus("");
+		
 	}
 }
 
