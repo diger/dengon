@@ -78,7 +78,8 @@ RosterItem::RosterItem(const UserID *userid)
 RosterItem::~RosterItem() {
 }
 
-void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
+void RosterItem::DrawItem(BView *owner, BRect frame, bool complete)
+{
 	// protection
 	if (StalePointer()) {
 		return;
@@ -86,55 +87,43 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
 
 	// get online status
 	UserID::online_status status = _userid->OnlineStatus();
-	std::string                exact_status = _userid->ExactOnlineStatus();
+	std::string exact_status = _userid->ExactOnlineStatus();
 
 	// text characteristics
 	owner->SetFont(be_plain_font);
 	owner->SetFontSize(10.0);
+	
+				//owner->GetFont(&statusFont);
+				//statusFont.SetFace(B_ITALIC_FACE);
+				//owner->SetFont(&statusFont);
 
 	// clear rectangle
-	if (IsSelected()) {
-		if (status == UserID::ONLINE) {
-			if (exact_status == "xa" || exact_status == "away" || exact_status == "dnd") {
-				owner->SetHighColor(200, 255, 200, 255);
-			} else {
-				owner->SetHighColor(200, 255, 200, 255);
-			}
-		} else if (status == UserID::OFFLINE) {
-			owner->SetHighColor(255, 200, 200, 255);
-		} else {
-			owner->SetHighColor(200, 200, 255, 255);
+	if (IsSelected())
+	{
+		// font color is based on online status
+		if (status == UserID::ONLINE)
+		{
+			if (exact_status == "xa") 		 owner->SetHighColor(255, 220, 220, 255);
+			else if (exact_status == "away") owner->SetHighColor(255, 230, 210, 255); 
+			else if (exact_status == "dnd")  owner->SetHighColor(255, 192, 192, 255); 
+			else 							 owner->SetHighColor(192, 255, 192, 255); 
 		}
-	} else {
+		else if (status == UserID::OFFLINE)
+		{
+			owner->SetHighColor(220, 220, 220, 255);
+		}
+		else
+		{
+			owner->SetHighColor(173, 216, 230, 255);
+		}
+	}
+	else
+	{
 		owner->SetHighColor(owner->ViewColor());
 	}
 
 	owner->FillRect(frame);
-/*
-	// draw a graphic
-	owner->SetDrawingMode(B_OP_ALPHA);
-	owner->SetBlendingMode(B_PIXEL_ALPHA, B_ALPHA_OVERLAY);
 
-	if (status == UserID::ONLINE) {
-		if (exact_status == "xa" || exact_status == "away" || exact_status == "dnd") {
-			if (_kinda_online_icon) {
-				owner->DrawBitmapAsync(_kinda_online_icon, BPoint(frame.left + 1, frame.top + 4));
-			}
-		} else {
-			if (_online_icon) {
-				owner->DrawBitmapAsync(_online_icon, BPoint(frame.left + 1, frame.top + 4));
-			}
-		}
-	} else if (status == UserID::OFFLINE) {
-		if (_offline_icon) {
-			owner->DrawBitmapAsync(_offline_icon, BPoint(frame.left + 1, frame.top + 4));
-		}
-	} else {
-		if (_unknown_icon) {
-			owner->DrawBitmapAsync(_unknown_icon, BPoint(frame.left + 1, frame.top + 4));
-		}
-	}
-*/
 	float height;
 
 	// construct name
@@ -151,19 +140,20 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
 	BFont statusFont;
 			
 	// font color is based on online status
-	if (status == UserID::ONLINE) {
-		if (exact_status == "xa" || exact_status == "away" || exact_status == "dnd") {
-			owner->SetHighColor(0, 110, 0, 255);
-			owner->GetFont(&statusFont);
-			statusFont.SetFace(B_ITALIC_FACE);
-			owner->SetFont(&statusFont);
-		} else {
-			owner->SetHighColor(0, 180, 0, 255);
-		}
-	} else if (status == UserID::OFFLINE) {
-		owner->SetHighColor(255, 0, 0, 255); //red
-	} else {
-		owner->SetHighColor(0, 0, 255, 255); //blue
+	if (status == UserID::ONLINE)
+	{
+		if (exact_status == "xa") 			owner->SetHighColor(139, 0, 0, 255);
+		else if (exact_status == "away")	owner->SetHighColor(255, 140, 0, 255);
+		else if (exact_status == "dnd")		owner->SetHighColor(255, 0, 0, 255);
+		else								owner->SetHighColor(0, 100, 0, 255);
+	}
+	else if (status == UserID::OFFLINE)
+	{
+		owner->SetHighColor(90, 90, 90, 255); // gray
+	}
+	else
+	{
+		owner->SetHighColor(0, 0, 255, 255); // blue
 	}
 
 	// construct text positioning
@@ -173,17 +163,18 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
 	height = fh.ascent + fh.descent;
 
 	// draw name
-	owner->DrawString(name.c_str(), BPoint(frame.left/* + 13*/, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
+	owner->DrawString(name.c_str(),
+		BPoint(frame.left/* + 13*/, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
 
 	// draw show
 	if (!GetUserID()->MoreExactOnlineStatus().empty()) {
 		owner->SetHighColor(0, 0, 0, 255);
 
-		owner->DrawString(" [");
+		owner->DrawString(" ");
 		owner->DrawString(GetUserID()->MoreExactOnlineStatus().c_str());
-		owner->DrawString("]");
+		owner->DrawString("");
 	}
-
+/*
 	// draw external chat icon
 	if (GetUserID()->UserType() == UserID::AIM) {
 		if (_aol_icon) {
@@ -202,7 +193,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete) {
 			owner->DrawBitmapAsync(_msn_icon, BPoint(owner->PenLocation().x + 2.0, frame.top + 2));
 		}
 	}
-	
+*/	
 	owner->SetFont(be_plain_font);
 	owner->SetFontSize(10.0);
 
