@@ -292,9 +292,31 @@ JabberProtocol::SendUnavailable(BString to, BString status)
 {
 	BString xml = "<presence to='";
 	xml = xml.Append(to);
-	xml << "' type='unavailable'><status>";
-	xml = xml.Append(status);
-	xml << "</status></presence>";
+	xml << "' type='unavailable'>";
+	if (status.Length() > 0)
+	{
+		xml << "<status>";
+		xml = xml.Append(status);
+		xml << "</status>";
+	}
+	xml << "</presence>";
+	
+	socketAdapter->SendData(xml);
+}
+
+void
+JabberProtocol::JoinRoom(BString to, BString password)
+{
+	BString xml = "<presence to='";
+	xml = xml.Append(to);
+	xml << "'><x xmlns='http://jabber.org/protocol/muc#user'>";
+	if (password.Length() > 0)
+	{
+		xml << "<password>";
+		xml = xml.Append(password);
+		xml << "</password>";
+	}
+	xml << "</x></presence>";
 	
 	socketAdapter->SendData(xml);
 }

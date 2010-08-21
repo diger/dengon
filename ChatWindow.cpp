@@ -304,6 +304,20 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 		string action = "* " + username + " " + message.substr(4) + "\n";  
 		historyTextView->Insert(historyTextView->TextLength(), action.c_str(), action.length(), &tra_thick_blue);
 	}
+	else if (message.substr(0,6) == "/join ")
+	{
+		string room = message.substr(6);
+		UserID userid(room);
+		
+		ChatWindow *window = 
+						TalkManager::Instance()->CreateTalkSession(
+							ChatWindow::GROUP, &userid, userid.JabberHandle(),
+								string(jabber->user) //+ '@' + string(jabber->domain)
+								);
+								
+		//jabber->SendGroupPresence(room, string(jabber->user.String()));
+		//JoinRoom(BString((room + '/' + string(jabber->user)).c_str()), "");
+	}
 	else
 	{
 		// print message
