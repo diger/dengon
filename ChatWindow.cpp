@@ -548,21 +548,20 @@ void ChatWindow::GenerateHyperlinkText(string message, text_run standard, text_r
 	int link_count = CountHyperlinks(message);
 	string::size_type pos;
 	int link_index = 0;
+		
+	*tra = (text_run_array *)malloc(sizeof(text_run_array) + (sizeof(text_run) * (link_count * 2 + 1)));
+	(*tra)->count = link_count * 2 +1;
+	
+	(*tra)->runs[link_index].offset = 0;
+	(*tra)->runs[link_index].font = standard.font;
+	(*tra)->runs[link_index].color = standard.color;
+	link_index++;
 
 	// no links?
-	if (link_count == 0) {
-		*tra = (text_run_array *)malloc(sizeof(text_run_array));
-
-		(*tra)->count = 1;
-		(*tra)->runs[0].offset = standard.offset;
-		(*tra)->runs[0].font = standard.font;
-		(*tra)->runs[0].color = standard.color;
-
+	if (link_count == 0) 
 		return;
-	}
-		
-	*tra = (text_run_array *)malloc(sizeof(text_run_array) + (sizeof(text_run) * (link_count * 2 - 1)));
-	(*tra)->count = link_count * 2;
+	
+	
 		
 	string::size_type curr_pos = 0, link_start, link_end;
 
