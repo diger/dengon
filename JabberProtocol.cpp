@@ -288,6 +288,18 @@ JabberProtocol::Pong(BString id, BString from)
 }
 
 void
+JabberProtocol::SendUnavailable(BString to, BString status)
+{
+	BString xml = "<presence to='";
+	xml = xml.Append(to);
+	xml << "' type='unavailable'><status>";
+	xml = xml.Append(status);
+	xml << "</status></presence>";
+	
+	socketAdapter->SendData(xml);
+}
+
+void
 JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 {
 	XMLEntity   *entity_iq, *entity_query;

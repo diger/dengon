@@ -75,6 +75,7 @@ class JabberProtocol : public XMLReader
 				void			RemoveFromRoster(UserID *removed_user);
 				void			SendMUCConferenceRequest(BString conference);
 				void			SendMUCRoomRequest(BString room);
+				void			SendUnavailable(BString to, BString status);
 				void			SendGroupPresence(string _group_room, string _group_username);
 				
 				SSLAdapter		*socketAdapter;

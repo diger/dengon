@@ -512,7 +512,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 bool
 ChatWindow::QuitRequested(void)
 {
-	//be_app->PostMessage(B_QUIT_REQUESTED);
+	jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've been enlightened."));
 	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
 	return true;
 }
