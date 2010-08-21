@@ -9,7 +9,7 @@
 #include "version.h"
 
 App::App(void)
-	:	BApplication("application/Chat")
+	:	BApplication("application/x-vnd.Chat")
 {
 	
 	MessageRepeater::Instance()->Run();

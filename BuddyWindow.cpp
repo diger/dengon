@@ -53,7 +53,10 @@ BuddyWindow::SetUser(UserID *user)
 	_handle->SetEnabled(!userID);
 	
 	if (userID && userID->OnlineStatus() == UserID::CONF_STATUS)
+	{
 	 	_chat_services_selection->FindItem("Conference")->SetMarked(true);
+	 	_handle->SetLabel("MUC JID:");
+	}
 	else
 		_chat_services_selection->FindItem("User")->SetMarked(true);
 	
@@ -89,11 +92,11 @@ BuddyWindow::BuddyWindow(BRect frame, UserID *user)
 	
 	// realname
 	rect.bottom = rect.top + 18;
-	_realname = new BTextControl(rect, "realname", "Username:", NULL, NULL, B_FOLLOW_ALL_SIDES);
+	_realname = new BTextControl(rect, "realname", "Title Name:", NULL, NULL, B_FOLLOW_ALL_SIDES);
 	_realname->SetDivider(_realname->Divider() - 75);
 	
 	rect.OffsetBy(0.0, 23.0);
-	_handle = new BTextControl(rect, "handle", "Jabber ID:", NULL, NULL, B_FOLLOW_ALL_SIDES);
+	_handle = new BTextControl(rect, "handle", "JID:", NULL, NULL, B_FOLLOW_ALL_SIDES);
 	_handle->SetDivider(_handle->Divider() - 75);
 	
 	
@@ -140,14 +143,14 @@ void BuddyWindow::MessageReceived(BMessage *msg)
 		case AGENT_MENU_CHANGED_TO_JABBER: {
 			//_enter_note->SetText("Please enter a User JID (e.g., joe@xmpp.org).");
 			_handle->SetLabel("JID:");
-			_realname->SetLabel("Username:");
+			//_realname->SetLabel("Username:");
 			break;
 		}
 		
 		case AGENT_MENU_CHANGED_TO_JABBER_CONFERENCE: {
 			//_enter_note->SetText("Please enter a Conference JID (e.g., haiku@jabber.jp).");
 			_handle->SetLabel("MUC JID:");
-			_realname->SetLabel("Conference:");
+			//_realname->SetLabel("Conference:");
 			break;
 		}
 
