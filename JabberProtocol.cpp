@@ -798,7 +798,7 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 			fprintf(stderr, "Presence Error: %s.\n", entity->Child("error")->Child("text")->Data());
 			sprintf(buffer, "Following error occured from %s:\n\n %s.", username.c_str(), entity->Child("error")->Child("text")->Data());
 		
-			ModalAlertFactory::NonModalAlert(buffer, "Why?.");
+			ModalAlertFactory::NonModalAlert(buffer, "Sad :(");
 		}
 	}
 
