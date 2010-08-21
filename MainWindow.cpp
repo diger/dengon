@@ -189,7 +189,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 						TalkManager::Instance()->CreateTalkSession(
 							ChatWindow::GROUP, user, user->JabberHandle(),
 								//string(jabber->user.Append(GenericFunctions::GenerateUniqueID().c_str()).String())
-								string(jabber->user) + '@' + string(jabber->domain)
+								string(jabber->user) //+ '@' + string(jabber->domain)
 								);
 				} else
 
