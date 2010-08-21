@@ -298,16 +298,23 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	
 	if (historyTextView == NULL) return;
 	
-	if (type == MAIN_RECIPIENT)
-		historyTextView->Insert(historyTextView->TextLength(),
-			username.c_str(), username.length(), &tra_thick_red);
-	else
-		historyTextView->Insert(historyTextView->TextLength(),
-			username.c_str(), username.length(), &tra_thick_blue);
+	if (message.substr(0,4) == "/me ") {
+		// print action
+		string action = "* " + username + " " + message.substr(4) + "\n";  
+		historyTextView->Insert(historyTextView->TextLength(), action.c_str(), action.length(), &tra_thick_blue);
+	} else {
+		// print message
+		if (type == MAIN_RECIPIENT)
+			historyTextView->Insert(historyTextView->TextLength(),
+				username.c_str(), username.length(), &tra_thick_red);
+		else
+			historyTextView->Insert(historyTextView->TextLength(),
+				username.c_str(), username.length(), &tra_thick_blue);
 		
-	historyTextView->Insert(historyTextView->TextLength(), ": ", 2, &tra_thick_black);
-	historyTextView->Insert(historyTextView->TextLength(), message.c_str(), message.length(), &tra_thin_black);
-	historyTextView->Insert(historyTextView->TextLength(), "\n", 1, &tra_thin_black);
+		historyTextView->Insert(historyTextView->TextLength(), ": ", 2, &tra_thick_black);
+		historyTextView->Insert(historyTextView->TextLength(), message.c_str(), message.length(), &tra_thin_black);
+		historyTextView->Insert(historyTextView->TextLength(), "\n", 1, &tra_thin_black);
+	}
 	
 	historyTextView->ScrollTo(0.0, historyTextView->Bounds().bottom);
 }
