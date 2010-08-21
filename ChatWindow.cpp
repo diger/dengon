@@ -546,7 +546,7 @@ int ChatWindow::CountHyperlinks(string message) {
 
 void ChatWindow::GenerateHyperlinkText(string message, text_run standard, text_run_array **tra) {
 	int link_count = CountHyperlinks(message);
-	string::size_type find1, find2, find3;
+	string::size_type pos;
 	int link_index = 0;
 
 	// no links?
@@ -569,32 +569,37 @@ void ChatWindow::GenerateHyperlinkText(string message, text_run standard, text_r
 	// find next link
 	link_start = message.find("http://", curr_pos);
 
-	find1 = message.find("ftp://", curr_pos);
-	if (find1 != string::npos && (link_start == string::npos || find1 < link_start)) {
-		link_start = find1;
+	pos = message.find("https://", curr_pos);
+	if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
+		link_start = pos;
+	}	
+
+	pos = message.find("ftp://", curr_pos);
+	if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
+		link_start = pos;
 	}
 
-	find2 = message.find("www.", curr_pos);
-	if (find2 != string::npos && (link_start == string::npos || find2 < link_start)) {
+	pos = message.find("www.", curr_pos);
+	if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
 		// ignore if it's not at the beginning or has no whitespace
-		if ((find2 - 1) >= 0 && isalnum(message[find2 - 1])) {
+		if ((pos - 1) >= 0 && isalnum(message[pos - 1])) {
 			// do nothing
- 		} else if (isspace(message[find2 + 4]) || message[find2 + 4] == '.') {
+ 		} else if (isspace(message[pos + 4]) || message[pos + 4] == '.') {
 			// do nothing
 		} else {
-			link_start = find2;
+			link_start = pos;
 		}
 	}
 
-	find3 = message.find("ftp.", curr_pos);
-	if (find3 != string::npos && (link_start == string::npos || find3 < link_start)) {
+	pos = message.find("ftp.", curr_pos);
+	if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
 		// ignore if it's not at the beginning or has no whitespace
-		if ((find3 - 1) >= 0 && isalnum(message[find3 - 1])) {
+		if ((pos - 1) >= 0 && isalnum(message[pos - 1])) {
 			// do nothing
- 		} else if (isspace(message[find3 + 4]) || message[find3 + 4] == '.') {
+ 		} else if (isspace(message[pos + 4]) || message[pos + 4] == '.') {
 			// do nothing
 		} else {
-			link_start = find3;
+			link_start = pos;
 		}
 	}
 			
@@ -618,11 +623,11 @@ void ChatWindow::GenerateHyperlinkText(string message, text_run standard, text_r
 		// add hyperlink
 		if (link_start < link_end) {
 			BFont thin(be_plain_font);
-			rgb_color purple = {192, 0, 192, 255};
+			rgb_color light_blue = {0, 0, 192, 255};
 			
 			(*tra)->runs[link_index].offset = link_start;
 			(*tra)->runs[link_index].font = thin;
-			(*tra)->runs[link_index].color = purple;
+			(*tra)->runs[link_index].color = light_blue;
 
 			(*tra)->runs[link_index + 1].offset = link_end + 1;
 			(*tra)->runs[link_index + 1].font = standard.font;
@@ -638,32 +643,37 @@ void ChatWindow::GenerateHyperlinkText(string message, text_run standard, text_r
 		// find next link
 		link_start = message.find("http://", curr_pos);
 
-		find1 = message.find("ftp://", curr_pos);
-		if (find1 != string::npos && (link_start == string::npos || find1 < link_start)) {
-			link_start = find1;
+		pos = message.find("https://", curr_pos);
+		if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
+			link_start = pos;
 		}
 
-		find2 = message.find("www.", curr_pos);
-		if (find2 != string::npos && (link_start == string::npos || find2 < link_start)) {
+		pos = message.find("ftp://", curr_pos);
+		if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
+			link_start = pos;
+		}
+
+		pos = message.find("www.", curr_pos);
+		if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
 			// ignore if it's not at the beginning or has no whitespace
-			if ((find2 - 1) >= 0 && isalnum(message[find2 - 1])) {
+			if ((pos - 1) >= 0 && isalnum(message[pos - 1])) {
 				// do nothing
-	 		} else if (isspace(message[find2 + 4]) || message[find2 + 4] == '.') {
+	 		} else if (isspace(message[pos + 4]) || message[pos + 4] == '.') {
 				// do nothing
 			} else {
-				link_start = find2;
+				link_start = pos;
 			}
 		}
 
-		find3 = message.find("ftp.", curr_pos);
-		if (find3 != string::npos && (link_start == string::npos || find3 < link_start)) {
+		pos = message.find("ftp.", curr_pos);
+		if (pos != string::npos && (link_start == string::npos || pos < link_start)) {
 			// ignore if it's not at the beginning or has no whitespace
-			if ((find3 - 1) >= 0 && isalnum(message[find3 - 1])) {
+			if ((pos - 1) >= 0 && isalnum(message[pos - 1])) {
 				// do nothing
-	 		} else if (isspace(message[find3 + 4]) || message[find3 + 4] == '.') {
+	 		} else if (isspace(message[pos + 4]) || message[pos + 4] == '.') {
 				// do nothing
 			} else {
-				link_start = find3;
+				link_start = pos;
 			}
 		}
 
