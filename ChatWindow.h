@@ -52,6 +52,7 @@ private:
 			UserID      			*_user;
 			std::string 			_group_room;
 			std::string            _group_username;
+			std::string 			last_username;
 			UserID::online_status  _current_status;
 			talk_type              _type;
 			std::string            _thread;

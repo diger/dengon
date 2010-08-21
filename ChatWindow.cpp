@@ -273,8 +273,6 @@ ChatWindow::NewMessage(string username, string new_message)
 void
 ChatWindow::AddToTalk(string username, string message, user_type type)
 {
-	static string last_username = "";
-	
 	BFont thin(be_plain_font);
 	BFont thick(be_bold_font);
 
@@ -309,7 +307,7 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	else
 	{
 		// print message
-		if (last_username == "" || last_username != username)
+		if (last_username.empty() || last_username != username)
 		{
 			if (type == MAIN_RECIPIENT)
 				historyTextView->Insert(historyTextView->TextLength(),
