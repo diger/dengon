@@ -44,11 +44,11 @@ BuddyWindow::SetUser(UserID *user)
 	userID = user;
 	
 	if (userID)
+	{
 		_realname->SetText(userID->FriendlyName().c_str());
-
-	if (userID)
 		_handle->SetText(userID->JabberHandle().c_str());
-		
+	}
+			
 	_chat_services->SetEnabled(!userID);
 	_handle->SetEnabled(!userID);
 	
@@ -57,7 +57,10 @@ BuddyWindow::SetUser(UserID *user)
 	else
 		_chat_services_selection->FindItem("User")->SetMarked(true);
 	
-
+	if (userID)
+		_ok->SetLabel("Save");
+	else
+		_ok->SetLabel("Create");
 }
 
 void
@@ -108,10 +111,7 @@ BuddyWindow::BuddyWindow(BRect frame, UserID *user)
 	_ok = new BButton(rect, "ok", "", new BMessage(JAB_OK));
 	_ok->MakeDefault(true);
 	_ok->SetTarget(this);
-	if (userID)
-		_ok->SetLabel("Save");
-	else
-		_ok->SetLabel("Create");
+	
 
 	// add GUI components to BView
 	_full_view->AddChild(_realname);
