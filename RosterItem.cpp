@@ -60,7 +60,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete)
 		}
 		else
 		{
-			owner->SetHighColor(173, 216, 230, 255);
+			owner->SetHighColor(220, 246, 250, 255);
 		}
 	}
 	else
