@@ -29,17 +29,8 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	owner->SetFontSize(11.0);
 
 	// clear rectangle
-	if (IsSelected()) {
-		/*
-		if (User() == _whoami) {
-			owner->SetHighColor(255, 200, 200);
-		} else {
-			owner->SetHighColor(200, 200, 255);
-		}
-
-		owner->SetLowColor(owner->HighColor());
-		*/
-		
+	if (IsSelected())
+	{
 		// font color is based on online status
 		if (_show == "xa") 		  owner->SetHighColor(255, 220, 220, 255);
 		else if (_show == "away") owner->SetHighColor(255, 230, 210, 255); 
@@ -61,12 +52,6 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	float height = fh.ascent + fh.descent;
 
 	// standard text color
-	/*
-	if (User() == _whoami) {
-		owner->SetHighColor(255, 0, 0);
-	} else {
-		owner->SetHighColor(0, 0, 255);
-	}*/
 	if (_show == "xa") 		   owner->SetHighColor(139, 0, 0, 255);
 	else if (_show == "away")  owner->SetHighColor(255, 140, 0, 255);
 	else if (_show == "dnd")   owner->SetHighColor(255, 0, 0, 255);
@@ -75,7 +60,8 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	// draw information
 	owner->DrawString(User().c_str(), BPoint(frame.left + 5.0, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
 	
-	if (!_status.empty()) {
+	if (!_status.empty())
+	{
 		owner->SetHighColor(90, 90, 90, 255);
 
 		owner->DrawString(": ");

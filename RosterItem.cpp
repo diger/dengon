@@ -19,60 +19,6 @@ RosterItem::RosterItem(const UserID *userid)
 	: BStringItem(userid->FriendlyName().c_str()) {
 	_userid           = userid;
 	_is_stale_pointer = false;
-/*
-	// intitialize static members
-	if (_offline_icon == NULL) {
-		std::string graphic;
-
-		// generate path for home icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/away-online.png");
-
-		// load graphic
-		_kinda_online_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-
-		// generate path for home icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/online.png");
-
-		// load graphic
-		_online_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-
-		// generate path for away icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/offline.png");
-
-		// load graphic
-		_offline_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-
-		// generate path for away icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/unknown.png");
-
-		// load graphic
-		_unknown_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-
-		// generate path for AOL icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/aol.png");
-
-		// load graphic
-		_aol_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-
-		// generate path for ICQ icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/icq.png");
-
-		// load graphic
-		_icq_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-
-		// generate path for Yahoo! icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/yahoo.png");
-
-		// load graphic
-		_yahoo_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-
-		// generate path for MSN icon
-		graphic = AppLocation::Instance()->AbsolutePath("resources/icons/msn.png");
-
-		// load graphic
-		_msn_icon = BTranslationUtils::GetBitmap(graphic.c_str());
-	}
-	*/
 }
 
 RosterItem::~RosterItem() {
@@ -174,26 +120,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete)
 		owner->DrawString(GetUserID()->MoreExactOnlineStatus().c_str());
 		owner->DrawString("");
 	}
-/*
-	// draw external chat icon
-	if (GetUserID()->UserType() == UserID::AIM) {
-		if (_aol_icon) {
-			owner->DrawBitmapAsync(_aol_icon, BPoint(owner->PenLocation().x + 2.0, frame.top + 2));
-		}
-	} else if (GetUserID()->UserType() == UserID::YAHOO) {
-		if (_yahoo_icon) {
-			owner->DrawBitmapAsync(_yahoo_icon, BPoint(owner->PenLocation().x + 3.0, frame.top + 3));
-		}
-	} else if (GetUserID()->UserType() == UserID::ICQ) {
-		if (_icq_icon) {
-			owner->DrawBitmapAsync(_icq_icon, BPoint(owner->PenLocation().x + 2.0, frame.top + 2));
-		}
-	} else if (GetUserID()->UserType() == UserID::MSN) {
-		if (_msn_icon) {
-			owner->DrawBitmapAsync(_msn_icon, BPoint(owner->PenLocation().x + 2.0, frame.top + 2));
-		}
-	}
-*/	
+
 	owner->SetFont(be_plain_font);
 	owner->SetFontSize(10.0);
 

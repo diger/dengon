@@ -82,7 +82,8 @@ JRoster::RemoveAllUsers()
 		UserID *user = *i;
 
 		_roster->erase(i);
-		delete user;
+		//if (user != NULL)
+		//	delete user;
 	}
 }
 	
@@ -182,7 +183,6 @@ JRoster::RefreshRoster()
 {
 	// update everyone to the change
 	MessageRepeater::Instance()->PostMessage(BLAB_UPDATE_ROSTER);
-	//MessageRepeater::Instance()->PostMessage(TRANSPORT_UPDATE);
 }
 
 void
