@@ -9,7 +9,7 @@ SRCS= App.cpp JRoster.cpp TransportItem.cpp \
 	  XMLReader.cpp FileXMLReader.cpp MainWindow.cpp \
 	  ChatWindow.cpp EditingFilter.cpp GenericFunctions.cpp \
 	  Socket.cpp SecureSocket.cpp JabberProtocol.cpp \
-	  SplitView.cpp Base64.cpp
+	  SplitView.cpp Base64.cpp ChatTextView.cpp
 
 RSRCS= Resources.rsrc
 LIBS= stdc++.r4 be root network translation \
