@@ -1,4 +1,5 @@
 #include "ChatWindow.h"
+#include "ChatTextView.h"
 #include "SplitView.h"
 #include "StatusView.h"
 #include "Settings.h"

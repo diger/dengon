@@ -1,6 +1,6 @@
 NAME= Chat
 TYPE= APP
-SRCS= App.cpp JRoster.cpp TransportItem.cpp \
+SRCS= App.cpp JRoster.cpp TransportItem.cpp\
 	  RosterItem.cpp UserID.cpp BuddyWindow.cpp \
 	  PeopleListItem.cpp TalkManager.cpp StatusView.cpp \
 	  Agent.cpp RosterView.cpp AppLocation.cpp \
