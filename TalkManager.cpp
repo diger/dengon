@@ -71,27 +71,40 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	string                group_username;
 	
 	// must be content to continue
-	if (!entity->Child("body") || !entity->Child("body")->Data()) {
+	if (!entity->Child("body") || !entity->Child("body")->Data())
+	{
 		return;
 	}
 
 	// must be sender to continue
-	if (!entity->Attribute("from")) {
+	if (!entity->Attribute("from"))
+	{
 		return;
 	}
 
-	// configure type
-	if (!entity->Attribute("type") || !strcasecmp(entity->Attribute("type"), "normal")) {
-		if (BlabberSettings::Instance()->Tag("convert-messages-to-chat")) {
+	// determine message type
+	if (!entity->Attribute("type"))
+	{
+		if (entity->Child("x", "xmlns", "jabber:x:oob"))
+			type = ChatWindow::GROUP;
+	}
+	else if (!strcasecmp(entity->Attribute("type"), "normal"))
+	{
+		if (BlabberSettings::Instance()->Tag("convert-messages-to-chat")) 
 			type = ChatWindow::CHAT;
-		} else {
+		else
 			type = ChatWindow::MESSAGE;
-		}
-	} else if (!strcasecmp(entity->Attribute("type"), "chat")) {
+	}
+	else if (!strcasecmp(entity->Attribute("type"), "chat"))
+	{
 		type = ChatWindow::CHAT;
-	} else if (!strcasecmp(entity->Attribute("type"), "groupchat")) {
+	}
+	else if (!strcasecmp(entity->Attribute("type"), "groupchat"))
+	{
 		type = ChatWindow::GROUP;
-	} else if (!strcasecmp(entity->Attribute("type"), "error")) {
+	}
+	else if (!strcasecmp(entity->Attribute("type"), "error"))
+	{
 		char buffer[2048];
 		
 		if (entity->Child("error")) {
@@ -101,16 +114,19 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		}
 		
 		return;
-	} else {
-		// ignore other messages
+	}
+	else
+	{
 		return;
 	}
 	
-	// configure sender
+	// configure routing information
 	sender = entity->Attribute("from");
 	receiver = entity->Attribute("to");
 	group_username = UserID(sender).JabberResource();
+	group_room = UserID(sender).JabberUsername();
 
+	// find window or create new
 	if (type == ChatWindow::CHAT || type == ChatWindow::GROUP)
 	{
 		if (IsExistingWindowToUser(UserID(sender).JabberHandle()) != "")
@@ -144,31 +160,28 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		}
 	}
 	
-	// submit the chat
+	// submit the chat to window
 	if (window)
 	{
 		window->Lock();
 		
 		if (type == ChatWindow::CHAT)
+		{
 			window->NewMessage(entity->Child("body")->Data());
+		}
 		else if (type == ChatWindow::GROUP)
 		{
+			// Accept exectly our JID in destinations 
 			if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
 			{
 				window->Unlock();
 				return;
 			}
 							
-			if (UserID(sender).JabberResource() == "")
-				window->NewMessage(UserID(sender).JabberUsername(), entity->Child("body")->Data());
-			else {
-				//fprintf(stderr, "jid : %s\n", jabber->jid.String());
-				//fprintf(stderr, "group_username : %s\n", group_username.c_str());
-				
-				//if (group_username != UserID(jabber->jid.String()).JabberUsername())
-					window->NewMessage(group_username, entity->Child("body")->Data());
-			}
-			
+			if (group_username == "")
+				window->NewMessage(group_room, entity->Child("body")->Data()); // channel messages
+			else
+				window->NewMessage(group_username, entity->Child("body")->Data()); // user messages
 		}
 		
 		window->Unlock();
