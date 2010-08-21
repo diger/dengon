@@ -328,7 +328,7 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 		{
 			if (type == MAIN_RECIPIENT)
 				historyTextView->Insert(historyTextView->TextLength(),
-					username.c_str(), username.length(), &tra_thick_red);
+					username.c_str(), username.length(), &tra_thick_black);
 			else
 				historyTextView->Insert(historyTextView->TextLength(),
 					username.c_str(), username.length(), &tra_thick_blue);
