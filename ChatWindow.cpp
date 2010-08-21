@@ -105,7 +105,7 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	
 		BRect text_rect(ori);
 		text_rect.left += 2;
-    	historyTextView = new BTextView(b, "history", text_rect, B_FOLLOW_ALL | B_FRAME_EVENTS);
+    	historyTextView = new ChatTextView(b, "history", text_rect, B_FOLLOW_ALL, B_WILL_DRAW | B_FRAME_EVENTS);
 		historyScroller = new BScrollView("history_croller", historyTextView, B_FOLLOW_ALL, false, true);
 		historyTextView->TargetedByScrollView(historyScroller);
 		historyTextView->SetFontSize(12.0);
