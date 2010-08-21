@@ -34,6 +34,9 @@ enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER};
 			string		GetGroupRoom();
 			void 		AddGroupChatter(string user, string show, string status, string role, string affiliation);
 			void		RemoveGroupChatter(string username);
+			int 		CountHyperlinks(string message);
+			void 		GenerateHyperlinkText(string message, text_run standard, text_run_array **tra);
+			
 			
 	const	UserID		*GetUserID();
 			void		SetThreadID(string id);
