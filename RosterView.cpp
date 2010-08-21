@@ -322,38 +322,41 @@ RosterView::UpdatePopUpMenu()
 	}
 }
 
-void RosterView::UpdateRoster() {
+void RosterView::UpdateRoster()
+{
 	JRoster *roster = JRoster::Instance();
 
-	// add entries from JRoster that are not in RosterView
 	roster->Lock();
 
-	for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i) {
-		if ((*i)->IsUser() && FindUser(*i) < 0) {
+	// add entries from JRoster that are not in RosterView
+	for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i)
+	{
+		if ((*i)->IsUser() && FindUser(*i) < 0)
+		{
 			// this entry does not exist in the RosterView
 			LinkUser(*i);
-		} else if ((*i)->UserType() == UserID::TRANSPORT && FindTransport(*i) < 0 && (*i)->OnlineStatus() == UserID::TRANSPORT_ONLINE) {
-			LinkTransport(*i);
 		}
 	}
 
-	// adjust online status of users
 	RESET:
-	for (int i = 0; i < FullListCountItems(); ++i) {
+	
+	// adjust online status of users
+	for (int i = 0; i < FullListCountItems(); ++i)
+	{
 		RosterItem *item = dynamic_cast<RosterItem *>(FullListItemAt(i));
-		TransportItem *transport_item = dynamic_cast<TransportItem *>(FullListItemAt(i));
 		
 		// skip illegal entries
-		if (item == NULL && transport_item == NULL) {
+		if (item == NULL)
+		{
 			continue;
 		}
-		
-		if (item) {
+		else
+		{
 			// process removals
-			if (!roster->ExistingUserObject(item->GetUserID()) || !roster->FindUser(item->GetUserID())) {
+			if (!roster->ExistingUserObject(item->GetUserID()) || !roster->FindUser(item->GetUserID()))
+			{
 				item->SetStalePointer(true);
 				RemoveItem(i);
-
 				goto RESET;
 			}
 		
@@ -361,60 +364,15 @@ void RosterView::UpdateRoster() {
 			if (item->GetUserID()->OnlineStatus() != _item_to_status_map[Superitem(item)])
 			{
 				UserID::online_status old_status = _item_to_status_map[Superitem(item)];
-				
-				// remove the item from the current superitem...
 				RemoveItem(i);
-			
-				// and add it to the appropriate one
 				AddUnder(item, _status_to_item_map[item->GetUserID()->OnlineStatus()]);
-
-				// sound effect? :)
-				/*
-				if (item->GetUserID()->OnlineStatus() == UserID::ONLINE && item->GetUserID()->IsUser() && old_status == UserID::OFFLINE) {
-					SoundSystem::Instance()->PlayUserOnlineSound();
-				} else if (item->GetUserID()->OnlineStatus() == UserID::OFFLINE && item->GetUserID()->IsUser() && old_status == UserID::ONLINE) {
-					SoundSystem::Instance()->PlayUserOfflineSound();
-				}
-				*/
-								
 				goto RESET;
 			}			
 
 			// clean it
 			InvalidateItem(i);
-		} else if (transport_item) {
-			if (!roster->ExistingUserObject(transport_item->GetUserID()) || !roster->FindUser(transport_item->GetUserID()) || transport_item->GetUserID()->OnlineStatus() != UserID::TRANSPORT_ONLINE) {
-				transport_item->SetStalePointer(true);
-				RemoveItem(i);
+		} 
 
-				goto RESET;
-			}
-
-			// change of statuses
-			if (transport_item->GetUserID()->OnlineStatus() != _item_to_status_map[Superitem(transport_item)]) {
-				// remove the item from the current superitem...
-				RemoveItem(i);
-			
-				// and add it to the appropriate one
-				if (transport_item->GetUserID()->OnlineStatus() == UserID::TRANSPORT_ONLINE) {
-					AddUnder(transport_item, _status_to_item_map[transport_item->GetUserID()->OnlineStatus()]);
-				}
-
-				// sound effect? :)
-				/*
-				if (transport_item->GetUserID()->OnlineStatus() == UserID::TRANSPORT_ONLINE) {
-					SoundSystem::Instance()->PlayUserOnlineSound();
-				} else if (transport_item->GetUserID()->OnlineStatus() == UserID::OFFLINE) {
-					SoundSystem::Instance()->PlayUserOfflineSound();
-				}
-				*/
-								
-				goto RESET;
-			}			
-
-			// clean it
-			InvalidateItem(i);
-		}
 	}
 
 	roster->Unlock();
