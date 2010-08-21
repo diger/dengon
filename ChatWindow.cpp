@@ -766,7 +766,8 @@ ChatWindow::MessageReceived(BMessage *msg)
 bool
 ChatWindow::QuitRequested(void)
 {
-	jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've been enlightened"));
+	if (_type == GROUP)
+		jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've enlightened"));
 	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
 	return true;
 }
