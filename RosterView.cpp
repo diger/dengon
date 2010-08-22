@@ -70,9 +70,14 @@ void RosterView::AttachedToWindow() {
 			
 			_subscribe_presence   = new BMenuItem("Subscribe", new BMessage(JAB_SUBSCRIBE_PRESENCE));
 			_unsubscribe_presence = new BMenuItem("Unsubscribe", new BMessage(JAB_UNSUBSCRIBE_PRESENCE));
+			_revoke_presence = new BMenuItem("Revoke", new BMessage(JAB_REVOKE_PRESENCE));
+			_resend_presence = new BMenuItem("Resend", new BMessage(JAB_RESEND_PRESENCE));
 
 			_presence->AddItem(_subscribe_presence);
 			_presence->AddItem(_unsubscribe_presence);
+			_presence->AddSeparatorItem();
+			_presence->AddItem(_revoke_presence);
+			_presence->AddItem(_resend_presence);
 
 	_popup->AddItem(_chat_item);
 	_popup->AddSeparatorItem();

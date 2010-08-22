@@ -245,6 +245,33 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			break;
 		}
 		
+		case JAB_REVOKE_PRESENCE:
+		{
+			Lock();
+			RosterItem *item = _roster->CurrentItemSelection();
+			
+			if (item != NULL) {
+				UserID *user = (UserID*)item->GetUserID();
+				jabber->RejectPresence(user->JabberHandle());
+			}
+			Unlock();
+			_roster->UpdateRoster();
+			break;
+		}
+		
+		case JAB_RESEND_PRESENCE:
+		{
+			Lock();
+			RosterItem *item = _roster->CurrentItemSelection();
+			
+			if (item != NULL) {
+				UserID *user = (UserID*)item->GetUserID();
+				jabber->AcceptPresence(user->JabberHandle());
+			}
+			Unlock();
+			_roster->UpdateRoster();
+			break;
+		}
 		case JAB_OPEN_ADD_BUDDY_WINDOW:
 		{
 			Lock();

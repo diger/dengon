@@ -60,6 +60,8 @@ private:
 	BMenu             *_presence;
 	BMenuItem         *_subscribe_presence;
 	BMenuItem         *_unsubscribe_presence;
+	BMenuItem         *_revoke_presence;
+	BMenuItem         *_resend_presence;
 
 	StatusToItemMap    _status_to_item_map;
 	ItemToStatusMap    _item_to_status_map;
