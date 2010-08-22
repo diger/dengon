@@ -283,7 +283,7 @@ void RosterView::UpdateRoster()
 {
 	JRoster *roster = JRoster::Instance();
 
-	roster->Lock();
+	//roster->Lock();
 
 	// add entries from JRoster that are not in RosterView
 	for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i)
@@ -341,5 +341,5 @@ void RosterView::UpdateRoster()
 	
 	Invalidate();
 
-	roster->Unlock();
+	//roster->Unlock();
 }

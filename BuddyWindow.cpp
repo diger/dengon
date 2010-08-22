@@ -182,14 +182,14 @@ void BuddyWindow::AddNewUser()
 	string username = _handle->Text();
 
 	// if not Jabber
-	if (strcasecmp(_handle->Label(), "Jabber ID:")) {
+	if (strcasecmp(_handle->Label(), "JID:")) {
 		username = GenericFunctions::CrushOutWhitespace(username);
 	}
 
 	// make a user to validate against	
 	UserID validating_user(username);
 	
-	if (!strcasecmp(_handle->Label(), "Jabber ID:") && validating_user.WhyNotValidJabberHandle().size()) {
+	if (!strcasecmp(_handle->Label(), "JID:") && validating_user.WhyNotValidJabberHandle().size()) {
 		sprintf(buffer, "%s is not a valid Jabber ID for the following reason:\n\n%s\n\nPlease correct it.", _handle->Text(), validating_user.WhyNotValidJabberHandle().c_str()); 
 		ModalAlertFactory::Alert(buffer, "Hmm, better check that...");
 		_handle->MakeFocus(true);
@@ -199,27 +199,27 @@ void BuddyWindow::AddNewUser()
 	
 	if (userID == NULL)
 	{
-	// make sure it's not a duplicate of one already existing (unless itself)
-	JRoster::Instance()->Lock();
-	if (JRoster::Instance()->FindUser(JRoster::COMPLETE_HANDLE, _handle->Text())) {
-		sprintf(buffer, "%s already exists in your buddy list.  Please choose another so you won't get confused.", _handle->Text()); 
-		ModalAlertFactory::Alert(buffer, "Good Idea!");
-		_handle->MakeFocus(true);
-		
+		// make sure it's not a duplicate of one already existing (unless itself)
+		JRoster::Instance()->Lock();
+		if (JRoster::Instance()->FindUser(JRoster::HANDLE, validating_user.JabberHandle())) {
+			sprintf(buffer, "%s already exists in your buddy list.  Please choose another so you won't get confused.", _handle->Text()); 
+			ModalAlertFactory::Alert(buffer, "Good Idea!");
+			_handle->MakeFocus(true);
+			
+			JRoster::Instance()->Unlock();
+			return;
+		}
 		JRoster::Instance()->Unlock();
-		return;
-	}
-	JRoster::Instance()->Unlock();
 	}
 
-	// create a new user
+	
 	UserID *new_user;
 	
 	if (userID) // edit existing
 	{
 		new_user = userID;
 		userID = NULL;
-	} else 
+	} else // create a new user
 	{
 		new_user = new UserID(UserID(username));
 
@@ -237,9 +237,9 @@ void BuddyWindow::AddNewUser()
 	TalkManager::Instance()->jabber->AddToRoster(new_user);
 	
 	// add this user to the roster
-	JRoster::Instance()->Lock();
-	JRoster::Instance()->AddRosterUser(new_user);
-	JRoster::Instance()->Unlock();
+	//JRoster::Instance()->Lock();
+	//JRoster::Instance()->AddRosterUser(new_user);
+	//JRoster::Instance()->Unlock();
 
 	// alert all RosterViews
 	//JRoster::Instance()->RefreshRoster();
