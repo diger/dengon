@@ -61,6 +61,7 @@ const std::string UserID::Handle() const
 
 const std::string UserID::FriendlyName() const
 {
+	if (_friendly_name.empty()) return JabberHandle();
 	return _friendly_name;
 }
 

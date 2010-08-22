@@ -29,11 +29,18 @@ RosterView::~RosterView() {
 	SetInvocationMessage(new BMessage(JAB_OPEN_CHAT_WITH_DOUBLE_CLICK));
 }
 
-int RosterView::ListComparison(const void *a, const void *b) {
-	const char *str_a = (*(RosterItem **)a)->Text();
-	const char *str_b = (*(RosterItem **)b)->Text();
+static int _ListComparison(const BListItem *a, const BListItem *b) {
+	if ( 
+	((RosterItem *)a)->GetUserID()->FriendlyName() ==
+	((RosterItem *)b)->GetUserID()->FriendlyName())
+		return 0;
+	else if ( 
+	((RosterItem *)a)->GetUserID()->FriendlyName() >
+	((RosterItem *)b)->GetUserID()->FriendlyName()) 
+		return 1;
+	else return -1;
 
-	return strcasecmp(str_a, str_b);
+//	return strcasecmp(str_a, str_b);
 }   
 
 void RosterView::AttachedToWindow() {
@@ -315,7 +322,10 @@ void RosterView::UpdateRoster()
 
 	}
 	
-	Invalidate();
+	if (_online->IsExpanded()) SortItemsUnder(_online, true, _ListComparison);
+	if (_offline->IsExpanded()) SortItemsUnder(_offline, true, _ListComparison);
+	if (_unknown->IsExpanded()) SortItemsUnder(_unknown, true, _ListComparison);
+	if (_conferences->IsExpanded()) SortItemsUnder(_conferences, true, _ListComparison);
 
 	roster->Unlock();
 }
