@@ -322,10 +322,10 @@ void RosterView::UpdateRoster()
 
 	}
 	
-	if (_online->IsExpanded()) SortItemsUnder(_online, true, _ListComparison);
-	if (_offline->IsExpanded()) SortItemsUnder(_offline, true, _ListComparison);
-	if (_unknown->IsExpanded()) SortItemsUnder(_unknown, true, _ListComparison);
-	if (_conferences->IsExpanded()) SortItemsUnder(_conferences, true, _ListComparison);
+	SortItemsUnder(_online, true, _ListComparison);
+	SortItemsUnder(_offline, true, _ListComparison);
+	SortItemsUnder(_unknown, true, _ListComparison);
+	SortItemsUnder(_conferences, true, _ListComparison);
 
 	roster->Unlock();
 }
