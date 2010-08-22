@@ -439,6 +439,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 		_add_buddy_item->SetShortcut('N', 0);
 
 		_preferences_item = new BMenuItem("Preferences...", new BMessage(JAB_PREFERENCES));
+		_preferences_item->SetEnabled(false);
 
 	_edit_menu->AddItem(_add_buddy_item);
 	_edit_menu->AddSeparatorItem();
@@ -550,9 +551,11 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	rect.right = rect.left + 175.0;
 	rect.bottom = rect.top + 19.0;
 	_login_new_account = new BCheckBox(rect, NULL, "Register Account", NULL, B_FOLLOW_LEFT);
+	_login_new_account->SetEnabled(false);
 
 	rect.OffsetBy(0.0, 19.0);
 	_login_auto_login = new BCheckBox(rect, NULL, "Auto-login", NULL, B_FOLLOW_LEFT);
+	_login_auto_login->SetEnabled(false);
 
 	// login button
 	//rect.OffsetTo((Bounds().Width() - 120.0) / 2.0, rect.top + 35.0);

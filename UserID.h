@@ -13,9 +13,9 @@ class UserID
 {
 	public:
 	
-		enum online_status  { UNKNOWN, UNACCEPTED, OFFLINE,	ONLINE, TRANSPORT_ONLINE, CONF_STATUS };
+		enum online_status  { UNKNOWN, OFFLINE, ONLINE, TRANSPORT, CONF_STATUS };
 		enum affiliation	{ OWNER, ADMIN, MODERATOR, MEMBER, GUEST };
-		enum user_type      { INVALID, JABBER, TRANSPORT, CONFERENCE };
+		enum user_type      { INVALID, JABBER, CONFERENCE };
 
           	             		UserID(std::string username);
           	             		UserID(const UserID &copied_userid);

@@ -198,12 +198,7 @@ void UserID::SetFriendlyName(std::string friendly_name) { _friendly_name = frien
 
 void UserID::SetOnlineStatus(online_status status)
 {
-	if (status == UNACCEPTED) {
-		status = UNKNOWN;
-	}
-
 	_status = status;
-	
 }
 
 void UserID::SetExactOnlineStatus(std::string exact_status)
