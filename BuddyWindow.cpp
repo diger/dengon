@@ -141,40 +141,12 @@ void BuddyWindow::MessageReceived(BMessage *msg)
 		}
 
 		case AGENT_MENU_CHANGED_TO_JABBER: {
-			//_enter_note->SetText("Please enter a User JID (e.g., joe@xmpp.org).");
 			_handle->SetLabel("JID:");
-			//_realname->SetLabel("Username:");
 			break;
 		}
 		
 		case AGENT_MENU_CHANGED_TO_JABBER_CONFERENCE: {
-			//_enter_note->SetText("Please enter a Conference JID (e.g., haiku@jabber.jp).");
 			_handle->SetLabel("MUC JID:");
-			//_realname->SetLabel("Conference:");
-			break;
-		}
-
-		case AGENT_MENU_CHANGED_TO_YAHOO: {
-			_enter_note->SetText("Please enter the user's Yahoo! IM screenname or Yahoo.com login (e.g., YahooMan14).");
-			_handle->SetLabel("Yahoo ID:");
-			break;
-		}
-
-		case AGENT_MENU_CHANGED_TO_ICQ: {
-			_enter_note->SetText("Please enter the user's ICQ numeric ID (e.g., 99818234).");
-			_handle->SetLabel("ICQ #:");
-			break;
-		}
-
-		case AGENT_MENU_CHANGED_TO_AIM: {
-			_enter_note->SetText("Please enter the user's AOL screenname or AIM screenname (e.g., BeOSLover213).");
-			_handle->SetLabel("AOL Screen Name:");
-			break;
-		}
-
-		case AGENT_MENU_CHANGED_TO_MSN: {
-			_enter_note->SetText("Please enter the user's Hotmail or Passport username excluding the domain (e.g., ZaBlanc and not ZaBlanc@hotmail.com).");
-			_handle->SetLabel("Passport Sign-In:");
 			break;
 		}
 	}
@@ -265,7 +237,7 @@ void BuddyWindow::AddNewUser()
 	
 	// add this user to the roster
 	JRoster::Instance()->Lock();
-	JRoster::Instance()->AddNewUser(new_user);
+	JRoster::Instance()->AddRosterUser(new_user);
 	JRoster::Instance()->Unlock();
 
 	// alert all RosterViews

@@ -19,7 +19,7 @@ RosterView::~RosterView() {
 
 	// remember superitem statuses
 	BlabberSettings::Instance()->SetTag("online-collapsed", !_online->IsExpanded());
-	BlabberSettings::Instance()->SetTag("unaccepted-collapsed", !_unaccepted->IsExpanded());
+	//BlabberSettings::Instance()->SetTag("unaccepted-collapsed", !_unaccepted->IsExpanded());
 	BlabberSettings::Instance()->SetTag("unknown-collapsed", !_unknown->IsExpanded());
 	BlabberSettings::Instance()->SetTag("offline-collapsed", !_offline->IsExpanded());
 	BlabberSettings::Instance()->SetTag("transports-collapsed", !_transports->IsExpanded());
@@ -49,13 +49,13 @@ void RosterView::AttachedToWindow() {
 		_chat_item         = new BMenuItem("Chat...", new BMessage(JAB_OPEN_CHAT));
 		_chat_item->SetEnabled(false);
 		//_message_item      = new BMenuItem("Send Message...", new BMessage(JAB_OPEN_MESSAGE));
-		_change_user_item  = new BMenuItem("Edit Username", new BMessage(JAB_OPEN_EDIT_BUDDY_WINDOW));
+		_change_user_item  = new BMenuItem("Edit", new BMessage(JAB_OPEN_EDIT_BUDDY_WINDOW));
 		_change_user_item->SetEnabled(false);
-		_remove_user_item  = new BMenuItem("Remove From Roster", new BMessage(JAB_REMOVE_BUDDY));
+		_remove_user_item  = new BMenuItem("Remove", new BMessage(JAB_REMOVE_BUDDY));
 		_remove_user_item->SetEnabled(false);
-		_user_info_item    = new BMenuItem("Get User Info", new BMessage(JAB_USER_INFO));
+		_user_info_item    = new BMenuItem("Userinfo", new BMessage(JAB_USER_INFO));
 		_user_info_item->SetEnabled(false);
-		_user_chatlog_item = new BMenuItem("Show Chat Log", new BMessage(JAB_SHOW_CHATLOG));
+		_user_chatlog_item = new BMenuItem("Chatlog", new BMessage(JAB_SHOW_CHATLOG));
 		_user_chatlog_item->SetEnabled(false);
 
 		_presence          = new BMenu("Presence");
@@ -82,9 +82,9 @@ void RosterView::AttachedToWindow() {
 
 	// create top level lists
 	AddItem(_online  = new RosterSuperitem("Online"));
-	AddItem(_unaccepted = new RosterSuperitem("Pending Presence"));
-	AddItem(_unknown = new RosterSuperitem("No Presence"));
+	//AddItem(_unaccepted = new RosterSuperitem("Pending Presence"));
 	AddItem(_offline = new RosterSuperitem("Offline"));
+	AddItem(_unknown = new RosterSuperitem("No Presence"));
 	AddItem(_conferences = new RosterSuperitem("Conferences"));
 	AddItem(_transports = new RosterSuperitem("Live Transports"));
 	
@@ -93,14 +93,14 @@ void RosterView::AttachedToWindow() {
 	_item_to_status_map[_offline] = UserID::OFFLINE;
 	_item_to_status_map[_online]  = UserID::ONLINE;
 	_item_to_status_map[_unknown] = UserID::UNKNOWN;
-	_item_to_status_map[_unaccepted] = UserID::UNACCEPTED;
+	//_item_to_status_map[_unaccepted] = UserID::UNACCEPTED;
 	_item_to_status_map[_transports] = UserID::TRANSPORT_ONLINE;
 	_item_to_status_map[_conferences] = UserID::CONF_STATUS;
 
 	// ignore online...doesn't seem to work...?
 	_offline->SetExpanded(!BlabberSettings::Instance()->Tag("offline-collapsed"));
 	_unknown->SetExpanded(!BlabberSettings::Instance()->Tag("unknown-collapsed"));
-	_unaccepted->SetExpanded(!BlabberSettings::Instance()->Tag("unaccepted-collapsed"));
+	//_unaccepted->SetExpanded(!BlabberSettings::Instance()->Tag("unaccepted-collapsed"));
 	_transports->SetExpanded(!BlabberSettings::Instance()->Tag("transports-collapsed"));
 	_conferences->SetExpanded(!BlabberSettings::Instance()->Tag("conferences-collapsed"));
 
@@ -108,7 +108,7 @@ void RosterView::AttachedToWindow() {
 	_status_to_item_map[UserID::ONLINE]  = _online;
 	_status_to_item_map[UserID::UNKNOWN] = _unknown;
 	_status_to_item_map[UserID::TRANSPORT_ONLINE] = _transports;
-	_status_to_item_map[UserID::UNACCEPTED] = _unaccepted;
+	//_status_to_item_map[UserID::UNACCEPTED] = _unaccepted;
 	_status_to_item_map[UserID::CONF_STATUS] = _conferences;
 	
 	// BUGBUG events
@@ -374,6 +374,8 @@ void RosterView::UpdateRoster()
 		} 
 
 	}
+	
+	Invalidate();
 
 	roster->Unlock();
 }

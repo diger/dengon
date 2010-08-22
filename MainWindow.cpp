@@ -98,6 +98,16 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			
 			UserID username(_login_username->Text());
 			
+			if (username.JabberServer() == "gmail.com" || 
+				username.JabberServer() == "googlemail.com")
+			{
+				jabber->SetConnection(BString("talk.google.com"), 5223, true);
+			} else
+			{
+				jabber->SetConnection(BString(username.JabberServer().c_str()), 5223, true);
+			}
+			
+			/*
 			if (_ssl_enabled->Value() == B_CONTROL_ON)
 			{
 				jabber->SetConnection(BString(_ssl_server->Text()), atoi(_ssl_port->Text()), true);
@@ -109,6 +119,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 				else
 					jabber->SetConnection(BString("talk.google.com"), 5222, false);
 			}
+			*/
 				
 			jabber->SetCredentials(BString(username.JabberUsername().c_str()), 
 							BString(username.JabberServer().c_str()), BString(_login_password->Text()));
@@ -140,12 +151,12 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 				jabber->SetStatus("online", os_info.c_str());
 			}
 				
-			BlabberSettings::Instance()->SetData("last-realname", _login_realname->Text());
+			//BlabberSettings::Instance()->SetData("last-realname", _login_realname->Text());
 			BlabberSettings::Instance()->SetData("last-login", _login_username->Text());
 			BlabberSettings::Instance()->SetData("last-password", _login_password->Text());
-			BlabberSettings::Instance()->SetData("last-ssl_server", _ssl_server->Text());
-			BlabberSettings::Instance()->SetData("last-ssl_port", _ssl_port->Text());
-			BlabberSettings::Instance()->SetIntData("last-ssl_enabled", _ssl_enabled->Value());
+			//BlabberSettings::Instance()->SetData("last-ssl_server", _ssl_server->Text());
+			//BlabberSettings::Instance()->SetData("last-ssl_port", _ssl_port->Text());
+			//BlabberSettings::Instance()->SetIntData("last-ssl_enabled", _ssl_enabled->Value());
 			BlabberSettings::Instance()->SetTag("auto-login", _login_auto_login->Value());
 			BlabberSettings::Instance()->WriteToFile();
 
@@ -211,8 +222,8 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 				user->SetSubscriptionStatus("to");
 				jabber->SendSubscriptionRequest(user->JabberHandle());
 			}
-			_roster->UpdateRoster();
 			Unlock();
+			_roster->UpdateRoster();
 			break;
 		}
 		
@@ -226,8 +237,8 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 				user->SetSubscriptionStatus("from");
 				jabber->SendUnsubscriptionRequest(user->JabberHandle());
 			}
-			_roster->UpdateRoster();
 			Unlock();
+			_roster->UpdateRoster();
 			break;
 		}
 		
@@ -271,8 +282,8 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 		
 		case SSL_ENABLED:
 		{
-			_ssl_port->SetEnabled(_ssl_enabled->Value());
-			_ssl_server->SetEnabled(_ssl_enabled->Value());
+			//_ssl_port->SetEnabled(_ssl_enabled->Value());
+			//_ssl_server->SetEnabled(_ssl_enabled->Value());
 			break;
 		}
 		
@@ -307,7 +318,7 @@ void BlabberMainWindow::MenusBeginning() {
 		_connect_item->SetEnabled(true);
 		_disconnect_item->SetEnabled(false);
 	}
-
+/*
 	// EDIT menu
 	if (RosterItem *item = _roster->CurrentItemSelection()) {
 		// if a  item is selected
@@ -333,6 +344,7 @@ void BlabberMainWindow::MenusBeginning() {
 		_user_info_item->SetEnabled(false);
 		_user_chatlog_item->SetEnabled(false);
 	}
+*/
 }
 
 bool BlabberMainWindow::QuitRequested() {
@@ -344,12 +356,12 @@ bool BlabberMainWindow::QuitRequested() {
 	BlabberSettings::Instance()->SetFloatData("main-window-height", Bounds().Height());
 	
 	// save login settings
-	BlabberSettings::Instance()->SetData("last-realname", _login_realname->Text());
+	//BlabberSettings::Instance()->SetData("last-realname", _login_realname->Text());
 	BlabberSettings::Instance()->SetData("last-login", _login_username->Text());
 	BlabberSettings::Instance()->SetData("last-password", _login_password->Text());
-	BlabberSettings::Instance()->SetData("last-ssl_server", _ssl_server->Text());
-	BlabberSettings::Instance()->SetData("last-ssl_port", _ssl_port->Text());
-	BlabberSettings::Instance()->SetIntData("last-ssl_enabled", _ssl_enabled->Value());
+	//BlabberSettings::Instance()->SetData("last-ssl_server", _ssl_server->Text());
+	//BlabberSettings::Instance()->SetData("last-ssl_port", _ssl_port->Text());
+	//BlabberSettings::Instance()->SetIntData("last-ssl_enabled", _ssl_enabled->Value());
 	BlabberSettings::Instance()->SetTag("auto-login", _login_auto_login->Value());
 			
 	BlabberSettings::Instance()->WriteToFile();
@@ -426,59 +438,15 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 		_add_buddy_item = new BMenuItem("Add Contact...", new BMessage(JAB_OPEN_ADD_BUDDY_WINDOW));
 		_add_buddy_item->SetShortcut('N', 0);
 
-		_change_buddy_item = new BMenuItem("Edit Buddy", new BMessage(JAB_OPEN_EDIT_BUDDY_WINDOW));
-		_change_buddy_item->SetShortcut('E', 0);
-
-		_remove_buddy_item = new BMenuItem("Remove Buddy", new BMessage(JAB_REMOVE_BUDDY));
-		_remove_buddy_item->SetShortcut('T', 0);
-
-		_user_info_item = new BMenuItem("Get User Info", new BMessage(JAB_USER_INFO));
-		_user_info_item->SetShortcut('I', 0);
-		
-		_user_chatlog_item = new BMenuItem("Show Chat Log", new BMessage(JAB_SHOW_CHATLOG));
-		_user_chatlog_item->SetShortcut('H', 0);
-		
 		_preferences_item = new BMenuItem("Preferences...", new BMessage(JAB_PREFERENCES));
 
 	_edit_menu->AddItem(_add_buddy_item);
-	//_edit_menu->AddItem(_change_buddy_item);
-	//_edit_menu->AddItem(_remove_buddy_item);
-	//_edit_menu->AddSeparatorItem();
-	//_edit_menu->AddItem(_user_info_item);
-	//_edit_menu->AddItem(_user_chatlog_item);
 	_edit_menu->AddSeparatorItem();
 	_edit_menu->AddItem(_preferences_item);
 	_edit_menu->SetTargetForItems(this);
 
-	// TALK MENU
-	_talk_menu = new BMenu("Talk");
-
-		_rotate_chat_forward_item = new BMenuItem("Rotate Chat Forward", new BMessage(JAB_ROTATE_CHAT_FORWARD));
-		_rotate_chat_forward_item->SetShortcut('.', 0);
-
-		_rotate_chat_backward_item = new BMenuItem("Rotate Chat Backward", new BMessage(JAB_ROTATE_CHAT_BACKWARD));
-		_rotate_chat_backward_item->SetShortcut(',', 0);
-
-		_send_message_item = new BMenuItem("Send Message...", new BMessage(JAB_OPEN_NEW_MESSAGE));
-		_send_message_item->SetShortcut('M', 0);
-
-		_send_chat_item = new BMenuItem("Start Chat...", new BMessage(JAB_OPEN_NEW_CHAT));
-		_send_chat_item->SetShortcut('C', 0);
-
-		_send_groupchat_item = new BMenuItem("Start Group Chat...", new BMessage(JAB_OPEN_NEW_GROUP_CHAT));
-		_send_groupchat_item->SetShortcut('G', 0);
-
-	_talk_menu->AddItem(_rotate_chat_forward_item);
-	_talk_menu->AddItem(_rotate_chat_backward_item);
-	_talk_menu->AddSeparatorItem();
-	_talk_menu->AddItem(_send_message_item);
-	_talk_menu->AddItem(_send_chat_item);
-	_talk_menu->AddItem(_send_groupchat_item);
-	_talk_menu->SetTargetForItems(this);
-
 	_menubar->AddItem(_file_menu);
 	_menubar->AddItem(_edit_menu);
-	//_menubar->AddItem(_talk_menu);
 
 	// tabbed view
 	rect = Bounds();
@@ -515,22 +483,25 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 
 	// username/password controls
 	rect.InsetBy(5.0, 5.0);
-	rect.top = 108.0;
+	rect.top = 77.0;
 	rect.right -= 3.0;
 	
-	
-
-	_login_realname = new BTextControl(rect, NULL, "Username: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
+	_login_realname = new BTextControl(rect, NULL, "Title Name: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
 	
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	
-	_login_username = new BTextControl(rect, NULL, "Jabber ID: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
+	_login_username = new BTextControl(rect, NULL, "JID: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
 		
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	
 	_login_password = new BTextControl(rect, NULL, "Password: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
 	_login_password->TextView()->HideTyping(true);
 	
+	_login_realname->SetDivider(80);
+	_login_username->SetDivider(80);
+	_login_password->SetDivider(80);
+	
+	/*
 	// SSL Box
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	BRect crect(rect);
@@ -559,9 +530,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	_ssl_port->ResizeToPreferred();
 	_ssl_port->SetEnabled(true);
 	
-	_login_realname->SetDivider(80);
-	_login_username->SetDivider(80);
-	_login_password->SetDivider(80);
+
 	_ssl_server->SetDivider(74);
 	_ssl_port->SetDivider(74);
 	
@@ -570,10 +539,13 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	
 	_ssl_box->AddChild(_ssl_server);
 	_ssl_box->AddChild(_ssl_port);
-	rect.top = _ssl_box->Frame().bottom + 10.0; //crect.bottom;
-	rect.OffsetBy(80.0, 0.0);
+
 	
 	//end SSL Box
+*/	
+
+	//rect.top = _ssl_box->Frame().bottom + 10.0; //crect.bottom;
+	rect.OffsetBy(80.0, 25.0);
 	
 	rect.right = rect.left + 175.0;
 	rect.bottom = rect.top + 19.0;
@@ -583,10 +555,12 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	_login_auto_login = new BCheckBox(rect, NULL, "Auto-login", NULL, B_FOLLOW_LEFT);
 
 	// login button
-	rect.OffsetTo((Bounds().Width() - 120.0) / 2.0, rect.top + 35.0);
-	rect.right = rect.left + 120.0;
+	//rect.OffsetTo((Bounds().Width() - 120.0) / 2.0, rect.top + 35.0);
+	//rect.right = rect.left + 120.0;
+	rect.OffsetTo(Bounds().Width() - 130.0, Bounds().Height() - 60.0);
+	rect.right = rect.left + 100.0;
 
-	_login_login = new BButton(rect, "login", "Sign-in", new BMessage(JAB_LOGIN), B_FOLLOW_H_CENTER);
+	_login_login = new BButton(rect, "login", "Sign-in", new BMessage(JAB_LOGIN), B_FOLLOW_RIGHT | B_FOLLOW_BOTTOM);
 	_login_login->MakeDefault(false);
 	_login_login->SetTarget(this);
 
@@ -600,36 +574,29 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 
 	BRect text_rect(rect);
 	text_rect.OffsetTo(B_ORIGIN);
-	/*
-	BTextView *enter_note = new BTextView(rect, NULL, text_rect, &black_9, &note, B_FOLLOW_ALL | B_FRAME_EVENTS, B_WILL_DRAW);
-	enter_note->SetViewColor(216, 216, 216, 255);
-	enter_note->MakeEditable(false);
-	enter_note->MakeSelectable(false);
-	enter_note->SetAlignment(B_ALIGN_CENTER);
-	enter_note->SetWordWrap(true);
-	enter_note->SetText("Note: Jabber ID's are of the form username@server. Pick a fun username! If you don't know any servers, jabber.org is recommended.");
-	*/
+
 	// login always hidden at start
 	_login_full_view->Hide();
 
 	// attach all-encompassing main view to window
 	AddChild(_login_full_view);
 
-	_login_full_view->AddChild(_login_realname);
+	//_login_full_view->AddChild(_login_realname);
 	_login_full_view->AddChild(_login_username);
 	_login_full_view->AddChild(_login_password);
-	_login_full_view->AddChild(_ssl_box);
+//	_login_full_view->AddChild(_ssl_box);
 	_login_full_view->AddChild(_login_new_account);
 	_login_full_view->AddChild(_login_auto_login);
 	_login_full_view->AddChild(_login_login);
-	//_login_full_view->AddChild(enter_note);
 	
+	/*
 	// default
 	if(BlabberSettings::Instance()->Data("last-realname")) {
 		_login_realname->SetText(BlabberSettings::Instance()->Data("last-realname"));
 	} else {
 		_login_realname->SetText("Maxim Sokhatsky");
 	}
+	*/
 	
 	if (BlabberSettings::Instance()->Data("last-login")) {
 		_login_username->SetText(BlabberSettings::Instance()->Data("last-login"));
@@ -641,15 +608,12 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 
 	_login_auto_login->SetValue(BlabberSettings::Instance()->Tag("auto-login"));
 
-	// focus to start
-	//if (BlabberSettings::Instance()->Data("last-login")) {
-		_login_password->MakeFocus(true);
-	//} else {
-	//	_login_username->MakeFocus(true);
-	//}
+	_login_password->MakeFocus(true);
 	
+	/*
+
 	_ssl_server->SetText(BlabberSettings::Instance()->Data("last-ssl_server"));
-	
+
 	if (BlabberSettings::Instance()->Data("last-ssl_port"))
 		_ssl_port->SetText(BlabberSettings::Instance()->Data("last-ssl_port"));
 	else
@@ -660,7 +624,6 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	else
 		_ssl_server->SetText("talk.google.com");
 
-
 	if (BlabberSettings::Instance()->Data("last-ssl_enabled"))
 	{
 		int enabled = atoi(BlabberSettings::Instance()->Data("last-ssl_enabled"));
@@ -669,6 +632,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 		_ssl_port->SetEnabled(_ssl_enabled->Value());
 		_ssl_server->SetEnabled(_ssl_enabled->Value());
 	}
+	*/
 
 	ShowLogin();
 	
@@ -700,8 +664,6 @@ bool BlabberMainWindow::ValidateLogin() {
 		return false;
 	}	
 
-	//_login_username->SetText(username.JabberHandle().c_str());
-	
 	// 	existance of password
 	if (!strcmp(_login_password->Text(), "")) {
 		char buffer[1024];
@@ -717,7 +679,7 @@ bool BlabberMainWindow::ValidateLogin() {
 		return false;
 	}
 
-	//TODO if ssl is enabled, check the server is not empty and the port is valid. (>0)
+	/*
 	int port = 0;
 	if (_ssl_port->Text())
 		port = atoi(_ssl_port->Text());
@@ -727,6 +689,7 @@ bool BlabberMainWindow::ValidateLogin() {
 		ModalAlertFactory::Alert("You enabled SSL. Please specify a valid server name and port.", "Sorry!", NULL, NULL, B_WIDTH_FROM_LABEL, B_STOP_ALERT);
 		return false;		
 	}
+	*/
 
 	return true;
 }

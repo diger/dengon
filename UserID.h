@@ -9,74 +9,71 @@
 
 #include <string>
 
-class UserID {
-public:
-	enum online_status  {UNKNOWN, UNACCEPTED, OFFLINE, ONLINE, TRANSPORT_ONLINE, CONF_STATUS};
-	enum user_type      {INVALID, JABBER, AIM, ICQ, YAHOO, MSN, TRANSPORT, CONFERENCE };
+class UserID
+{
+	public:
+	
+		enum online_status  { UNKNOWN, UNACCEPTED, OFFLINE,	ONLINE, TRANSPORT_ONLINE, CONF_STATUS };
+		enum affiliation	{ OWNER, ADMIN, MODERATOR, MEMBER, GUEST };
+		enum user_type      { INVALID, JABBER, TRANSPORT, CONFERENCE };
 
-public:
-          	             UserID(std::string username);
-          	             UserID(const UserID &copied_userid);
-	virtual             ~UserID();
+          	             		UserID(std::string username);
+          	             		UserID(const UserID &copied_userid);
+		virtual             	~UserID();
 
-	UserID              &operator=(const UserID &rhs);
+				UserID          &operator=(const UserID &rhs);
 
-	const user_type      UserType() const;
-	const std::string    Handle() const;
-	const std::string    FriendlyName() const;
+		const	user_type		UserType() const;
+		const	online_status	OnlineStatus() const;
 
-	const std::string    Ask() const;
-	const online_status  OnlineStatus() const;
-	const std::string    ExactOnlineStatus() const;
-	const std::string    MoreExactOnlineStatus() const;
-	const std::string    SubscriptionStatus() const;
+		const	std::string		Handle() const;
+		const	std::string		FriendlyName() const;
+		const	std::string		SubscriptionStatus() const;
+		const	std::string		ExactOnlineStatus() const;
+		const	std::string		MoreExactOnlineStatus() const;
 
-	bool                 HaveSubscriptionTo() const;
-	bool                 IsUser() const;
 
-	// Jabber
-	const std::string    JabberHandle() const;         // xxx@yyy
-	const std::string    JabberCompleteHandle() const; // xxx@yyy/zzz
-	const std::string    JabberUsername() const;       // xxx
-	const std::string    JabberServer() const;         // yyy
-	const std::string    JabberResource() const;       // zzz
+				bool			HaveSubscriptionTo() const;
+				bool			IsUser() const;
+
+		const	std::string		JabberHandle() const;         // xxx@yyy
+		const	std::string		JabberCompleteHandle() const; // xxx@yyy/zzz
+		const	std::string		JabberUsername() const;       // xxx
+		const	std::string		JabberServer() const;         // yyy
+		const	std::string		JabberResource() const;       // zzz
 
 	const std::string    TransportID() const;
 	const std::string    TransportUsername() const;
 	const std::string    TransportPassword() const;
 
-	void                 StripJabberResource();        // xxx@yyy/zzz -> xxx@yyy
-	std::string          WhyNotValidJabberHandle();
+				void			StripJabberResource();        // xxx@yyy/zzz -> xxx@yyy
+				std::string		WhyNotValidJabberHandle();
 
-	// MANIPULATORS
-	void                 SetHandle(std::string handle);
-	void                 SetFriendlyName(std::string friendly_name);
+				void            SetUsertype(user_type usertype);
+				void            SetOnlineStatus(online_status status);
 
-	void                 SetAsk(std::string status);
-	void                 SetUsertype(user_type usertype);
-	void                 SetOnlineStatus(online_status status);
-	void                 SetExactOnlineStatus(std::string exact_status);
-	void                 SetMoreExactOnlineStatus(std::string exact_status);
-	void                 SetSubscriptionStatus(std::string status);
-	void                 _ProcessHandle();
+				void            SetHandle(std::string handle);
+				void            SetFriendlyName(std::string friendly_name);
+				void            SetSubscriptionStatus(std::string status);
+				void            SetExactOnlineStatus(std::string exact_status);
+				void            SetMoreExactOnlineStatus(std::string exact_status);
 
-	// identification
-	std::string          _handle;
-	std::string          _friendly_name;
-	std::string          _service;
+				void            _ProcessHandle();
 
-	std::string          _ask;
-	online_status        _status;
-	std::string          _exact_status;
-	std::string          _more_exact_status;
-	std::string          _subscription_status;
+				online_status   _status;
+				user_type       _user_type;
+				
+				std::string		_handle;
+				std::string		_friendly_name;
+				std::string		_service;
+				std::string		_ask;
+				std::string		_exact_status;
+				std::string		_more_exact_status;
+				std::string		_subscription_status;
 
-	// split into pieces
-	user_type            _user_type;
-
-	std::string          _jabber_username;
-	std::string          _jabber_server;
-	std::string          _jabber_resource;
+				std::string		_jabber_username;
+				std::string		_jabber_server;
+				std::string		_jabber_resource;
 
 	std::string          _transport_id;
 	std::string          _transport_username;
