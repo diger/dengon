@@ -11,11 +11,15 @@
 UserID::UserID(std::string handle)
 {
 	SetHandle(handle);
+	
+	SetUsertype(UserID::JABBER);
 }
 
 UserID::UserID(const UserID &copied_userid)
 {
 	SetHandle(copied_userid.Handle());
+	
+	SetUsertype(UserID::JABBER);
 	
 	_friendly_name = copied_userid.FriendlyName();
 	_subscription_status = copied_userid.SubscriptionStatus();

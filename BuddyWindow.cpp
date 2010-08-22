@@ -236,14 +236,6 @@ void BuddyWindow::AddNewUser()
 		
 	TalkManager::Instance()->jabber->AddToRoster(new_user);
 	
-	// add this user to the roster
-	//JRoster::Instance()->Lock();
-	//JRoster::Instance()->AddRosterUser(new_user);
-	//JRoster::Instance()->Unlock();
-
-	// alert all RosterViews
-	//JRoster::Instance()->RefreshRoster();
-	
 	// close window explicitly
 	PostMessage(B_QUIT_REQUESTED);
 }

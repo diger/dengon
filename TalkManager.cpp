@@ -143,10 +143,6 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			
 			if (!user)
 			{
-				user = new UserID(sender);
-				if (user->UserType() == UserID::INVALID)
-					user->SetFriendlyName("Jabber Server Host");
-					
 				fprintf(stderr, "Not found incoming message user in roster.\n");
 			}
 

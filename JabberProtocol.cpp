@@ -185,29 +185,6 @@ JabberProtocol::OnTag(XMLEntity *entity)
 				}
 			}
 		}
-		/*
-		if (!strcasecmp(entity->Attribute("type"), "set"))
-		{
-			XMLEntity *query = entity->Child("query");
-			if (query && query->Attribute("xmlns")) {
-				if (!strcasecmp(query->Attribute("xmlns"), "jabber:iq:roster"))
-				{
-					XMLEntity *removed_user = query->Child("item");
-					string jid = removed_user->Attribute("jid");
-					
-					if (!strcasecmp(removed_user->Attribute("subscription"), "remove"))
-					{
-						JRoster::Instance()->RemoveUser(
-							JRoster::Instance()->FindUser(JRoster::HANDLE, jid));
-						
-						mainWindow->Lock();
-						mainWindow->PostMessage(BLAB_UPDATE_ROSTER);
-						mainWindow->Unlock();
-					}
-				}
-			}
-		}
-		*/
 	}
 	
 	// handle authorization success
@@ -416,7 +393,7 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 	// verify we have a username
 	if (entity->Attribute("from"))
 	{
-		//roster->Lock();
+		roster->Lock();
 
 		// circumvent groupchat presences
 		string room, server, user;
@@ -461,12 +438,10 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 
 			MessageRepeater::Instance()->PostMessage(&msg);
 
-			//roster->Unlock();
+			roster->Unlock();
 			return;
 		}		
 		
-		roster->Lock();
-
 		for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i)
 		{
 			UserID *user = NULL;
@@ -488,7 +463,7 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			
 		roster->Unlock();
 
-		roster->RefreshRoster();//mainWindow->PostMessage(BLAB_UPDATE_ROSTER);			
+		mainWindow->PostMessage(BLAB_UPDATE_ROSTER);			
 	}
 }
 
@@ -513,11 +488,10 @@ JabberProtocol::Disconnect()
 	Reset();
 	JRoster::Instance()->Lock();
 	JRoster::Instance()->RemoveAllUsers();
-	JRoster::Instance()->RefreshRoster();
 	JRoster::Instance()->Unlock();
-	
+
 	mainWindow->Lock();
-	//mainWindow->PostMessage(BLAB_UPDATE_ROSTER);
+	mainWindow->PostMessage(BLAB_UPDATE_ROSTER);
 	mainWindow->ShowLogin();
 	mainWindow->Unlock();
 	

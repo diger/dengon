@@ -168,8 +168,9 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			TalkManager::Instance()->Reset();
 			Lock();
 			_status_view->SetMessage("disconnect");
-			jabber->Disconnect();
 			Unlock();
+			jabber->Disconnect();
+			
 			break;
 		}
 
@@ -178,8 +179,9 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			// a message that the roster singleton was updated
 			Lock();
 			_status_view->SetMessage("roster updated.");
-			_roster->UpdateRoster();
 			Unlock();
+			_roster->UpdateRoster();
+			
 	
 			break;
 		}
@@ -218,7 +220,6 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
-				//user->SetSubscriptionStatus("to");
 				jabber->SendSubscriptionRequest(user->JabberHandle());
 			}
 			Unlock();
@@ -233,7 +234,6 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
-				//user->SetSubscriptionStatus("from");
 				jabber->SendUnsubscriptionRequest(user->JabberHandle());
 			}
 			Unlock();
