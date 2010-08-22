@@ -25,7 +25,6 @@ JRoster::Instance()
 JRoster::~JRoster()
 {
 	_instance = NULL;
-	// destroy semaphore
 	delete_sem(_roster_lock);
 }
 	    
@@ -33,19 +32,6 @@ void
 JRoster::AddRosterUser(UserID *roster_user)
 {
 	_roster->push_back(roster_user);
-	// refresh all roster views
-	RefreshRoster();
-}
-
-void
-JRoster::AddNewUser(UserID *new_user)
-{
-	_roster->push_back(new_user);
-
-	// communicate the new user to the server
-	//JabberSpeak::Instance()->AddToRoster(new_user);
-
-	// refresh all roster views
 	RefreshRoster();
 }
 
@@ -55,19 +41,7 @@ JRoster::RemoveUser(const UserID *removed_user)
 	for (RosterIter i = _roster->begin(); i != _roster->end(); ++i) {
 		if (*i == removed_user) {
 			_roster->erase(i);
-
-			// for transports
-			if (removed_user->UserType() == UserID::TRANSPORT) {
-				Agent *agent = AgentList::Instance()->GetAgentByID(removed_user->TransportID());
-
-				if (agent) {
-					agent->SetRegisteredFlag(false);
-				}
-			}
-			
-			// goodbye memory
 			delete removed_user;
-
 			break;	
 		}
 	}
@@ -76,14 +50,12 @@ JRoster::RemoveUser(const UserID *removed_user)
 void
 JRoster::RemoveAllUsers()
 {
-	// BUGBUG need more elegant way of deleting all users (check STL guide)
-	while(_roster->begin() != _roster->end()) {
+	while(_roster->begin() != _roster->end())
+	{
 		RosterIter i = _roster->begin();
 		UserID *user = *i;
-
 		_roster->erase(i);
-		//if (user != NULL)
-		//	delete user;
+		//delete user;
 	}
 }
 	
@@ -114,14 +86,6 @@ JRoster::FindUser(search_method search_type, std::string name)
 		}
 	}
 
-	if (search_type == JRoster::TRANSPORT_ID) {
-		for (RosterIter i = _roster->begin(); i != _roster->end(); ++i) {
-			if (!strcasecmp(name.c_str(), (*i)->TransportID().c_str())) {
-				return (*i);
-			}
-		}
-	}
-
 	return NULL;
 }
 
@@ -142,7 +106,7 @@ JRoster::FindUser(const UserID *comparing_user)
 {
 	return FindUser(JRoster::HANDLE, comparing_user->JabberHandle());
 }
-
+/*
 void
 JRoster::SetUserStatus(std::string username, UserID::online_status status)
 {
@@ -155,16 +119,7 @@ JRoster::SetUserStatus(std::string username, UserID::online_status status)
 	// refresh all roster views
 	RefreshRoster();
 }
-
-const
-UserID::online_status JRoster::UserStatus(std::string username)
-{
-	UserID *user = FindUser(COMPLETE_HANDLE, username);
-	if (user != NULL)
-	{
-		return user->OnlineStatus();
-	}
-}
+*/
 
 JRoster::ConstRosterIter
 JRoster::BeginIterator()

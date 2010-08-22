@@ -107,6 +107,7 @@ BuddyWindow::BuddyWindow(BRect frame, UserID *user)
 	_chat_services->SetDivider(_chat_services->Divider() - 75);
 	_chat_services_selection->AddItem(new BMenuItem("User", new BMessage(AGENT_MENU_CHANGED_TO_JABBER)));
 	_chat_services_selection->AddItem(new BMenuItem("Conference", new BMessage(AGENT_MENU_CHANGED_TO_JABBER_CONFERENCE)));
+	_chat_services_selection->FindItem("User")->SetMarked(true);
 	// ok button
 	rect.OffsetBy(220.0, 55.0);
 	rect.right = rect.left + 92;
@@ -222,7 +223,7 @@ void BuddyWindow::AddNewUser()
 	{
 		new_user = new UserID(UserID(username));
 
-		if (!strcasecmp(_handle->Label(), "Jabber ID:"))
+		if (!strcasecmp(_handle->Label(), "JID:"))
 		{
 			new_user->SetUsertype(UserID::JABBER);
 		} else {
