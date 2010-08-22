@@ -11,64 +11,35 @@
 UserID::UserID(std::string handle)
 {
 	SetHandle(handle);
-	SetUsertype(UserID::JABBER);
-	SetOnlineStatus(UserID::OFFLINE);
-	SetSubscriptionStatus("none");
-		
-	//SetExactOnlineStatus("chat");
-	//SetMoreExactOnlineStatus("");
 }
 
 UserID::UserID(const UserID &copied_userid)
 {
 	SetHandle(copied_userid.Handle());
-	SetFriendlyName(copied_userid.FriendlyName());
-	SetSubscriptionStatus(copied_userid.SubscriptionStatus());
-	SetOnlineStatus(copied_userid.OnlineStatus());
-	SetUsertype(copied_userid.UserType());
 	
-	//SetExactOnlineStatus(copied_userid.ExactOnlineStatus());
-	//SetMoreExactOnlineStatus(copied_userid.MoreExactOnlineStatus());
+	_friendly_name = copied_userid.FriendlyName();
+	_subscription_status = copied_userid.SubscriptionStatus();
+	_status = copied_userid.OnlineStatus();
+	_user_type = copied_userid.UserType();
+
 }
 
 UserID::~UserID()
 {
 }
 
-UserID &UserID::operator=(const UserID &rhs)
-{
-	SetHandle(rhs.Handle());
-	SetFriendlyName(rhs.FriendlyName());
-	SetSubscriptionStatus(rhs.SubscriptionStatus());
-	SetOnlineStatus(rhs.OnlineStatus());
-	SetUsertype(rhs.UserType());
+const UserID::user_type UserID::UserType() const { return _user_type; }
 
-	//SetExactOnlineStatus(rhs.ExactOnlineStatus());
-	//SetMoreExactOnlineStatus(rhs.MoreExactOnlineStatus());
-
-	return *this;
-}
-
-const UserID::user_type UserID::UserType() const
-{
-	return _user_type;
-}
-
-const std::string UserID::Handle() const
-{
-	return _handle;
-}
+const std::string UserID::Handle() const { return _handle; }
 
 const std::string UserID::FriendlyName() const
 {
-	if (_friendly_name.empty()) return JabberHandle();
-	return _friendly_name;
+	if ( _friendly_name.empty()) return JabberHandle();
+	else
+		return _friendly_name;
 }
 
-const UserID::online_status UserID::OnlineStatus() const
-{
-	return _status;
-}
+const UserID::online_status UserID::OnlineStatus() const { return _status; }
 
 const std::string UserID::ExactOnlineStatus() const
 {
@@ -91,25 +62,16 @@ const std::string UserID::MoreExactOnlineStatus() const {
 	}
 }
 
-const std::string UserID::SubscriptionStatus() const
-{
-	return _subscription_status;
-}
+const std::string UserID::SubscriptionStatus() const { return _subscription_status; }
 
 bool UserID::HaveSubscriptionTo() const
 {
 	return (SubscriptionStatus() == "to" || SubscriptionStatus() == "both");
 }
 
-bool UserID::IsUser() const
-{
-	return (UserType() == JABBER || UserType() == CONFERENCE);
-}
+bool UserID::IsUser() const { return (UserType() == JABBER || UserType() == CONFERENCE); }
 
-void UserID::SetUsertype(user_type type)
-{
-	_user_type = type;
-}
+void UserID::SetUsertype(user_type type) { _user_type = type; }
 
 const std::string UserID::JabberHandle() const
 {
@@ -140,12 +102,6 @@ const std::string UserID::JabberUsername() const { return _jabber_username; }
 const std::string UserID::JabberServer() const { return _jabber_server; }
 
 const std::string UserID::JabberResource() const { return _jabber_resource; }
-
-const std::string UserID::TransportID() const { return _transport_id; }
-
-const std::string UserID::TransportUsername() const { return _transport_username; }
-
-const std::string UserID::TransportPassword() const { return _transport_password; }
 
 std::string UserID::WhyNotValidJabberHandle()
 {
@@ -188,19 +144,14 @@ std::string UserID::WhyNotValidJabberHandle()
 
 void UserID::SetHandle(std::string handle)
 {
-	// initialize values
 	_handle = handle;
 
-	// process based on username structure
 	_ProcessHandle();
 }
 
 void UserID::SetFriendlyName(std::string friendly_name) { _friendly_name = friendly_name; }
 
-void UserID::SetOnlineStatus(online_status status)
-{
-	_status = status;
-}
+void UserID::SetOnlineStatus(online_status status) { _status = status; }
 
 void UserID::SetExactOnlineStatus(std::string exact_status)
 {
@@ -208,28 +159,24 @@ void UserID::SetExactOnlineStatus(std::string exact_status)
 	SetMoreExactOnlineStatus("");
 }
 
-void UserID::SetMoreExactOnlineStatus(std::string more_exact_status)
-{
-	_more_exact_status = more_exact_status;
-}
+void UserID::SetMoreExactOnlineStatus(std::string more_exact_status) { _more_exact_status = more_exact_status; }
 
 void UserID::SetSubscriptionStatus(std::string status) {
 	// only set legal status
-	if (status == "none" || status == "to" || status == "from" || status == "both") {
-		_subscription_status = status;
-	} else {
-		return;
-	}
-
-	// changing subscription may change status
-	if (!HaveSubscriptionTo()) {
-		SetOnlineStatus(UserID::UNKNOWN);
-		if (UserType() == CONFERENCE)
-			_status = CONF_STATUS;
-	} else {
-		if (OnlineStatus() == UserID::UNKNOWN) {
+	_subscription_status = status;
+	
+	if (UserType() == JABBER)
+	{	
+		if (_subscription_status == "from")
 			SetOnlineStatus(UserID::OFFLINE);
-		}
+		else if (_subscription_status == "none")
+			SetOnlineStatus(UserID::UNKNOWN);
+		else if (_subscription_status == "to" || _subscription_status == "both")
+			SetOnlineStatus(UserID::ONLINE);
+	}
+	else if (UserType() == CONFERENCE)
+	{
+		SetOnlineStatus(UserID::CONF_STATUS);
 	}
 }
 

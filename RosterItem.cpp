@@ -6,15 +6,6 @@
 #include "AppLocation.h"
 #include <TranslationUtils.h>
 
-BBitmap *RosterItem::_kinda_online_icon = NULL;
-BBitmap *RosterItem::_offline_icon      = NULL;
-BBitmap *RosterItem::_online_icon       = NULL;
-BBitmap *RosterItem::_unknown_icon      = NULL;
-BBitmap *RosterItem::_aol_icon          = NULL;
-BBitmap *RosterItem::_icq_icon          = NULL;
-BBitmap *RosterItem::_msn_icon          = NULL;
-BBitmap *RosterItem::_yahoo_icon        = NULL;
-
 RosterItem::RosterItem(const UserID *userid)
 	: BStringItem(userid->FriendlyName().c_str()) {
 	_userid           = userid;

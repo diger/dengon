@@ -106,20 +106,6 @@ JRoster::FindUser(const UserID *comparing_user)
 {
 	return FindUser(JRoster::HANDLE, comparing_user->JabberHandle());
 }
-/*
-void
-JRoster::SetUserStatus(std::string username, UserID::online_status status)
-{
-	UserID *user = const_cast<UserID *>(FindUser(COMPLETE_HANDLE, username));
-	
-	if (user != NULL) {
-		user->SetOnlineStatus(status);
-	}
-
-	// refresh all roster views
-	RefreshRoster();
-}
-*/
 
 JRoster::ConstRosterIter
 JRoster::BeginIterator()

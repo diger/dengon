@@ -193,11 +193,16 @@ void RosterView::LinkUser(const UserID *added_user)
 	if (added_user->UserType() == UserID::CONFERENCE)
 	{
 		AddUnder(new RosterItem(added_user), _conferences);
-		fprintf(stderr, "Link under Conferences.\n");
 	}
-	
-	else
-		AddUnder(new RosterItem(added_user), _offline);
+	else if (added_user->UserType() == UserID::JABBER)
+	{
+		if (added_user->OnlineStatus() == UserID::ONLINE)
+			AddUnder(new RosterItem(added_user), _online);
+		else if (added_user->OnlineStatus() == UserID::OFFLINE)
+			AddUnder(new RosterItem(added_user), _offline);
+		else 
+			AddUnder(new RosterItem(added_user), _unknown);
+	}
 }
 
 void RosterView::UnlinkUser(const UserID *removed_user) {
@@ -278,11 +283,11 @@ void RosterView::UpdateRoster()
 	// add entries from JRoster that are not in RosterView
 	for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i)
 	{
-		if ((*i)->IsUser() && FindUser(*i) < 0)
+		if (FindUser(*i) < 0)
 		{
 			// this entry does not exist in the RosterView
 			LinkUser(*i);
-		}
+		} 
 	}
 
 	RESET:
@@ -299,19 +304,21 @@ void RosterView::UpdateRoster()
 		}
 		else
 		{
+			
 			// process removals
 			if (!roster->ExistingUserObject(item->GetUserID()) || !roster->FindUser(item->GetUserID()))
 			{
 				item->SetStalePointer(true);
-				RemoveItem(i);
+				RemoveItem(item);
 				goto RESET;
 			}
+			
 		
 			// change of statuses
 			if (item->GetUserID()->OnlineStatus() != _item_to_status_map[Superitem(item)])
 			{
 				UserID::online_status old_status = _item_to_status_map[Superitem(item)];
-				RemoveItem(i);
+				RemoveItem(item);
 				AddUnder(item, _status_to_item_map[item->GetUserID()->OnlineStatus()]);
 				goto RESET;
 			}			

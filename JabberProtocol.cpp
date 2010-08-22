@@ -468,8 +468,7 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 		{
 			UserID *user = NULL;
 
-			if ((*i)->IsUser() &&
-				!strcasecmp(UserID(entity->Attribute("from")).JabberHandle().c_str(),
+			if (!strcasecmp(UserID(entity->Attribute("from")).JabberHandle().c_str(),
 					(*i)->JabberHandle().c_str()))
 			{
 				++num_matches;
@@ -480,8 +479,9 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 		
 		if (num_matches == 0)
 		{
-			UserID user(entity->Attribute("from"));
-			ProcessUserPresence(&user, entity);
+			//UserID user(entity->Attribute("from"));
+			//ProcessUserPresence(&user, entity);
+			//fprintf(stderr, "User ");
 		}
 			
 		roster->Unlock();
@@ -758,12 +758,12 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		availability = "available";
 	}
 	
-	//fprintf(stderr, "Presence type: %s.\n", availability);
-
 	// reflect presence
 	if (user && !strcasecmp(availability, "unavailable"))
 	{
-		user->SetOnlineStatus(UserID::OFFLINE);
+		if (user->SubscriptionStatus() == "to" ||
+			user->SubscriptionStatus() == "both")
+			user->SetOnlineStatus(UserID::OFFLINE);
 		fprintf(stderr, "User %s is unavailable.\n", user->JabberHandle().c_str());
 	}
 	else if (user && !strcasecmp(availability, "available"))
@@ -773,42 +773,30 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	}
 	else if (!strcasecmp(availability, "unsubscribe"))
 	{
-		fprintf(stderr, "User %s is unsubscribed from you.\n", user->JabberHandle().c_str());
-		sprintf(buffer, "User %s no longer wishes to know your online status.", asker);
+		sprintf(buffer, "User %s is unsubscribed from you.\n", user->JabberHandle().c_str());
+		fprintf(stderr, buffer);
 		ModalAlertFactory::NonModalAlert(buffer, "I feel so unloved.");
 	}
 	else if (user && !strcasecmp(availability, "unsubscribed"))
 	{
-		// do nothing?
-		user->SetOnlineStatus(UserID::UNKNOWN);
-		user->SetSubscriptionStatus("from");
+		sprintf(buffer, "User %s deny request or cancel subscription", user->JabberHandle().c_str());
+		fprintf(stderr, buffer);
 	}
 	else if (user && !strcasecmp(availability, "subscribed"))
 	{
-		user->SetOnlineStatus(UserID::ONLINE);
-		user->SetSubscriptionStatus("to");
-
-		if (entity->Child("status")) {
-			sprintf(buffer, "[%s]\n\n%s", asker, entity->Child("status")->Data());
-		} else {
-			sprintf(buffer, "Your subscription request was accepted by %s!", asker);
-		}
-		
+		sprintf(buffer, "Your subscription request was accepted by %s!", user->JabberHandle().c_str());
 		ModalAlertFactory::Alert(buffer, "Hooray!");
 	}
 	else if (!strcasecmp(availability, "subscribe"))
 	{
-		sprintf(buffer, "%s would like to subscribe to your presence so they may know if you're online or not.  Would you like to allow it?", asker);
-		
-		fprintf(stderr, "User %s want to subscribe to you.\n", asker);
+		sprintf(buffer, "User %s wants to subscribe to you.\n", user->JabberHandle().c_str());
+		fprintf(stderr, buffer);
 
 		// query for presence authorization (for users)
 		int32 answer = 0;
 				
 		if (user->IsUser()) {
-			answer = ModalAlertFactory::Alert(buffer, "No, I prefer privacy.", "Yes, grant them my presence!");
-		} else if (user->UserType() == UserID::TRANSPORT) {
-			answer = 1;
+			answer = ModalAlertFactory::Alert(buffer, "Deny", "Grant!");
 		}
 
 		// send back the response
@@ -825,29 +813,33 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		if (entity->Child("error") && entity->Child("error")->Child("text"))
 		{
 			string username = entity->Attribute("from");
-			fprintf(stderr, "Presence Error: %s.\n", entity->Child("error")->Child("text")->Data());
-			sprintf(buffer, "Following error occured from %s:\n\n %s.", username.c_str(), entity->Child("error")->Child("text")->Data());
-		
-			ModalAlertFactory::NonModalAlert(buffer, "Sad :(");
+			sprintf(buffer, "Presence error from %s:\n\n%s.\n", username.c_str(), entity->Child("error")->Child("text")->Data());
+			fprintf(stderr, buffer);
+			
+			ModalAlertFactory::NonModalAlert(buffer, "Sad");
 		}
 	}
 
-	if (user && (!strcasecmp(availability, "available") ||
-		!strcasecmp(availability, "unavailable")))
+	if (user && !strcasecmp(availability, "available"))
 	{
 		if (entity->Child("show") && entity->Child("show")->Data()) {
 			user->SetExactOnlineStatus(entity->Child("show")->Data());
 		} else {
 			user->SetExactOnlineStatus("chat");
-			fprintf(stderr, "Process User Presence show %s.\n", "chat");
+			
 		}	
 
 		if (entity->Child("status") && entity->Child("status")->Data()) {
 			user->SetMoreExactOnlineStatus(entity->Child("status")->Data());
 		} else
 			user->SetMoreExactOnlineStatus("");
-		
+			
+		fprintf(stderr, "User %s availability is '%s', status is '%s'.\n", user->JabberHandle().c_str(),
+								user->ExactOnlineStatus().c_str(),
+								user->MoreExactOnlineStatus().c_str());
 	}
+	
+
 }
 
 void
@@ -868,24 +860,29 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 	for (int i=0; i<entity->CountChildren(); ++i) {
 		
 		// handle the item child
-		if (!strcasecmp(entity->Child(i)->Name(), "item")) {
-			if (!entity->Child(i)->Attribute("jid")) {
+		if (!strcasecmp(entity->Child(i)->Name(), "item"))
+		{
+			if (!entity->Child(i)->Attribute("jid"))
+			{
 				continue;
 			}
 
 			// make a user
 			UserID user(entity->Child(i)->Attribute("jid"));
-			
-			fprintf(stderr,  "Roster item %s.\n", user.JabberHandle().c_str());
-		
-			if (entity->Child(i)->Child("group")) {
-				if (!strcasecmp(entity->Child(i)->Child("group")->Data(), "#Conference"))
-				{
-					user.SetUsertype(UserID::CONFERENCE);
-					user.SetOnlineStatus(UserID::CONF_STATUS);
-					fprintf(stderr, "CONFERENCE founded.\n");
-				}
+					
+			// set user type
+			if (entity->Child(i)->Child("group") &&
+				!strcasecmp(entity->Child(i)->Child("group")->Data(), "#Conference"))
+			{
+				user.SetUsertype(UserID::CONFERENCE);
+				fprintf(stderr, "Roster item %s (conference).\n", user.JabberHandle().c_str());
+				
 			}
+			else
+			{
+				user.SetUsertype(UserID::JABBER);
+				fprintf(stderr, "Roster item %s.\n", user.JabberHandle().c_str());
+			}	
 
 			// set friendly name
 			if (entity->Child(i)->Attribute("name")) {
@@ -894,39 +891,40 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 			
 			// set subscription status
 			if (entity->Child(i)->Attribute("subscription")) {
-				fprintf(stderr, "User %s subscription status: %s.\n", user.JabberHandle().c_str(), user.SubscriptionStatus().c_str());
+				fprintf(stderr, "User %s subscription status: %s.\n", user.JabberHandle().c_str(),
+					entity->Child(i)->Attribute("subscription"));
 				user.SetSubscriptionStatus(entity->Child(i)->Attribute("subscription"));
 			}
 
-			// obtain a handle to the user (is there a new one?)
-			UserID *roster_user;
+			UserID *roster_user = JRoster::Instance()->FindUser(
+										JRoster::HANDLE, user.JabberHandle());
 			
-			if (user.IsUser()) {
-				roster_user = JRoster::Instance()->FindUser(JRoster::HANDLE, user.JabberHandle());
-			} 
-
-			// if we have duplicates, settle disputes
-			if (roster_user) {
-				// process if it's a removal
-				if (entity->Child(i)->Attribute("subscription") && 
-						!strcasecmp(entity->Child(i)->Attribute("subscription"), "remove")) {
-					// remove from the list
-					JRoster::Instance()->RemoveUser(roster_user);
-
-					continue;
+			if (roster_user)
+			{
+				if (entity->Child(i)->Attribute("subscription"))
+				{
+					if (!strcasecmp(entity->Child(i)->Attribute("subscription"), "remove"))
+					{
+						JRoster::Instance()->RemoveUser(roster_user);
+						continue;
+					}
+					else 
+						roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
 				}
-
-				// update the new roster item
-				*roster_user = user;
-			} else {
-				// create the user
+				
+				if (entity->Child(i)->Attribute("name"))
+					roster_user->SetFriendlyName(user.FriendlyName());
+			}
+			else
+			{
 				roster_user = new UserID(entity->Child(i)->Attribute("jid"));
-
-				*roster_user = user;
 				
-				// add to the list
+				roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
+				roster_user->SetFriendlyName(user.FriendlyName());
+				roster_user->SetOnlineStatus(user.OnlineStatus());
+				roster_user->SetUsertype(user.UserType());
+				
 				JRoster::Instance()->AddRosterUser(roster_user);
-				
 			}
 		}
 	}

@@ -6,21 +6,9 @@
 #ifndef ROSTER_ITEM_H
 #define ROSTER_ITEM_H
 
-#ifndef _BITMAP_H
-	#include <interface/Bitmap.h>
-#endif
-
-#ifndef _LIST_ITEM_H
-	#include <interface/ListItem.h>
-#endif
-
-#ifndef _VIEW_H
-	#include <interface/View.h>
-#endif
-
-#ifndef USER_ID_H
-	#include "UserID.h"
-#endif
+#include <interface/ListItem.h>
+#include <interface/View.h>
+#include "UserID.h"
 
 class RosterItem : public BStringItem {
 public:
@@ -38,15 +26,6 @@ public:
 private:
 	const UserID   *_userid;
 	bool            _is_stale_pointer;
-		
-	static BBitmap *_kinda_online_icon;
-	static BBitmap *_online_icon;
-	static BBitmap *_offline_icon;
-	static BBitmap *_unknown_icon;
-	static BBitmap *_aol_icon;
-	static BBitmap *_icq_icon;
-	static BBitmap *_yahoo_icon;
-	static BBitmap *_msn_icon;
 };
 
 #endif
