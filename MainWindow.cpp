@@ -131,6 +131,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 
 		case JAB_LOGGED_IN: 
 		{
+			SetTitle((string("Chat − ") + UserID(string(jabber->jid.String())).JabberHandle()).c_str());
 			
 			_status_view->SetMessage("gathering agents, roster and presence info");
 			
@@ -166,6 +167,9 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 		case JAB_DISCONNECT:
 		{
 			TalkManager::Instance()->Reset();
+			
+			SetTitle("Chat");
+			
 			Lock();
 			_status_view->SetMessage("disconnect");
 			Unlock();

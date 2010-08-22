@@ -198,13 +198,6 @@ void RosterView::LinkUser(const UserID *added_user)
 	}
 	else if (added_user->UserType() == UserID::JABBER)
 	{
-		//if (added_user->OnlineStatus() == UserID::ONLINE)
-		//	AddUnder(new RosterItem(added_user), _online);
-		//else if (added_user->OnlineStatus() == UserID::OFFLINE)
-		//	AddUnder(new RosterItem(added_user), _offline);
-		//else 
-		//	AddUnder(new RosterItem(added_user), _unknown);
-		
 		if (added_user->SubscriptionStatus() == "none")
 			AddUnder(new RosterItem(added_user), _unknown);
 		else 

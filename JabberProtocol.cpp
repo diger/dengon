@@ -910,18 +910,14 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 						JRoster::Instance()->RemoveUser(roster_user);
 												
 						fprintf(stderr, "User %s was removed from roster.\n", roster_user->JabberHandle().c_str());
-						
 						continue;
 					}
 					else
 					{
-						
-						if (user.SubscriptionStatus() != "none" &&
-							roster_user->SubscriptionStatus() == "none")
-						{
-							if (roster_user->OnlineStatus() == UserID::UNKNOWN)
-								roster_user->SetOnlineStatus(UserID::OFFLINE);
-						}
+						if (user.SubscriptionStatus() == "from")
+							roster_user->SetOnlineStatus(UserID::OFFLINE);
+						else if (user.SubscriptionStatus() == "none")
+							roster_user->SetOnlineStatus(UserID::UNKNOWN);
 						
 						roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
 					}
