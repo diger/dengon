@@ -488,7 +488,7 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			
 		roster->Unlock();
 
-		mainWindow->PostMessage(BLAB_UPDATE_ROSTER);			
+		roster->RefreshRoster();//mainWindow->PostMessage(BLAB_UPDATE_ROSTER);			
 	}
 }
 
@@ -513,10 +513,11 @@ JabberProtocol::Disconnect()
 	Reset();
 	JRoster::Instance()->Lock();
 	JRoster::Instance()->RemoveAllUsers();
+	JRoster::Instance()->RefreshRoster();
 	JRoster::Instance()->Unlock();
 	
 	mainWindow->Lock();
-	mainWindow->PostMessage(BLAB_UPDATE_ROSTER);
+	//mainWindow->PostMessage(BLAB_UPDATE_ROSTER);
 	mainWindow->ShowLogin();
 	mainWindow->Unlock();
 	
@@ -815,9 +816,7 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		// query for presence authorization (for users)
 		int32 answer = 0;
 				
-		if (user->IsUser()) {
-			answer = ModalAlertFactory::Alert(buffer, "Deny", "Grant!");
-		}
+		answer = ModalAlertFactory::Alert(buffer, "Deny", "Grant!");
 
 		// send back the response
 		if (answer == 1) {
@@ -873,6 +872,8 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 	} else {
 		return;
 	}
+	
+	JRoster::Instance()->Lock();
 
 	for (int i=0; i<entity->CountChildren(); ++i)
 	{
@@ -931,9 +932,8 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				{
 					if (!strcasecmp(entity->Child(i)->Attribute("subscription"), "remove"))
 					{
-						JRoster::Instance()->Lock();
+						
 						JRoster::Instance()->RemoveUser(roster_user);
-						JRoster::Instance()->Unlock();
 												
 						fprintf(stderr, "User %s was removed from roster.\n", roster_user->JabberHandle().c_str());
 						
@@ -981,16 +981,17 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				roster_user->SetOnlineStatus(user.OnlineStatus());
 				roster_user->SetUsertype(user.UserType());
 								
-				JRoster::Instance()->Lock();
 				JRoster::Instance()->AddRosterUser(roster_user);
-				JRoster::Instance()->Unlock();
+				//
 				
 				fprintf(stderr, "User %s was added to roster.\n", roster_user->JabberHandle().c_str());
 			}
 		}
 	}
+	
+	JRoster::Instance()->Unlock();
 
-	mainWindow->PostMessage(BLAB_UPDATE_ROSTER);
+	JRoster::Instance()->RefreshRoster();
 
 	
 }
