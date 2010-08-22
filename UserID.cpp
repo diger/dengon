@@ -164,20 +164,19 @@ void UserID::SetMoreExactOnlineStatus(std::string more_exact_status) { _more_exa
 void UserID::SetSubscriptionStatus(std::string status) {
 	// only set legal status
 	_subscription_status = status;
-	
+	/*
 	if (UserType() == JABBER)
 	{	
-		if (_subscription_status == "from")
-			SetOnlineStatus(UserID::OFFLINE);
-		else if (_subscription_status == "none")
+		if (_subscription_status == "none")
 			SetOnlineStatus(UserID::UNKNOWN);
-		else if (_subscription_status == "to" || _subscription_status == "both")
-			SetOnlineStatus(UserID::ONLINE);
+		else 
+			SetOnlineStatus(UserID::OFFLINE);
 	}
 	else if (UserType() == CONFERENCE)
 	{
 		SetOnlineStatus(UserID::CONF_STATUS);
 	}
+	*/
 }
 
 void UserID::_ProcessHandle()
