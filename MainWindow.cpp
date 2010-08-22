@@ -218,7 +218,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
-				user->SetSubscriptionStatus("to");
+				//user->SetSubscriptionStatus("to");
 				jabber->SendSubscriptionRequest(user->JabberHandle());
 			}
 			Unlock();
@@ -233,7 +233,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
-				user->SetSubscriptionStatus("from");
+				//user->SetSubscriptionStatus("from");
 				jabber->SendUnsubscriptionRequest(user->JabberHandle());
 			}
 			Unlock();

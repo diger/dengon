@@ -129,8 +129,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		//}
 		
 		// handle roster retrival
-		if (!strcasecmp(entity->Attribute("type"), "result") &&
-			!strcasecmp(entity->Attribute("id"), "roster_2"))
+		if (entity->Child("query") &&
+			!strcasecmp(entity->Child("query")->Attribute("xmlns"),"jabber:iq:roster"))
 		{
 			ParseRosterList(entity);
 		}
@@ -469,14 +469,8 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			UserID *user = NULL;
 
 			if ((*i)->IsUser() &&
-				!strcasecmp(UserID(entity->Attribute("from")).JabberHandle().c_str(), (*i)->JabberHandle().c_str()))
-			{
-				++num_matches;
-				user = *i;
-				ProcessUserPresence(user, entity);
-			}
-			else if ((*i)->UserType() == UserID::TRANSPORT &&
-					!strcasecmp(UserID(entity->Attribute("from")).TransportID().c_str(), (*i)->TransportID().c_str()))
+				!strcasecmp(UserID(entity->Attribute("from")).JabberHandle().c_str(),
+					(*i)->JabberHandle().c_str()))
 			{
 				++num_matches;
 				user = *i;
@@ -787,10 +781,12 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	{
 		// do nothing?
 		user->SetOnlineStatus(UserID::UNKNOWN);
+		user->SetSubscriptionStatus("from");
 	}
 	else if (user && !strcasecmp(availability, "subscribed"))
 	{
 		user->SetOnlineStatus(UserID::ONLINE);
+		user->SetSubscriptionStatus("to");
 
 		if (entity->Child("status")) {
 			sprintf(buffer, "[%s]\n\n%s", asker, entity->Child("status")->Data());
@@ -898,24 +894,16 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 			
 			// set subscription status
 			if (entity->Child(i)->Attribute("subscription")) {
+				fprintf(stderr, "User %s subscription status: %s.\n", user.JabberHandle().c_str(), user.SubscriptionStatus().c_str());
 				user.SetSubscriptionStatus(entity->Child(i)->Attribute("subscription"));
 			}
-/*
-			// set ask
-			if (entity->Child(i)->Attribute("ask")) {
-				user.SetAsk(entity->Child(i)->Attribute("ask"));
-			}
-*/
+
 			// obtain a handle to the user (is there a new one?)
 			UserID *roster_user;
 			
 			if (user.IsUser()) {
 				roster_user = JRoster::Instance()->FindUser(JRoster::HANDLE, user.JabberHandle());
-			} /*else if (user.UserType() == UserID::TRANSPORT) {
-				roster_user = JRoster::Instance()->FindUser(JRoster::TRANSPORT_ID, user.TransportID());
-			} else {
-				continue;
-			}*/
+			} 
 
 			// if we have duplicates, settle disputes
 			if (roster_user) {
