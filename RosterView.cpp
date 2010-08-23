@@ -258,7 +258,7 @@ RosterView::UpdatePopUpMenu()
 		_change_user_item->SetEnabled(true);
 		_remove_user_item->SetEnabled(true);
 		//_user_info_item->SetEnabled(true);
-		_user_chatlog_item->SetEnabled(BlabberSettings::Instance()->Tag("autoopen-chatlog"));
+		//_user_chatlog_item->SetEnabled(BlabberSettings::Instance()->Tag("autoopen-chatlog"));
 		_presence->SetEnabled(true);
 
 		if (user->HaveSubscriptionTo()) {

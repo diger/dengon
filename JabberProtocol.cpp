@@ -987,7 +987,7 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 					
 				roster_user = new UserID(string(entity->Child(i)->Attribute("jid")));
 				
-				roster_user->SetSubscriptionStatus(user.Handle());
+				roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
 				roster_user->SetFriendlyName(user.FriendlyName());
 				roster_user->SetOnlineStatus(user.OnlineStatus());
 				roster_user->SetUsertype(user.UserType());
