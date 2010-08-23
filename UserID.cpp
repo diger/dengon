@@ -115,7 +115,7 @@ const std::string UserID::JabberResource() const { return _jabber_resource; }
 std::string UserID::WhyNotValidJabberHandle()
 {
 	if (UserType() == JABBER) {
-		return string("");
+		return std::string("");
 	}
 
 	if (_jabber_username.size() == 0 || _jabber_server.size() == 0) {
