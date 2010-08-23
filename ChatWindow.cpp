@@ -195,9 +195,9 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	
 	messageTextView->MakeFocus(true);
 	
-	if (user->FriendlyName().size())
+	if (user->FriendlyName().size() && user->FriendlyName() != user->JabberHandle())
 	{
-		SetTitle(user->FriendlyName().c_str());
+		SetTitle((user->FriendlyName() +  " − " + user->JabberHandle()).c_str());
 		originalWindowTitle.SetTo(user->FriendlyName().c_str());
 	}
 	else

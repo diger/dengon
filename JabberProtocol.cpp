@@ -72,7 +72,14 @@ JabberProtocol::LogOn()
 
 	if (BeginSession())
 	{
-		Authorize();
+	
+		if (mainWindow->_login_new_account->Value() == B_CONTROL_ON) {
+			// create account
+			SendUserRegistration(user, pass, "haiku");
+		} else {
+			// log in
+			Authorize();
+		}
 		
 		acquire_sem(logged);
 		resume_thread(reciever_thread);
@@ -159,6 +166,27 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			Session();
 		}
 		
+		if (!strcasecmp(entity->Attribute("type"), "result") &&
+			entity->Child("query", "xmlns", "jabber:iq:register"))
+		{
+			Authorize();
+		}
+		
+		}
+		
+		
+		if (!strcasecmp(entity->Attribute("type"), "error"))
+		{
+			if (entity->Child("error")->Child("text"))
+				sprintf(buffer, "Error %s:\n\n%s", entity->Child("error")->Attribute("code"),
+					entity->Child("error")->Child("text")->Data());
+			else
+				sprintf(buffer, "Error %s", entity->Child("error")->Attribute("code"));
+			
+			ModalAlertFactory::Alert(buffer, "OK", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
+			
+			Disconnect();
+			
 		}
 		
 		if (!strcasecmp(entity->Attribute("type"), "get"))
@@ -224,12 +252,6 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		Disconnect();
 	}
 	
-	// handle connection
-	if (!entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:stream"))
-	{
-		
-	}
-
 	// handle disconnection
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:stream")) {
 		++seen_streams;
@@ -245,6 +267,48 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	{
 		TalkManager::Instance()->ProcessMessageData(entity);
 	}
+}
+
+void
+JabberProtocol::SendUserRegistration(BString username, BString password, BString resource)
+{
+	XMLEntity   *entity_iq, *entity_query;
+	char **atts_iq    = CreateAttributeMemory(4);
+	char **atts_query = CreateAttributeMemory(2);
+
+	// assemble attributes;
+	strcpy(atts_iq[0], "id");
+
+	strcpy(atts_iq[1], GenerateUniqueID().c_str());
+
+	strcpy(atts_iq[2], "type");
+	strcpy(atts_iq[3], "set");
+
+	strcpy(atts_query[0], "xmlns");
+	strcpy(atts_query[1], "jabber:iq:register");
+
+	// construct XML tagset
+	entity_iq    = new XMLEntity("iq", (const char **)atts_iq);
+	entity_query = new XMLEntity("query", (const char **)atts_query);
+
+	entity_iq->AddChild(entity_query);
+	
+	entity_query->AddChild("username", NULL, username.String());
+	entity_query->AddChild("password", NULL, password.String());
+	entity_query->AddChild("resource", NULL, resource.String());
+
+	// log command
+	//_iq_map[atts_iq[1]] = NEW_USER;
+	
+	// send XML command
+	char *str = entity_iq->ToString();
+	socketAdapter->SendData(BString(str));
+	free(str);
+
+	DestroyAttributeMemory(atts_iq, 4);
+	DestroyAttributeMemory(atts_query, 2);
+	
+	delete entity_iq;
 }
 
 void
@@ -1297,7 +1361,7 @@ JabberProtocol::BeginSession()
 bool
 JabberProtocol::Authorize()
 {
-	int length = (strlen(user)*2)+strlen(domain)+strlen(pass)+3;
+	int length = (strlen(user.String())*2)+strlen(domain.String())+strlen(pass.String())+3;
 	char credentials[length];
 	sprintf(credentials, "%s@%s%c%s%c%s", user.String(), domain.String(), '\0', user.String(), '\0', pass.String());
 	

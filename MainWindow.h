@@ -33,7 +33,7 @@ public:
 	void                       HideLogin();
 	void                       SetCustomStatus(std::string status);
 	JabberProtocol				*jabber;
-	
+	BCheckBox                *_login_new_account;	
 protected:
 	                           BlabberMainWindow(BRect frame);
 		                           
@@ -50,7 +50,7 @@ private:
 	BTextControl			 *_ssl_server;
 	BTextControl			 *_ssl_port;
 
-	BCheckBox                *_login_new_account;
+
 	BCheckBox                *_login_auto_login;
 	BCheckBox				 *_ssl_enabled;
 	

@@ -582,7 +582,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	rect.right = rect.left + 175.0;
 	rect.bottom = rect.top + 19.0;
 	_login_new_account = new BCheckBox(rect, NULL, "Register Account", NULL, B_FOLLOW_LEFT);
-	_login_new_account->SetEnabled(false);
+	_login_new_account->SetEnabled(true);
 
 	rect.OffsetBy(0.0, 19.0);
 	_login_auto_login = new BCheckBox(rect, NULL, "Auto-login", NULL, B_FOLLOW_LEFT);
@@ -735,6 +735,7 @@ void BlabberMainWindow::ShowLogin() {
 	_full_view->Hide();
 	_login_full_view->Show();
 	_login_full_view->Show();
+	_login_new_account->SetValue(B_CONTROL_OFF);
 }
 
 void BlabberMainWindow::HideLogin()

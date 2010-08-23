@@ -77,6 +77,7 @@ class JabberProtocol : public XMLReader
 				void			SendMUCRoomRequest(BString room);
 				void			SendUnavailable(BString to, BString status);
 				void			SendAvailable(BString to, BString status);
+				void			SendUserRegistration(BString username, BString password, BString resource);
 				void			JoinRoom(BString to, BString pass);
 				void			SendGroupPresence(string _group_room, string _group_username);
 				

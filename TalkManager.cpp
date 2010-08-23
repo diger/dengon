@@ -90,10 +90,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	}
 	else if (!strcasecmp(entity->Attribute("type"), "normal"))
 	{
-		if (BlabberSettings::Instance()->Tag("convert-messages-to-chat")) 
-			type = ChatWindow::CHAT;
-		else
-			type = ChatWindow::MESSAGE;
+		type = ChatWindow::CHAT;
 	}
 	else if (!strcasecmp(entity->Attribute("type"), "chat"))
 	{
@@ -117,7 +114,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	}
 	else
 	{
-		return;
+		type = ChatWindow::CHAT;
 	}
 	
 	// configure routing information
@@ -143,6 +140,19 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			
 			if (!user)
 			{
+				user = new UserID(sender);
+				fprintf(stderr, "Username: %s.\n", user->JabberUsername().c_str());
+				fprintf(stderr, "Server: %s.\n", user->JabberServer().c_str());
+				fprintf(stderr, "Resource: %s.\n", user->JabberResource().c_str());
+				fprintf(stderr, "Valid?: %s.\n", user->WhyNotValidJabberHandle().c_str());
+				if (user->JabberServer().empty())
+				{
+					user->SetFriendlyName(string("Server Chat"));
+					user->SetJabberServer(sender);
+					fprintf(stderr, "Username: %s.\n", user->JabberUsername().c_str());
+					fprintf(stderr, "Server: %s.\n", user->JabberServer().c_str());
+					fprintf(stderr, "Resource: %s.\n", user->JabberResource().c_str());
+				}
 				fprintf(stderr, "Not found incoming message user in roster.\n");
 			}
 

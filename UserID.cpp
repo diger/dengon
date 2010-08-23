@@ -79,7 +79,10 @@ void UserID::SetUsertype(user_type type) { _user_type = type; }
 
 const std::string UserID::JabberHandle() const
 {
-	return JabberUsername() + '@'+ JabberServer();
+	if (JabberUsername().empty())
+		return JabberServer();
+	else
+		return JabberUsername() + '@'+ JabberServer();
 }
 
 const std::string UserID::JabberCompleteHandle() const
@@ -104,6 +107,8 @@ const std::string UserID::JabberCompleteHandle() const
 const std::string UserID::JabberUsername() const { return _jabber_username; }
 
 const std::string UserID::JabberServer() const { return _jabber_server; }
+
+void UserID::SetJabberServer(std::string server) { _jabber_server = server; }
 
 const std::string UserID::JabberResource() const { return _jabber_resource; }
 

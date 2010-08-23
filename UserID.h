@@ -53,6 +53,7 @@ class UserID
 				void            SetOnlineStatus(online_status status);
 
 				void            SetHandle(std::string handle);
+				void            SetJabberServer(std::string handle);
 				void            SetFriendlyName(std::string friendly_name);
 				void            SetSubscriptionStatus(std::string status);
 				void            SetExactOnlineStatus(std::string exact_status);
