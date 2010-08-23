@@ -81,11 +81,11 @@ void RosterView::AttachedToWindow() {
 
 	_popup->AddItem(_chat_item);
 	_popup->AddSeparatorItem();
-	_popup->AddItem(_user_info_item);
-	_popup->AddItem(_user_chatlog_item);
-	_popup->AddSeparatorItem();
+	//_popup->AddItem(_user_info_item);
+	//_popup->AddItem(_user_chatlog_item);
 	_popup->AddItem(_change_user_item);
 	_popup->AddItem(_remove_user_item);
+	_popup->AddSeparatorItem();
 	_popup->AddItem(_presence);
 
 	// initialize menu
