@@ -518,11 +518,11 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	rect.top = 77.0;
 	rect.right -= 3.0;
 	
-	_login_realname = new BTextControl(rect, NULL, "Title Name: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
+	_login_realname = new BTextControl(rect, NULL, "Title Name: ", NULL, NULL, B_FOLLOW_RIGHT);
 	
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	
-	_login_username = new BTextControl(rect, NULL, "JID: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
+	_login_username = new BTextControl(rect, NULL, "JID: ", NULL, NULL, B_FOLLOW_RIGHT);
 		
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	
