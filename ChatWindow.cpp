@@ -348,6 +348,27 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	last_username = username;
 }
 
+static int _PeopelListComparison(const void *a, const void *b)
+{
+	if ((*(PeopleListItem **)a)->_role ==
+		(*(PeopleListItem **)b)->_role)
+	{
+		if ((*(PeopleListItem **)a)->_user >
+			(*(PeopleListItem **)b)->_user)
+			return 1;
+		else
+			return -1;
+	}
+	else
+	{
+		if ((*(PeopleListItem **)a)->_role >
+			(*(PeopleListItem **)b)->_role)
+			return 1;
+		else
+			return -1;
+	}
+} 
+
 void
 ChatWindow::AddGroupChatter(string user, string show, string status, string role, string affiliation)
 {
@@ -363,12 +384,15 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 
 		return;
 	}
+	
+	
+	bool has = false;
 
 	// add it to the list
 	for (i=0; i < _people->CountItems(); ++i)
 	{
 		PeopleListItem *iterating_item = dynamic_cast<PeopleListItem *>(_people->ItemAt(i));
-		
+		/*
 
 		if (strcasecmp(iterating_item->User().c_str(), user.c_str()) > 0) {
 			// add the new user
@@ -379,7 +403,9 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 			// add the new user
 			_people->AddItem(people_item, i);
 			break;
-		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
+		} else
+		*/
+		if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
 				   !strcmp(iterating_item->User().c_str(), user.c_str()))
 		{
 
@@ -389,8 +415,11 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 			iterating_item->_affiliation = role;
 			
 			_people->InvalidateItem(i);
+			has = true;
 			break;
-		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
+		}
+		/*
+		else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
 					strcmp(iterating_item->User().c_str(), user.c_str()) < 0) {
 			if (i == (_people->CountItems() - 1)) {
 				// add the new user
@@ -423,7 +452,14 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 		} else if (strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) {
 			continue;
 		}
-
+		*/
+	}
+	
+	if (!has)
+	{
+		_people->AddItem(people_item);
+		_people->SortItems(_PeopelListComparison);
+		
 	}
 }
 
@@ -434,6 +470,8 @@ ChatWindow::RemoveGroupChatter(string username)
 	for (int i=0; i < _people->CountItems(); ++i) {
 		if (dynamic_cast<PeopleListItem *>(_people->ItemAt(i))->User() == username) {
 			_people->RemoveItem(i);
+			_people->SortItems(_PeopelListComparison);
+			return;
 		}
 	}
 }

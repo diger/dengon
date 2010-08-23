@@ -27,7 +27,11 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	// text characteristics
 	owner->SetFont(be_plain_font);
 	owner->SetFontSize(11.0);
-
+	
+	// construct text positioning
+	font_height fh;
+	owner->GetFontHeight(&fh);
+	
 	// clear rectangle
 	if (IsSelected())
 	{
@@ -42,15 +46,26 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 		owner->SetHighColor(owner->ViewColor());
 		owner->SetLowColor(owner->HighColor());
 	}
-
+	
 	owner->FillRect(frame);
 
-	// construct text positioning
-	font_height fh;
-	owner->GetFontHeight(&fh);
-
 	float height = fh.ascent + fh.descent;
-
+	
+	owner->SetHighColor(90, 90, 90, 255);
+	
+	std::string sign;
+	int sign_offset = 0;
+	
+	if (_role == "admin" || _role == "moderator")
+		sign = "@";
+	else if (_role == "owner")
+		sign = "!!";
+	else if (_role == "member")
+		sign = "+";
+	else if (_role == "participant")
+		sign = "";
+	owner->DrawString(sign.c_str(), BPoint(frame.left, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
+	
 	// standard text color
 	if (_show == "xa") 		   owner->SetHighColor(139, 0, 0, 255);
 	else if (_show == "away")  owner->SetHighColor(255, 140, 0, 255);
@@ -58,7 +73,9 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	else					   owner->SetHighColor(0, 100, 0, 255);
 
 	// draw information
-	owner->DrawString(User().c_str(), BPoint(frame.left + 5.0, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
+	
+	owner->DrawString(User().c_str(),
+		BPoint(frame.left + 12.0, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
 	
 	if (!_status.empty())
 	{

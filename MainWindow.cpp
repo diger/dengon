@@ -518,16 +518,19 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	rect.top = 77.0;
 	rect.right -= 3.0;
 	
-	_login_realname = new BTextControl(rect, NULL, "Title Name: ", NULL, NULL, B_FOLLOW_RIGHT);
+	
+	_login_realname = new BTextControl(rect, NULL, "Title Name: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
 	
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	
-	_login_username = new BTextControl(rect, NULL, "JID: ", NULL, NULL, B_FOLLOW_RIGHT);
+	_login_username = new BTextControl(rect, NULL, "JID: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
+	_login_username->SetAlignment(B_ALIGN_RIGHT, B_ALIGN_LEFT);
 		
 	rect.OffsetBy(0.0, 21.0); //fix this is too static!
 	
 	_login_password = new BTextControl(rect, NULL, "Password: ", NULL, NULL, B_FOLLOW_LEFT_RIGHT);
 	_login_password->TextView()->HideTyping(true);
+	_login_password->SetAlignment(B_ALIGN_RIGHT, B_ALIGN_LEFT);
 	
 	_login_realname->SetDivider(80);
 	_login_username->SetDivider(80);

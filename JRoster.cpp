@@ -55,7 +55,7 @@ JRoster::RemoveAllUsers()
 		RosterIter i = _roster->begin();
 		UserID *user = *i;
 		_roster->erase(i);
-		delete user;
+		//delete user;
 	}
 }
 	

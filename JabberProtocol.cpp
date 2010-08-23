@@ -505,9 +505,18 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 					msg.AddString("status", entity->Child("status")->Data());
 				} else
 					msg.AddString("status", "");
-					
-				msg.AddString("role", "admin");
-				msg.AddString("affiliation", "none");
+				
+				if (entity->Child("x")->Child("item") &&
+					entity->Child("x")->Child("item")->Attribute("role"))
+					msg.AddString("role", entity->Child("x")->Child("item")->Attribute("role"));
+				else
+					msg.AddString("role", "admin");
+				
+				if (entity->Child("x")->Child("item") &&
+					entity->Child("x")->Child("item")->Attribute("affiliation"))
+					msg.AddString("affiliation", entity->Child("x")->Child("item")->Attribute("affiliation"));
+				else
+					msg.AddString("affiliation", "none");
 		
 				msg.what = JAB_GROUP_CHATTER_ONLINE;
 			}

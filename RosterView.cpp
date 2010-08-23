@@ -29,16 +29,54 @@ RosterView::~RosterView() {
 	SetInvocationMessage(new BMessage(JAB_OPEN_CHAT_WITH_DOUBLE_CLICK));
 }
 
-static int _ListComparison(const BListItem *a, const BListItem *b) {
-	if ( 
-	((RosterItem *)a)->GetUserID()->FriendlyName() ==
-	((RosterItem *)b)->GetUserID()->FriendlyName())
-		return 0;
-	else if ( 
-	((RosterItem *)a)->GetUserID()->FriendlyName() >
-	((RosterItem *)b)->GetUserID()->FriendlyName()) 
+static int _ListComparison(const BListItem *a, const BListItem *b)
+{
+	if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == 
+			((RosterItem *)b)->GetUserID()->ExactOnlineStatus())
+	{
+		if (((RosterItem *)a)->GetUserID()->FriendlyName() ==
+			((RosterItem *)b)->GetUserID()->FriendlyName())
+			return 0;
+		else if ( 
+			((RosterItem *)a)->GetUserID()->FriendlyName() >
+			((RosterItem *)b)->GetUserID()->FriendlyName()) 
+			return 1;
+		else return -1;
+	}
+	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "none")
+	{
 		return 1;
-	else return -1;
+	}
+	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "xa")
+	{
+		if (((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "none")
+			return -1;
+		else
+			return 1;
+	}
+	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "away")
+	{
+		if (((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "xa" ||
+			((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "none" )
+			return -1;
+		else 
+			return 1;
+	}
+	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "dnd")
+	{
+		if (((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "away" ||
+			((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "xa" ||
+			((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "none" )
+			return -1;
+		else 
+			return 1;
+	}
+	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "chat" ||
+			((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "online")
+	{
+		return -1;
+	}
+	
 
 //	return strcasecmp(str_a, str_b);
 }   
