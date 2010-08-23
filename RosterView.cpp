@@ -53,7 +53,7 @@ void RosterView::AttachedToWindow() {
 	// popup menu
 	_popup = new BPopUpMenu(NULL, false, false);
 
-		_chat_item         = new BMenuItem("Chat...", new BMessage(JAB_OPEN_CHAT));
+		_chat_item         = new BMenuItem("Message...", new BMessage(JAB_OPEN_CHAT));
 		_chat_item->SetEnabled(false);
 		//_message_item      = new BMenuItem("Send Message...", new BMessage(JAB_OPEN_MESSAGE));
 		_change_user_item  = new BMenuItem("Edit", new BMessage(JAB_OPEN_EDIT_BUDDY_WINDOW));
