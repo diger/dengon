@@ -41,7 +41,7 @@ JRoster::RemoveUser(const UserID *removed_user)
 	for (RosterIter i = _roster->begin(); i != _roster->end(); ++i) {
 		if (*i == removed_user) {
 			_roster->erase(i);
-			delete removed_user;
+			//delete removed_user;
 			break;	
 		}
 	}

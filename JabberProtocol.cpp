@@ -283,6 +283,22 @@ JabberProtocol::SendUnavailable(BString to, BString status)
 }
 
 void
+JabberProtocol::SendAvailable(BString to, BString status)
+{
+	BString xml = "<presence to='";
+	xml = xml.Append(to);
+	xml << "' type='available'>";
+	if (status.Length() > 0)
+	{
+		xml << "<status>";
+		xml = xml.Append(status);
+		xml << "</status>";
+	}
+	xml << "</presence>";
+	
+	socketAdapter->SendData(xml);
+}
+void
 JabberProtocol::JoinRoom(BString to, BString password)
 {
 	BString xml = "<presence to='";
@@ -735,9 +751,14 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		availability = "available";
 	}
 	
+	
+	
 	// reflect presence
 	if (user && !strcasecmp(availability, "unavailable"))
 	{
+		if (entity->Child("delay"))
+			return;
+		
 		if (user->SubscriptionStatus() == "none")
 		{
 			user->SetOnlineStatus(UserID::UNKNOWN);
@@ -755,7 +776,9 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	else if (user && !strcasecmp(availability, "available"))
 	{
 		user->SetOnlineStatus(UserID::ONLINE);
-		fprintf(stderr, "User %s is available.\n", user->JabberHandle().c_str());
+		
+		fprintf(stderr, "User %s is available '%s'.\n", user->JabberHandle().c_str(),
+																user->SubscriptionStatus().c_str());
 	}
 	else if (user && !strcasecmp(availability, "unsubscribe"))
 	{
@@ -770,13 +793,31 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 	}
 	else if (user && !strcasecmp(availability, "unsubscribed"))
 	{
+		if (entity->Attribute("subscription"))
+		{
+			if (!strcasecmp(entity->Attribute("subscription"), "from"))
+				user->SetOnlineStatus(UserID::OFFLINE);
+			else if (!strcasecmp(entity->Attribute("subscription"), "none"))
+				user->SetOnlineStatus(UserID::UNKNOWN);
+		} else {
+			if (user->SubscriptionStatus() == "none")
+				user->SetOnlineStatus(UserID::UNKNOWN);
+			else 
+				user->SetOnlineStatus(UserID::OFFLINE);
+		}
+			
 		sprintf(buffer, "User %s deny request or cancel subscription", user->JabberHandle().c_str());
 		fprintf(stderr, buffer);
 	}
 	else if (user && !strcasecmp(availability, "subscribed"))
 	{
 		// http://tools.ietf.org/html/rfc3921
-		// 8.2.  User Subscribes to Contact
+		// 8.2.  User Subscribes to Contact, paragraph 8
+		
+		if (user->SubscriptionStatus()=="none" || user->SubscriptionStatus()=="from")
+			SendSubscriptionRequest(user->JabberHandle());
+			
+		user->SetOnlineStatus(UserID::ONLINE);
 		
 		sprintf(buffer, "Your subscription request was accepted by %s!", user->JabberHandle().c_str());
 		ModalAlertFactory::Alert(buffer, "Hooray!");
@@ -796,6 +837,7 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		if (answer == 1) {
 			// presence is granted
 			AcceptPresence(string(entity->Attribute("from")));
+			SendSubscriptionRequest(user->JabberHandle());
 		} else if (answer == 0) {
 			// presence is denied
 			RejectPresence(string(entity->Attribute("from")));
@@ -827,9 +869,6 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		} else
 			user->SetMoreExactOnlineStatus("");
 			
-		fprintf(stderr, "User %s availability is '%s', status is '%s'.\n", user->JabberHandle().c_str(),
-								user->ExactOnlineStatus().c_str(),
-								user->MoreExactOnlineStatus().c_str());
 	}
 	
 
@@ -914,9 +953,11 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 					}
 					else
 					{
-						if (user.SubscriptionStatus() == "from")
+						if (user.SubscriptionStatus() == "from" && 
+							roster_user->OnlineStatus() == UserID::UNKNOWN)
 							roster_user->SetOnlineStatus(UserID::OFFLINE);
-						else if (user.SubscriptionStatus() == "none")
+						else if (user.SubscriptionStatus() == "none" &&
+							roster_user->OnlineStatus() == UserID::OFFLINE)
 							roster_user->SetOnlineStatus(UserID::UNKNOWN);
 						
 						roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
@@ -946,7 +987,7 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 					
 				roster_user = new UserID(string(entity->Child(i)->Attribute("jid")));
 				
-				roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
+				roster_user->SetSubscriptionStatus(user.Handle());
 				roster_user->SetFriendlyName(user.FriendlyName());
 				roster_user->SetOnlineStatus(user.OnlineStatus());
 				roster_user->SetUsertype(user.UserType());

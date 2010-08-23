@@ -315,6 +315,7 @@ void RosterView::UpdateRoster()
 			{
 				item->SetStalePointer(true);
 				RemoveItem(item);
+				fprintf(stderr, "RostetView::UpdateRoster process removomals");
 				goto RESET;
 			}
 			

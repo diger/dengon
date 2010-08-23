@@ -236,6 +236,8 @@ void BuddyWindow::AddNewUser()
 		
 	TalkManager::Instance()->jabber->AddToRoster(new_user);
 	
+	TalkManager::Instance()->jabber->SendSubscriptionRequest(new_user->JabberHandle());
+	
 	// close window explicitly
 	PostMessage(B_QUIT_REQUESTED);
 }

@@ -267,6 +267,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
 				jabber->AcceptPresence(user->JabberHandle());
+				//jabber->SendSubscriptionRequest(user->JabberHandle());
 			}
 			Unlock();
 			_roster->UpdateRoster();
