@@ -127,13 +127,9 @@ JabberProtocol::OnTag(XMLEntity *entity)
 {
 	char buffer[4096]; // general buffer space
 	static int seen_streams = 0;
-	string iq_id;      // used for IQ tags
 
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "iq"))
 	{
-		if (entity->Attribute("id")) {
-			iq_id = entity->Attribute("id");
-		//}
 		
 		// handle roster retrival
 		if (entity->Child("query") &&
@@ -142,8 +138,17 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			ParseRosterList(entity);
 		}
 		
+		if (entity->Attribute("id") && entity->Child("query") &&
+			!strcasecmp(entity->Attribute("id"), "storage_request") &&
+			!strcasecmp(entity->Child("query")->Attribute("xmlns"), "jabber:iq:private"))
+		{
+			if (entity->Child("query")->Child("storage"))
+				ParseStorage(entity->Child("query")->Child("storage"));
+		}
+		
 		// handle session retrival
-		if (!strcasecmp(entity->Attribute("type"), "result") &&
+		if (entity->Attribute("id") && entity->Attribute("type") &&
+			!strcasecmp(entity->Attribute("type"), "result") &&
 			!strcasecmp(entity->Attribute("id"), "sess_1"))
 		{
 			release_sem(logged);
@@ -154,14 +159,13 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		}
 		
 		// handle binding retrival
-		if (!strcasecmp(entity->Attribute("type"), "result") &&
+		if (entity->Attribute("id") && entity->Attribute("type") &&
+			!strcasecmp(entity->Attribute("type"), "result") &&
 			!strcasecmp(entity->Attribute("id"), "bind_0"))
 		{
 			jid = BString(entity->Child("bind")->Child("jid")->Data());
 
-#ifdef DEBUG			
 			fprintf(stderr, "JID: %s.\n", jid.String());
-#endif
 
 			Session();
 		}
@@ -172,11 +176,11 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			Authorize();
 		}
 		
-		}
-		
-		
 		if (!strcasecmp(entity->Attribute("type"), "error"))
 		{
+			if (!strcasecmp(entity->Attribute("id"), "storage_request"))
+				return;
+			
 			if (entity->Child("error")->Child("text"))
 				sprintf(buffer, "Error %s:\n\n%s", entity->Child("error")->Attribute("code"),
 					entity->Child("error")->Child("text")->Data());
@@ -191,9 +195,15 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		
 		if (!strcasecmp(entity->Attribute("type"), "get"))
 		{
-			string iq_from;   
+			BString iq_from;
+			BString iq_id;   
+			
 			if (entity->Attribute("from")) {
-				iq_from = entity->Attribute("from");
+				iq_from = BString(entity->Attribute("from"));
+			}
+			
+			if (entity->Attribute("id")) {
+				iq_id = BString(entity->Attribute("id"));
 			}
 			
 			// handle version request
@@ -209,7 +219,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			if (query && query->Attribute("xmlns")) {
 				if (!strcasecmp(query->Attribute("xmlns"), "urn:xmpp:ping"))
 				{
-					Pong(BString(entity->Attribute("id")), BString(entity->Attribute("from")));
+					Pong(iq_id, iq_from);
 				}
 			}
 		}
@@ -253,13 +263,10 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	}
 	
 	// handle disconnection
-	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:stream")) {
+	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:stream"))
+	{
 		++seen_streams;
-		
-		if (seen_streams % 2 == 1) {
-			
-			Disconnect();
-		}
+		if (seen_streams % 2 == 1) Disconnect();
 	}
 	
 	// handle incoming messages
@@ -330,6 +337,58 @@ JabberProtocol::Pong(BString id, BString from)
 }
 
 void
+JabberProtocol::SaveConference(UserID *conference)
+{
+	BString xml ="<iq type='set' id='save_conferences'>"
+		"<query xmlns='jabber:iq:private'>"
+		"<storage xmlns='storage:bookmarks'>";
+		
+
+			
+	int count = mainWindow->_roster->GetConferencesCount();
+	bool seen = false;
+	
+	for (int i = 0; i < count; i++)
+	{
+		const UserID *conf = mainWindow->_roster->GetConference(i);
+		
+		if (conference && (conf->JabberHandle() == conference->JabberHandle()))
+		{
+			conf = (const UserID *)conference;
+			seen = true;
+		}
+		
+		xml << "<conference name='";
+		xml = xml.Append(conf->FriendlyName().c_str());
+		xml << "' autojoin='";
+		xml = xml.Append(conf->Autojoin().c_str());
+		xml << "' jid='";
+		xml = xml.Append(conf->JabberHandle().c_str());
+		xml << "'><nick>";
+		xml = xml.Append(conf->_room_nick.c_str());
+		xml << "</nick></conference>";
+	
+	}
+	
+	if (!seen && conference)
+	{
+		xml << "<conference name='";
+		xml = xml.Append(conference->FriendlyName().c_str());
+		xml << "' autojoin='";
+		xml = xml.Append(conference->Autojoin().c_str());
+		xml << "' jid='";
+		xml = xml.Append(conference->JabberHandle().c_str());
+		xml << "'><nick>";
+		xml = xml.Append(conference->_room_nick.c_str());
+		xml << "</nick></conference>";
+	}
+	
+	xml << "</storage></query></iq>";
+	
+	socketAdapter->SendData(xml);
+}
+
+void
 JabberProtocol::SendUnavailable(BString to, BString status)
 {
 	BString xml = "<presence to='";
@@ -380,7 +439,7 @@ JabberProtocol::JoinRoom(BString to, BString password)
 }
 
 void
-JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
+JabberProtocol::ProcessVersionRequest(BString req_id, BString req_from)
 {
 	XMLEntity   *entity_iq, *entity_query;
 	char **atts_iq    = CreateAttributeMemory(6);
@@ -388,10 +447,10 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 
 	// assemble attributes;
 	strcpy(atts_iq[0], "id");
-	strcpy(atts_iq[1], req_id.c_str());
+	strcpy(atts_iq[1], req_id.String());
 
 	strcpy(atts_iq[2], "to");
-	strcpy(atts_iq[3], req_from.c_str());
+	strcpy(atts_iq[3], req_from.String());
 
 	strcpy(atts_iq[4], "type");
 	strcpy(atts_iq[5], "result");
@@ -408,9 +467,9 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 	entity_query->AddChild("name", NULL, "Dengon");
 	entity_query->AddChild("version", NULL, "1.0 (rev: "DENGON_SVNVERSION")");
 
-	string strVersion("Haiku");
+	BString strVersion("Haiku");
 	
-	string os_info;
+	BString os_info;
 	utsname uname_info;
 	if (uname(&uname_info) == 0) {
 		os_info = uname_info.sysname;
@@ -424,7 +483,7 @@ JabberProtocol::ProcessVersionRequest(string req_id, string req_from)
 		}
 	}
 
-	entity_query->AddChild("os", NULL, os_info.c_str());
+	entity_query->AddChild("os", NULL, os_info.String());
 
 	// send XML command
 	char *str = entity_iq->ToString();
@@ -739,13 +798,17 @@ JabberProtocol::AddToRoster(UserID *new_user)
 	xml.Append(new_user->FriendlyName().c_str());
 	xml << "' subscription='to'>";
 	
-	if (new_user->UserType() == UserID::CONFERENCE)
-	{
-		xml << "<group>#Conference</group>";
-	}
+	//if (new_user->UserType() == UserID::CONFERENCE)
+	//{
+	//	xml << "<group>#Conference</group>";
+	//}
 	
 	xml << "</item></query></iq>";
-	socketAdapter->SendData(xml);
+	
+	if (new_user->UserType() == UserID::JABBER)
+		socketAdapter->SendData(xml);
+	else
+		SaveConference(new_user);
    
 }
 
@@ -948,6 +1011,38 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 }
 
 void
+JabberProtocol::ParseStorage(XMLEntity *storage)
+{
+	JRoster::Instance()->Lock();
+	
+	for (int i=0; i<storage->CountChildren(); ++i)
+	{
+		UserID user(storage->Child(i)->Attribute("jid"));
+		UserID *roster_user = JRoster::Instance()->FindUser(&user);
+		
+		if (roster_user)
+		{
+			fprintf(stderr, "Modified conference %s in roster.\n", user.JabberHandle());
+		}
+		else
+		{
+			roster_user = new UserID(user.JabberHandle());
+			JRoster::Instance()->AddRosterUser(roster_user);
+			fprintf(stderr, "Added conference %s to roster.\n", user.JabberHandle());
+		}
+		
+		roster_user->SetFriendlyName(string(storage->Child(i)->Attribute("name")));
+		roster_user->SetOnlineStatus(UserID::CONF_STATUS);
+		roster_user->SetUsertype(UserID::CONFERENCE);
+		if (storage->Child(i)->Child("nick"))
+			roster_user->SetRoomNick(storage->Child(i)->Child("nick")->Data());
+			
+	}
+	
+	JRoster::Instance()->Unlock();
+}
+
+void
 JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 {
 	XMLEntity *entity = iq_roster_entity;
@@ -978,25 +1073,27 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 			// set subscription status
 			if (entity->Child(i)->Attribute("subscription"))
 			{
-				fprintf(stderr, "User %s subscription status: %s.\n", user.JabberHandle().c_str(),
-					entity->Child(i)->Attribute("subscription"));
+				//fprintf(stderr, "User %s subscription status: %s.\n", user.JabberHandle().c_str(),
+				//	entity->Child(i)->Attribute("subscription"));
 					
 				user.SetSubscriptionStatus(string(entity->Child(i)->Attribute("subscription")));
 			}
 			
+			/*
 			// set user type
 			if (entity->Child(i)->Child("group") &&
 				!strcasecmp(entity->Child(i)->Child("group")->Data(), "#Conference"))
 			{
 				user.SetUsertype(UserID::CONFERENCE);
 				user.SetOnlineStatus(UserID::CONF_STATUS);
-				fprintf(stderr, "Roster item %s (conference).\n", user.JabberHandle().c_str());
+				//fprintf(stderr, "Roster item %s (conference).\n", user.JabberHandle().c_str());
 			}
 			else
 			{
+			*/
 				user.SetUsertype(UserID::JABBER);
-				fprintf(stderr, "Roster item %s.\n", user.JabberHandle().c_str());
-			}
+				//fprintf(stderr, "Roster item %s.\n", user.JabberHandle().c_str());
+			//}
 
 			// set friendly name
 			if (entity->Child(i)->Attribute("name")) {
@@ -1010,10 +1107,6 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				// Roster item updating never changes Online Status
 				// Online Status can only be changed by <presence> messages
 			
-				fprintf(stderr, "Already found a user %s in roster with subscription='%s'.\n",
-					roster_user->JabberHandle().c_str(),
-					roster_user->SubscriptionStatus().c_str());
-					
 				if (entity->Child(i)->Attribute("subscription"))
 				{
 					if (!strcasecmp(entity->Child(i)->Attribute("subscription"), "remove"))
@@ -1021,7 +1114,9 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 						
 						JRoster::Instance()->RemoveUser(roster_user);
 												
-						fprintf(stderr, "User %s was removed from roster.\n", roster_user->JabberHandle().c_str());
+						fprintf(stderr, "User %s was removed from roster.\n",
+							roster_user->JabberHandle().c_str());
+							
 						continue;
 					}
 					else
@@ -1033,16 +1128,17 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 							roster_user->OnlineStatus() == UserID::OFFLINE)
 							roster_user->SetOnlineStatus(UserID::UNKNOWN);
 						
+						fprintf(stderr, "User %s in roster was updated with subscription='%s' from '%s'.\n",
+							roster_user->JabberHandle().c_str(),
+							roster_user->SubscriptionStatus().c_str(),
+							user.SubscriptionStatus());
+					
 						roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
 					}
 				}
 				
 				if (entity->Child(i)->Attribute("name"))
 					roster_user->SetFriendlyName(user.FriendlyName());
-					
-				fprintf(stderr, "User %s in roster was updated with subscription='%s'.\n",
-					roster_user->JabberHandle().c_str(),
-					roster_user->SubscriptionStatus().c_str());
 
 			}
 			else
@@ -1066,9 +1162,9 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				roster_user->SetUsertype(user.UserType());
 								
 				JRoster::Instance()->AddRosterUser(roster_user);
-				//
 				
-				fprintf(stderr, "User %s was added to roster.\n", roster_user->JabberHandle().c_str());
+				fprintf(stderr, "User %s was added to roster subscription='%s'.\n",
+					roster_user->JabberHandle().c_str(), roster_user->SubscriptionStatus().c_str());
 			}
 		}
 	}
@@ -1267,6 +1363,19 @@ JabberProtocol::RequestRoster()
 		
 	socketAdapter->SendData(xml);
 	
+}
+
+void
+JabberProtocol::SendStorageRequest(BString tag, BString ns)
+{
+	BString xml = "<iq type='get' id='storage_request'>"
+		"<query xmlns='jabber:iq:private'><";
+	xml = xml.Append(tag);
+	xml << " xmlns='";
+	xml = xml.Append(ns);
+	xml << "'/></query></iq>";
+	
+	socketAdapter->SendData(xml);
 }
 
 void

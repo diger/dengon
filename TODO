@@ -37,3 +37,25 @@
 	"Сообщения" очередность которых определяют приоритет
 	сортировки.
 
+Сохранение конференций на сервере
+
+<iq type="set" id="ab3ca">
+<query xmlns="jabber:iq:private">
+<storage xmlns="storage:bookmarks">
+<conference name="haiku-os@conference.jabber.ru" autojoin="true" jid="haiku-os@conference.jabber.ru">
+<nick>Diger</nick>
+</conference>
+<conference name="psi-dev@conference.jabber.ru" jid="psi-dev@conference.jabber.ru">
+<nick>Diger</nick>
+</conference>
+<conference name="eiskaltdc@conference.gentoo.ru" jid="eiskaltdc@conference.gentoo.ru">
+<nick>Diger</nick>
+</conference>
+<conference name="new@conference.freenet59.ru" autojoin="true" jid="new@conference.freenet59.ru">
+<nick>Diger</nick>
+</conference>
+</storage>
+</query>
+</iq>
+
+

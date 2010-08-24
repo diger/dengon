@@ -37,6 +37,7 @@ class BuddyWindow : public BWindow
 				BBox            *_surrounding;
 				BView           *_full_view;
 				BTextControl    *_realname;
+				BTextControl    *_room_nick;
 				BMenuField      *_chat_services;
 				BPopUpMenu      *_chat_services_selection;
 				BTextControl    *_handle;

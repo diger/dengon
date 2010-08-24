@@ -317,6 +317,20 @@ RosterView::UpdatePopUpMenu()
 	}
 }
 
+int RosterView::GetConferencesCount()
+{
+	return CountItemsUnder(_conferences, true);
+}
+
+const UserID *RosterView::GetConference(int i)
+{
+	RosterItem *item = (RosterItem*)ItemUnderAt(_conferences, true, i);
+	if (item)
+		return item->GetUserID();
+	else
+		return NULL;
+}
+
 void RosterView::UpdateRoster()
 {
 	JRoster *roster = JRoster::Instance();

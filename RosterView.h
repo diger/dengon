@@ -46,6 +46,8 @@ public:
 
 	void                UpdatePopUpMenu();
 	void                UpdateRoster();
+	int				GetConferencesCount();
+	const UserID 				*GetConference(int i);
 
 private:
 	BPopUpMenu        *_popup;

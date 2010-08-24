@@ -22,7 +22,7 @@ BuddyWindow *BuddyWindow::Instance()
 {
 	if (_instance == NULL) {
 		float main_window_width  = 340;
-		float main_window_height = 165;
+		float main_window_height = 195;
 		
 		// create window frame position
 		BRect frame(GenericFunctions::CenteredFrame(main_window_width, main_window_height));
@@ -47,31 +47,31 @@ BuddyWindow::SetUser(UserID *user)
 	{
 		_realname->SetText(userID->FriendlyName().c_str());
 		_handle->SetText(userID->JabberHandle().c_str());
+		
 	}
 			
 	_chat_services->SetEnabled(!userID);
 	_handle->SetEnabled(!userID);
+	//_room_nick->SetEnabled(!userID);
 	
-	if (userID && userID->OnlineStatus() == UserID::CONF_STATUS)
+	if (userID && (userID->UserType() == UserID::CONFERENCE))
 	{
+		_room_nick->SetText(userID->_room_nick.c_str());
 	 	_chat_services_selection->FindItem("Conference")->SetMarked(true);
 	 	_handle->SetLabel("MUC JID:");
+	 	//_full_view->AddChild(_room_nick);
+	 	
 	}
 	else
+	{
 		_chat_services_selection->FindItem("User")->SetMarked(true);
+		_full_view->RemoveChild(_room_nick);
+	}
 	
 	if (userID)
 		_ok->SetLabel("Save");
 	else
 		_ok->SetLabel("Create");
-}
-
-void
-BuddyWindow::ApplyChangesToUser()
-{
-	string username = _handle->Text();
-	userID = new UserID(UserID(username));
-	userID->SetFriendlyName(_realname->Text());
 }
 
 BuddyWindow::BuddyWindow(BRect frame, UserID *user)
@@ -94,20 +94,31 @@ BuddyWindow::BuddyWindow(BRect frame, UserID *user)
 	rect.bottom = rect.top + 18;
 	_realname = new BTextControl(rect, "realname", "Title Name:", NULL, NULL, B_FOLLOW_ALL_SIDES);
 	_realname->SetDivider(_realname->Divider() - 75);
+	_realname->SetAlignment(B_ALIGN_RIGHT, B_ALIGN_LEFT);
 	
 	rect.OffsetBy(0.0, 23.0);
 	_handle = new BTextControl(rect, "handle", "JID:", NULL, NULL, B_FOLLOW_ALL_SIDES);
 	_handle->SetDivider(_handle->Divider() - 75);
+	_handle->SetAlignment(B_ALIGN_RIGHT, B_ALIGN_LEFT);
 	
 	
 	// chat service
 	rect.OffsetBy(0.0, 23.0);
 	_chat_services_selection = new BPopUpMenu("Simple");
-	_chat_services = new BMenuField(rect, "chat_services", "Item Type: ", _chat_services_selection);	
+	_chat_services = new BMenuField(rect, "chat_services", "Item Type:", _chat_services_selection);	
 	_chat_services->SetDivider(_chat_services->Divider() - 75);
+	_chat_services->SetAlignment(B_ALIGN_RIGHT);
 	_chat_services_selection->AddItem(new BMenuItem("User", new BMessage(AGENT_MENU_CHANGED_TO_JABBER)));
 	_chat_services_selection->AddItem(new BMenuItem("Conference", new BMessage(AGENT_MENU_CHANGED_TO_JABBER_CONFERENCE)));
 	_chat_services_selection->FindItem("User")->SetMarked(true);
+	
+	{
+		rect.OffsetBy(0.0, 24.0);
+		_room_nick = new BTextControl(rect, "nick_room", "Room Nick:", NULL, NULL, B_FOLLOW_ALL_SIDES);
+		_room_nick->SetDivider(_room_nick->Divider() - 75);
+		_room_nick->SetAlignment(B_ALIGN_RIGHT, B_ALIGN_LEFT);
+	}
+	
 	// ok button
 	rect.OffsetBy(220.0, 55.0);
 	rect.right = rect.left + 92;
@@ -121,6 +132,7 @@ BuddyWindow::BuddyWindow(BRect frame, UserID *user)
 	_full_view->AddChild(_realname);
 	_full_view->AddChild(_handle);
 	_full_view->AddChild(_chat_services);
+	_full_view->AddChild(_room_nick);
 	_full_view->AddChild(_ok);
 	AddChild(_full_view);
 
@@ -143,11 +155,13 @@ void BuddyWindow::MessageReceived(BMessage *msg)
 
 		case AGENT_MENU_CHANGED_TO_JABBER: {
 			_handle->SetLabel("JID:");
+			_full_view->RemoveChild(_room_nick);
 			break;
 		}
 		
 		case AGENT_MENU_CHANGED_TO_JABBER_CONFERENCE: {
 			_handle->SetLabel("MUC JID:");
+			_full_view->AddChild(_room_nick);
 			break;
 		}
 	}
@@ -218,6 +232,7 @@ void BuddyWindow::AddNewUser()
 	if (userID) // edit existing
 	{
 		new_user = userID;
+		new_user->SetRoomNick(_room_nick->Text());
 		userID = NULL;
 	} else // create a new user
 	{
@@ -229,14 +244,23 @@ void BuddyWindow::AddNewUser()
 		} else {
 			new_user->SetUsertype(UserID::CONFERENCE);
 			new_user->SetOnlineStatus(UserID::CONF_STATUS);
+			new_user->SetRoomNick(_room_nick->Text());
 		}
 	}
 	
 	new_user->SetFriendlyName(_realname->Text());
 		
-	TalkManager::Instance()->jabber->AddToRoster(new_user);
 	
-	TalkManager::Instance()->jabber->SendSubscriptionRequest(new_user->JabberHandle());
+	if (new_user->UserType() == UserID::JABBER)
+	{
+		TalkManager::Instance()->jabber->AddToRoster(new_user);
+		TalkManager::Instance()->jabber->SendSubscriptionRequest(new_user->JabberHandle());
+	}
+	else
+	{
+		TalkManager::Instance()->jabber->SaveConference(new_user);
+		TalkManager::Instance()->jabber->SendStorageRequest("storage", "storage:bookmarks");
+	}
 	
 	// close window explicitly
 	PostMessage(B_QUIT_REQUESTED);

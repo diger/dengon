@@ -52,7 +52,7 @@ class JabberProtocol : public XMLReader
 				void			SetStatus(BString status, BString message);
 				void			ReceiveData(BMessage *msg);
 				void			ReceivedMessageHandler(BMessage *jabberMessage);
-				void			ProcessVersionRequest(string req_id, string req_from);
+				void			ProcessVersionRequest(BString req_id, BString req_from);
 				void			Disconnect();
 				void			Pong(BString id, BString from);
 				void			LockXMLReader();
@@ -63,8 +63,11 @@ class JabberProtocol : public XMLReader
 				void			OnTag(XMLEntity *entity);
 				void			ParseRosterList(XMLEntity *entity);
 				void			ProcessPresence(XMLEntity *entity);
+				void			ParseStorage(XMLEntity *storage);
+				void			SaveConference(UserID *conference);
 				void			ProcessUserPresence(UserID *user, XMLEntity *entity);
 				void			AcceptPresence(string username);
+				void			SendStorageRequest(BString tag, BString ns); // XEP-0049
 				void			RejectPresence(string username);
 				char**			CreateAttributeMemory(int num_items);
 				void			DestroyAttributeMemory(char **atts, int num_items);

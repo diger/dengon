@@ -762,11 +762,12 @@ ChatWindow::MessageReceived(BMessage *msg)
 			if (GetGroupRoom() == msg->FindString("room"))
 			{
 				
-				fprintf(stderr, "username: %s.\n", msg->FindString("username"));
-				fprintf(stderr, "show: %s.\n", msg->FindString("show"));
-				fprintf(stderr, "status: %s.\n", msg->FindString("status"));
-				fprintf(stderr, "role: %s.\n", msg->FindString("role"));
-				fprintf(stderr, "affiliation: %s.\n", msg->FindString("affiliation"));
+				fprintf(stderr, "User %s show '%s' status '%s' role '%s' affiliation '%s'.\n",
+					msg->FindString("username"),
+					msg->FindString("show"),
+					msg->FindString("status"),
+					msg->FindString("role"),
+					msg->FindString("affiliation"));
 				
 				AddGroupChatter(
 				

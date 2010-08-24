@@ -30,6 +30,7 @@
 #include "RosterItem.h"
 #include "ModalAlertFactory.h"
 #include "TalkManager.h"
+#include "JRoster.h"
 
 #define SSL_ENABLED	'ssl3'
 
@@ -136,6 +137,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			_status_view->SetMessage("gathering agents, roster and presence info");
 			
 			jabber->RequestRoster();
+			jabber->SendStorageRequest("storage", "storage:bookmarks");
 			
 			utsname uname_info;
 			if (uname(&uname_info) == 0) {
@@ -205,12 +207,13 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 					ChatWindow *window = 
 						TalkManager::Instance()->CreateTalkSession(
 							ChatWindow::GROUP, user, user->JabberHandle(),
-								string(jabber->user)
+								user->_room_nick
 								);
 				} else
 
-				// open chat window
-				ChatWindow *window = TalkManager::Instance()->CreateTalkSession(ChatWindow::CHAT, user, "", "");
+					// open chat window
+					ChatWindow *window = TalkManager::Instance()->CreateTalkSession(
+						ChatWindow::CHAT, user, "", "");
 
 			}
 			Unlock();
@@ -267,7 +270,6 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
 				jabber->AcceptPresence(user->JabberHandle());
-				//jabber->SendSubscriptionRequest(user->JabberHandle());
 			}
 			Unlock();
 			_roster->UpdateRoster();
@@ -304,7 +306,19 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			if (item != NULL)
 			{
 				user = (UserID *)item->GetUserID();
-				jabber->RemoveFromRoster(user);
+				
+				if (user->UserType() == UserID::CONFERENCE)
+				{
+					JRoster::Instance()->Lock();
+					JRoster::Instance()->RemoveUser(user);
+					JRoster::Instance()->Unlock();
+					_roster->RemoveItem(item);
+					_roster->Invalidate();
+					jabber->SaveConference(NULL);
+					jabber->SendStorageRequest("storage", "storage:bookmarks");
+				}
+				else
+					jabber->RemoveFromRoster(user);
 				
 			}
 			Unlock();

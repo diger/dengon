@@ -33,7 +33,9 @@ public:
 	void                       HideLogin();
 	void                       SetCustomStatus(std::string status);
 	JabberProtocol				*jabber;
-	BCheckBox                *_login_new_account;	
+	BCheckBox                *_login_new_account;
+	RosterView               *_roster;
+		
 protected:
 	                           BlabberMainWindow(BRect frame);
 		                           
@@ -109,7 +111,7 @@ private:
 	BPopUpMenu               *_online_status_selection;
 	BMenuField               *_online_status;
 
-	RosterView               *_roster;
+	
 	BScrollView              *_roster_scroller;
 };
 

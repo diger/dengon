@@ -13,6 +13,7 @@ UserID::UserID(std::string handle)
 	SetHandle(handle);
 	
 	SetUsertype(UserID::JABBER);
+	_autojoin = false;
 }
 
 UserID::UserID(const UserID &copied_userid)
@@ -21,6 +22,7 @@ UserID::UserID(const UserID &copied_userid)
 	
 	SetUsertype(UserID::JABBER);
 	
+	_autojoin = copied_userid._autojoin;
 	_friendly_name = copied_userid.FriendlyName();
 	_subscription_status = copied_userid.SubscriptionStatus();
 	_status = copied_userid.OnlineStatus();
@@ -68,6 +70,8 @@ const std::string UserID::MoreExactOnlineStatus() const {
 
 const std::string UserID::SubscriptionStatus() const { return _subscription_status; }
 
+const std::string UserID::Autojoin() const { return _autojoin ? "true" : "false"; }
+
 bool UserID::HaveSubscriptionTo() const
 {
 	return (SubscriptionStatus() == "to" || SubscriptionStatus() == "both");
@@ -76,6 +80,9 @@ bool UserID::HaveSubscriptionTo() const
 bool UserID::IsUser() const { return (UserType() == JABBER || UserType() == CONFERENCE); }
 
 void UserID::SetUsertype(user_type type) { _user_type = type; }
+
+void UserID::SetAutojoin(bool autojoin) { _autojoin = autojoin; }
+
 
 const std::string UserID::JabberHandle() const
 {
@@ -109,6 +116,8 @@ const std::string UserID::JabberUsername() const { return _jabber_username; }
 const std::string UserID::JabberServer() const { return _jabber_server; }
 
 void UserID::SetJabberServer(std::string server) { _jabber_server = server; }
+void UserID::SetRoomNick(std::string nick) { _room_nick = nick; }
+
 
 const std::string UserID::JabberResource() const { return _jabber_resource; }
 

@@ -51,9 +51,12 @@ class UserID
 
 				void            SetUsertype(user_type usertype);
 				void            SetOnlineStatus(online_status status);
+				const std::string            Autojoin() const;
 
+				void            SetAutojoin(bool autojoin);
 				void            SetHandle(std::string handle);
 				void            SetJabberServer(std::string handle);
+				void            SetRoomNick(std::string nick);
 				void            SetFriendlyName(std::string friendly_name);
 				void            SetSubscriptionStatus(std::string status);
 				void            SetExactOnlineStatus(std::string exact_status);
@@ -71,10 +74,12 @@ class UserID
 				std::string		_exact_status;
 				std::string		_more_exact_status;
 				std::string		_subscription_status;
+				std::string		_room_nick;
 
 				std::string		_jabber_username;
 				std::string		_jabber_server;
 				std::string		_jabber_resource;
+				bool	_autojoin;
 
 	std::string          _transport_id;
 	std::string          _transport_username;
