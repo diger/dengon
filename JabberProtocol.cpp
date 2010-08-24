@@ -27,6 +27,7 @@ static int separatorReceived = 0;
 
 JabberProtocol::JabberProtocol()
 {
+	_storage_supported = true;
 	logged = create_sem(1, "logged");
 	read_queue = create_sem(1, "read_queue");
 	xml_reader_lock = create_sem(1, "xml_reader");
@@ -179,8 +180,18 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		if (!strcasecmp(entity->Attribute("type"), "error"))
 		{
 			if (!strcasecmp(entity->Attribute("id"), "storage_request"))
+			{
+				_storage_supported = false;
 				return;
-			
+			}
+			else if (!strcasecmp(entity->Attribute("id"), "save_conferences"))
+			{
+				_storage_supported = false;
+				sprintf(buffer, "Storage XEP-0049 is not supported on server. Cannot save conferences.\n\nNext time will try save to roster.");
+				ModalAlertFactory::Alert(buffer, "Pity", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
+				return;
+			}
+				
 			if (entity->Child("error")->Child("text"))
 				sprintf(buffer, "Error %s:\n\n%s", entity->Child("error")->Attribute("code"),
 					entity->Child("error")->Child("text")->Data());
@@ -798,17 +809,17 @@ JabberProtocol::AddToRoster(UserID *new_user)
 	xml.Append(new_user->FriendlyName().c_str());
 	xml << "' subscription='to'>";
 	
-	//if (new_user->UserType() == UserID::CONFERENCE)
-	//{
-	//	xml << "<group>#Conference</group>";
-	//}
+	if (new_user->UserType() == UserID::CONFERENCE)
+	{
+		xml << "<group>#Conference</group>";
+	}
 	
 	xml << "</item></query></iq>";
 	
-	if (new_user->UserType() == UserID::JABBER)
-		socketAdapter->SendData(xml);
-	else
+	if (new_user->UserType() == UserID::CONFERENCE && _storage_supported)
 		SaveConference(new_user);
+	else
+		socketAdapter->SendData(xml);
    
 }
 
@@ -1079,21 +1090,21 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				user.SetSubscriptionStatus(string(entity->Child(i)->Attribute("subscription")));
 			}
 			
-			/*
+			
 			// set user type
 			if (entity->Child(i)->Child("group") &&
 				!strcasecmp(entity->Child(i)->Child("group")->Data(), "#Conference"))
 			{
 				user.SetUsertype(UserID::CONFERENCE);
 				user.SetOnlineStatus(UserID::CONF_STATUS);
-				//fprintf(stderr, "Roster item %s (conference).\n", user.JabberHandle().c_str());
+				fprintf(stderr, "Roster item %s (conference).\n", user.JabberHandle().c_str());
 			}
 			else
 			{
-			*/
+			
 				user.SetUsertype(UserID::JABBER);
-				//fprintf(stderr, "Roster item %s.\n", user.JabberHandle().c_str());
-			//}
+				fprintf(stderr, "Roster item %s.\n", user.JabberHandle().c_str());
+			}
 
 			// set friendly name
 			if (entity->Child(i)->Attribute("name")) {

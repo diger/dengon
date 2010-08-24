@@ -49,6 +49,9 @@ BuddyWindow::SetUser(UserID *user)
 		_handle->SetText(userID->JabberHandle().c_str());
 		
 	}
+	
+	if (!TalkManager::Instance()->jabber->_storage_supported)
+		_room_nick->SetEnabled(false);
 			
 	_chat_services->SetEnabled(!userID);
 	_handle->SetEnabled(!userID);
@@ -59,6 +62,7 @@ BuddyWindow::SetUser(UserID *user)
 		_room_nick->SetText(userID->_room_nick.c_str());
 	 	_chat_services_selection->FindItem("Conference")->SetMarked(true);
 	 	_handle->SetLabel("MUC JID:");
+
 	 	//_full_view->AddChild(_room_nick);
 	 	
 	}
@@ -251,15 +255,15 @@ void BuddyWindow::AddNewUser()
 	new_user->SetFriendlyName(_realname->Text());
 		
 	
-	if (new_user->UserType() == UserID::JABBER)
-	{
-		TalkManager::Instance()->jabber->AddToRoster(new_user);
-		TalkManager::Instance()->jabber->SendSubscriptionRequest(new_user->JabberHandle());
-	}
-	else
+	if (new_user->UserType() == UserID::CONFERENCE && TalkManager::Instance()->jabber->_storage_supported)
 	{
 		TalkManager::Instance()->jabber->SaveConference(new_user);
 		TalkManager::Instance()->jabber->SendStorageRequest("storage", "storage:bookmarks");
+	}
+	else
+	{
+		TalkManager::Instance()->jabber->AddToRoster(new_user);
+		TalkManager::Instance()->jabber->SendSubscriptionRequest(new_user->JabberHandle());
 	}
 	
 	// close window explicitly

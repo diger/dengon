@@ -92,6 +92,7 @@ class JabberProtocol : public XMLReader
 				BString			domain;		
 		BlabberMainWindow		*mainWindow;
 				sem_id          xml_reader_lock;
+				bool			_storage_supported;
 				
 	private:
 	

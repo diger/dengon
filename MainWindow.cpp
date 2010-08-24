@@ -207,7 +207,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 					ChatWindow *window = 
 						TalkManager::Instance()->CreateTalkSession(
 							ChatWindow::GROUP, user, user->JabberHandle(),
-								user->_room_nick
+								jabber->_storage_supported ? user->_room_nick : string(BString("_").Append(jabber->user).String())
 								);
 				} else
 
@@ -307,7 +307,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			{
 				user = (UserID *)item->GetUserID();
 				
-				if (user->UserType() == UserID::CONFERENCE)
+				if (user->UserType() == UserID::CONFERENCE && jabber->_storage_supported)
 				{
 					JRoster::Instance()->Lock();
 					JRoster::Instance()->RemoveUser(user);
