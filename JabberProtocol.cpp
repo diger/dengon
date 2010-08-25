@@ -177,6 +177,14 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			Authorize();
 		}
 		
+		if (!strcasecmp(entity->Attribute("type"), "result") &&
+			!strcasecmp(entity->Attribute("id"), "request_room_info"))
+		{
+			BMessage msg(JAB_PREFERENCES_DATAFORM);
+			msg.AddPointer("XMLEntity", entity);
+			MessageRepeater::Instance()->PostMessage(&msg);
+		}
+		
 		if (!strcasecmp(entity->Attribute("type"), "error"))
 		{
 			if (!strcasecmp(entity->Attribute("id"), "storage_request"))

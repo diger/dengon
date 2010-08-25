@@ -10,6 +10,7 @@
 #include "JabberProtocol.h"
 #include "TalkManager.h"
 #include "PeopleListItem.h"
+#include "DataFormView.h"
 
 #include <malloc.h>
 #include <stdlib.h>
@@ -19,6 +20,7 @@
 #include <MenuItem.h>
 #include <View.h>
 #include <interface/TextView.h>
+#include <interface/Window.h>
 #include <String.h>
 #include <string.h>
 #include <FindDirectory.h>
@@ -753,6 +755,19 @@ ChatWindow::MessageReceived(BMessage *msg)
 	{
 		case JAB_PREFERENCES: {
 			jabber->RequestRoomOptions(BString(_group_room.c_str()));
+			break;
+		}
+		
+		case JAB_PREFERENCES_DATAFORM: {
+			XMLEntity *entity = NULL;
+			msg->FindPointer("XMLEntity", (void **)&entity);
+			
+			BRect frame(GenericFunctions::CenteredFrame(600, 600));
+			
+			DataFormView *dataFormView = new DataFormView(frame);
+			dataFormView->LoadDataForm(entity);
+			//dataFormView->ShowWindow();
+			
 			break;
 		}
 		

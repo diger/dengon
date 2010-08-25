@@ -18,8 +18,9 @@
 #define JAB_ABOUT                       0x13003333
 #define JAB_QUIT                        0x13006666
 
-#define JAB_PREFERENCES                 0x1300AAAA
-#define JAB_AFFILIATIONS                 0x1300AAA1
+#define JAB_PREFERENCES                 0x1300AAA0
+#define JAB_PREFERENCES_DATAFORM		0x1300AAA1
+#define JAB_AFFILIATIONS                0x1300AAA2
 #define JAB_JABBER_ORG                  0x1300DDDD
 #define JAB_JABBER_CENTRAL_ORG          0x1300DDDE
 #define JAB_JABBER_VIEW_COM             0x1300DDDF
