@@ -190,6 +190,18 @@ JabberProtocol::OnTag(XMLEntity *entity)
 				sprintf(buffer, "Storage XEP-0049 is not supported on server. Cannot save conferences.\n\nNext time will try save to roster.");
 				ModalAlertFactory::Alert(buffer, "Pity", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
 				return;
+			} else if (!strcasecmp(entity->Attribute("id"), "request_room_info"))
+			{
+				
+				if (entity->Child("error")->Child("text"))
+					sprintf(buffer, "Error %s:\n\n%s", entity->Child("error")->Attribute("code"),
+							entity->Child("error")->Child("text")->Data());
+				else
+					sprintf(buffer, "Error %s", entity->Child("error")->Attribute("code"));
+			
+				ModalAlertFactory::Alert(buffer, "OK", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
+			
+				return;
 			}
 				
 			if (entity->Child("error")->Child("text"))
@@ -1253,6 +1265,18 @@ JabberProtocol::ReceiveData(BMessage *msg)
 	
 	msg->AddString("data", msgData);
 	
+}
+
+void 
+JabberProtocol::RequestRoomOptions(BString room)
+{
+	BString xml = "<iq from='";
+	xml = xml.Append(jid);
+	xml << "' id='request_room_info' to='";
+	xml = xml.Append(room);
+	xml << "' type='get'><query xmlns='http://jabber.org/protocol/muc#owner'/></iq>";
+	
+	socketAdapter->SendData(xml);
 }
 
 void

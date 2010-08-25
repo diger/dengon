@@ -206,7 +206,7 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 		originalWindowTitle.SetTo(user->JabberHandle().c_str());
 	}
 	
-	Show();
+	
 	
 	if (_type != GROUP)
 		fprintf(stderr, "Show Chat Window %s.\n", user->JabberCompleteHandle().c_str());
@@ -214,8 +214,33 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 		fprintf(stderr, "Show Group Chat Window Room %s Username %s.\n", 
 			group_room.c_str(),
 			group_username.c_str());
-		
 	
+	// menu
+	
+	_file_menu = new BMenu("File");
+	
+	_close_item = new BMenuItem("Close", new BMessage(JAB_CLOSE_CHAT));
+	_close_item->SetShortcut('W', 0);
+		
+	_file_menu->AddItem(_close_item);
+	_file_menu->SetTargetForItems(this);
+	
+		
+	menu->AddItem(_file_menu);
+	
+	if (_type == GROUP)
+	{
+		_edit_menu = new BMenu("Edit");
+	
+		_preferences_item = new BMenuItem("Room Options...", new BMessage(JAB_PREFERENCES));
+		_affiliations = new BMenuItem("Affiliations...", new BMessage(JAB_AFFILIATIONS));
+		_edit_menu->AddItem(_preferences_item);	
+		_edit_menu->AddItem(_affiliations);
+		menu->AddItem(_edit_menu);
+	}
+	
+	
+	Show();
 }
 
 /*
@@ -726,6 +751,16 @@ ChatWindow::MessageReceived(BMessage *msg)
 {
 	switch (msg->what)
 	{
+		case JAB_PREFERENCES: {
+			jabber->RequestRoomOptions(BString(_group_room.c_str()));
+			break;
+		}
+		
+		case JAB_CLOSE_CHAT: {
+			PostMessage(B_QUIT_REQUESTED);
+			break;
+		}
+		
 		case JAB_CLOSE_TALKS: {
 			PostMessage(B_QUIT_REQUESTED);
 			break;

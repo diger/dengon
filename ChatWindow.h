@@ -62,6 +62,12 @@ private:
 			BListView          *_people;
 	
 			BMenuBar	*menu;
+			BMenu              *_file_menu;
+	BMenu              *_edit_menu;
+	BMenuItem          *_preferences_item;
+	BMenuItem          *_affiliations;
+	BMenuItem          *_close_item;
+	
 			StatusView	*statusView;
 			SplitPane	*chatView;
 			SplitPane          *_split_group_people;
