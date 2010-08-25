@@ -9,11 +9,10 @@ SRCS= App.cpp JRoster.cpp \
 	  XMLReader.cpp FileXMLReader.cpp MainWindow.cpp \
 	  ChatWindow.cpp EditingFilter.cpp GenericFunctions.cpp \
 	  Socket.cpp SecureSocket.cpp JabberProtocol.cpp \
-	  SplitView.cpp Base64.cpp ChatTextView.cpp
+	  SplitView.cpp Base64.cpp ChatTextView.cpp DataFormView.cpp
 
 RSRCS= Resources.rsrc
-LIBS= stdc++.r4 be root network translation \
-         ssl crypto expat 
+LIBS= stdc++.r4 be root network ssl crypto expat 
       
 LIBPATHS= /boot/develop/lib/x86/ /boot/common/lib/ 
 SYSTEM_INCLUDE_PATHS= /boot/develop/headers/be

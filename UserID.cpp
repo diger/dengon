@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <string>
-#include "Agent.h"
-#include "AgentList.h"
 #include "UserID.h"
 
 UserID::UserID(std::string handle)

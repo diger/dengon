@@ -5,8 +5,6 @@
 #include "BuddyWindow.h"
 #include <cstdio>
 #include <Application.h>
-#include "Agent.h"
-#include "AgentList.h"
 #include "AppLocation.h"
 #include "Settings.h"
 #include "GenericFunctions.h"
@@ -196,7 +194,7 @@ void BuddyWindow::AddNewUser()
 	}
 	
 	// internally replace the username with a proper one if necessary (AOL, Yahoo!, etc...)
-	Agent *agent;
+	//Agent *agent;
 	string username = _handle->Text();
 
 	// if not Jabber

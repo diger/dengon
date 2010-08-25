@@ -5,8 +5,6 @@
 #include "MessageRepeater.h"
 #include <kernel/OS.h>
 #include "Messages.h"
-#include "Agent.h"
-#include "AgentList.h"
 #include "JRoster.h"
 #include <string>
 #include <string.h>
