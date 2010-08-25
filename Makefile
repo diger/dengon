@@ -3,8 +3,8 @@ TYPE= APP
 SRCS= App.cpp JRoster.cpp \
 	  RosterItem.cpp UserID.cpp BuddyWindow.cpp \
 	  PeopleListItem.cpp TalkManager.cpp StatusView.cpp \
-	  Agent.cpp RosterView.cpp AppLocation.cpp \
-	  RosterSuperitem.cpp AgentList.cpp ModalAlertFactory.cpp \
+	  RosterView.cpp AppLocation.cpp \
+	  RosterSuperitem.cpp ModalAlertFactory.cpp \
 	  XMLEntity.cpp Settings.cpp MessageRepeater.cpp \
 	  XMLReader.cpp FileXMLReader.cpp MainWindow.cpp \
 	  ChatWindow.cpp EditingFilter.cpp GenericFunctions.cpp \
