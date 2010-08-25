@@ -1,7 +1,6 @@
 //////////////////////////////////////////////////
-// Blabber [BlabberSettings.h]
-//     "Singleton" object that reads application
-//     settings for Blabber.
+// Haiku Chat [BlabberSettings.h]
+//     "Singleton" object that reads application settings for Blabber.
 //////////////////////////////////////////////////
 
 #ifndef BLABBER_SETTINGS_H

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Maxim Sokhatsky <maxim@synrc.com>
+ * Copyright 2010 Maxim Sokhatsky <maxim.sokhatsky@gmai.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
  
