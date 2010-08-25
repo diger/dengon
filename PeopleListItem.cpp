@@ -53,17 +53,26 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	
 	owner->SetHighColor(90, 90, 90, 255);
 	
-	std::string sign;
+	std::string sign = "";
 	int sign_offset = 0;
 	
-	if (_role == "admin" || _role == "moderator")
-		sign = "@";
-	else if (_role == "owner")
+	if (_affiliation == "owner")
 		sign = "!!";
-	else if (_role == "member")
+	else if (_affiliation == "admin")
+		sign = "@";
+	else if (_affiliation == "member")
 		sign = "+";
-	else if (_role == "participant")
-		sign = "";
+	else if (_affiliation == "none")
+	{
+		if (_role == "admin")
+			sign = "@";
+		else if (_role == "moderator")
+			sign = "@";
+		else if (_role == "participant")
+			sign = "+";
+		else 
+			sign = "";
+	}
 	owner->DrawString(sign.c_str(), BPoint(frame.left, frame.bottom - ((frame.Height() - height) / 2) - fh.descent));
 	
 	// standard text color
