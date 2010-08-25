@@ -171,7 +171,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			TalkManager::Instance()->Reset();
 			
 			SetTitle("Chat");
-			
+			jabber->_storage_supported = true;
 			Lock();
 			_status_view->SetMessage("disconnect");
 			Unlock();
