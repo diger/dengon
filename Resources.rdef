@@ -12,7 +12,7 @@ resource app_version {
 	internal = 3310,
 
 	short_info = "Haiku Chat",
-	long_info = "XMPP Instant Messaging Client for Haiku OS."
+	long_info = "XMPP Advanced Client 2009"
 };
 
 resource vector_icon {
