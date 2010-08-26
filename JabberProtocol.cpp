@@ -1089,7 +1089,7 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 		return;
 	}
 	
-	
+	JRoster::Instance()->Lock();
 	
 	for (int i=0; i<entity->CountChildren(); ++i)
 	{
@@ -1137,7 +1137,7 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				user.SetFriendlyName(string(entity->Child(i)->Attribute("name")));
 			}
 			
-			JRoster::Instance()->Lock();
+			
 
 			UserID *roster_user = JRoster::Instance()->FindUser(&user);
 			
@@ -1210,12 +1210,12 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 					roster_user->JabberHandle().c_str(), roster_user->SubscriptionStatus().c_str());
 			}
 			
-			JRoster::Instance()->Unlock();
+			
 			
 		}
 	}
 	
-	
+	JRoster::Instance()->Unlock();
 
 	JRoster::Instance()->RefreshRoster();
 

@@ -134,10 +134,10 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 		{
 			SetTitle((string("Chat − ") + UserID(string(jabber->jid.String())).JabberHandle()).c_str());
 			
-			jabber->RequestRoster();
 			
 			_status_view->SetMessage("gathering agents, roster and presence info");
 						
+			jabber->RequestRoster();
 			jabber->SendStorageRequest("storage", "storage:bookmarks");
 			
 			utsname uname_info;

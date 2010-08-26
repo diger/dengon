@@ -761,6 +761,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 		case JAB_PREFERENCES_DATAFORM: {
 			XMLEntity *entity = NULL;
 			msg->FindPointer("XMLEntity", (void **)&entity);
+			fprintf(stderr, "JAB_PREFERENCES_DATAFORM.\n");
 			
 			BRect frame(GenericFunctions::CenteredFrame(600, 600));
 			
@@ -856,6 +857,7 @@ ChatWindow::QuitRequested(void)
 {
 	if (_type == GROUP)
 		jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've enlightened"));
+	MessageRepeater::Instance()->RemoveTarget(this);
 	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
 	return true;
 }
