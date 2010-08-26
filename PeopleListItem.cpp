@@ -57,7 +57,7 @@ void PeopleListItem::DrawItem(BView *owner, BRect frame, bool complete)
 	int sign_offset = 0;
 	
 	if (_affiliation == "owner")
-		sign = "!!";
+		sign = "!!!";
 	else if (_affiliation == "admin")
 		sign = "@";
 	else if (_affiliation == "member")

@@ -26,8 +26,8 @@ App::AboutRequested()
 	BAlert *alert = new BAlert("about", "Chat\n\n"
 		"By Maxim Sokhatsky.\n"
 		"Based on Jabber for BeOS by John Blanco.\n\n"
-		"revision: "DENGON_SVNVERSION"\n"
-		"rev date: "DENGON_SVNDATE"\n", "Chat!");
+		"Revision "DENGON_SVNVERSION" from "
+		""DENGON_SVNDATE"\n", "Chat!");
 	BTextView *view = alert->TextView();
 	BFont font;
 	view->SetStylable(true);
