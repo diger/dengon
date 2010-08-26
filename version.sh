@@ -14,5 +14,3 @@ cat <<EOF > version.h
 
 EOF
 
-touch JabberProtocol.cpp
-touch App.cpp
