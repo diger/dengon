@@ -387,7 +387,7 @@ void RosterView::UpdateRoster()
 
 	}
 	
-	roster->Unlock();
+	
 	
 	SortItemsUnder(_online, true, _ListComparison);
 	SortItemsUnder(_offline, true, _ListComparison);
@@ -396,5 +396,5 @@ void RosterView::UpdateRoster()
 	
 	Invalidate();
 
-	
+	roster->Unlock();
 }
