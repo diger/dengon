@@ -419,19 +419,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 	for (i=0; i < _people->CountItems(); ++i)
 	{
 		PeopleListItem *iterating_item = dynamic_cast<PeopleListItem *>(_people->ItemAt(i));
-		/*
 
-		if (strcasecmp(iterating_item->User().c_str(), user.c_str()) > 0) {
-			// add the new user
-			_people->AddItem(people_item, i);
-			break;
-		} else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
-					strcmp(iterating_item->User().c_str(), user.c_str()) > 0) {
-			// add the new user
-			_people->AddItem(people_item, i);
-			break;
-		} else
-		*/
 		if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
 				   !strcmp(iterating_item->User().c_str(), user.c_str()))
 		{
@@ -445,41 +433,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 			has = true;
 			break;
 		}
-		/*
-		else if (!strcasecmp(iterating_item->User().c_str(), user.c_str()) &&
-					strcmp(iterating_item->User().c_str(), user.c_str()) < 0) {
-			if (i == (_people->CountItems() - 1)) {
-				// add the new user
-				_people->AddItem(people_item);
-			} else {
-				PeopleListItem *next_item = dynamic_cast<PeopleListItem *>(_people->ItemAt(i + 1));
-				
-				if (!next_item) {
-					// add the new user
-					_people->AddItem(people_item);
 
-					break;					
-				}
-
-				if (strcasecmp(user.c_str(), next_item->User().c_str()) < 0) {
-					// add the new user
-					_people->AddItem(people_item, i + 1);
-				} else if (!strcasecmp(user.c_str(), next_item->User().c_str())) {
-					continue;
-				}
-			}
-
-			break;
-		} else if ((strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) &&
-					(i == (_people->CountItems() - 1))) {
-			// add the new user
-			_people->AddItem(people_item);
-
-			break;
-		} else if (strcasecmp(iterating_item->User().c_str(), user.c_str()) < 0) {
-			continue;
-		}
-		*/
 	}
 	
 	if (!has)
@@ -761,7 +715,6 @@ ChatWindow::MessageReceived(BMessage *msg)
 		case JAB_PREFERENCES_DATAFORM: {
 			XMLEntity *entity = NULL;
 			msg->FindPointer("XMLEntity", (void **)&entity);
-			fprintf(stderr, "JAB_PREFERENCES_DATAFORM.\n");
 			
 			BRect frame(GenericFunctions::CenteredFrame(600, 600));
 			
