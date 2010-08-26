@@ -9,7 +9,7 @@ SRCS= App.cpp JRoster.cpp \
 	  XMLReader.cpp FileXMLReader.cpp MainWindow.cpp \
 	  ChatWindow.cpp EditingFilter.cpp GenericFunctions.cpp \
 	  Socket.cpp SecureSocket.cpp JabberProtocol.cpp \
-	  SplitView.cpp Base64.cpp ChatTextView.cpp DataFormView.cpp
+	  SplitView.cpp Base64.cpp ChatTextView.cpp DataForm.cpp
 
 RSRCS= Resources.rsrc
 LIBS= stdc++.r4 be root network ssl crypto expat 
@@ -35,7 +35,7 @@ COMPILER_FLAGS=
 LINKER_FLAGS=
 
 # Generate version info
-DUMMY := $(shell version.sh)
+#DUMMY := $(shell version.sh)
 
 ## include the makefile-engine
 include $(BUILDHOME)/etc/makefile-engine

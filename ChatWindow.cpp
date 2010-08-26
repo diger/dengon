@@ -10,7 +10,7 @@
 #include "JabberProtocol.h"
 #include "TalkManager.h"
 #include "PeopleListItem.h"
-#include "DataFormView.h"
+#include "DataForm.h"
 
 #include <malloc.h>
 #include <stdlib.h>
@@ -764,9 +764,8 @@ ChatWindow::MessageReceived(BMessage *msg)
 			
 			BRect frame(GenericFunctions::CenteredFrame(600, 600));
 			
-			DataFormView *dataFormView = new DataFormView(frame);
-			dataFormView->LoadDataForm(entity);
-			//dataFormView->ShowWindow();
+			DataForm *dataForm = new DataForm(frame);
+			dataForm->LoadDataForm(entity);
 			
 			break;
 		}

@@ -8,8 +8,8 @@
 //
 //////////////////////////////////////////////////
 
-#ifndef DATAFORMVIEW_H
-#define DATAFORMVIEW_H
+#ifndef DATAFORM_H
+#define DATAFORM_H
 
 #include <interface/View.h>
 #include <interface/Window.h>
@@ -19,17 +19,16 @@
 #include <String.h>
 #include "XMLEntity.h"
 
-class DataFormView : BWindow
+class DataForm : BWindow
 {
 	public:
-							DataFormView(BRect rect);
-							~DataFormView();
+							DataForm(BRect rect);
+							~DataForm();
 
 				XMLEntity	*entity;
 				BView *xform;
 				int leftSize;
 		void		LoadDataForm(XMLEntity *entity);
-		void ShowWindow();
 		virtual void		FrameResized(float width, float height);
 
 };

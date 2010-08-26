@@ -1,7 +1,7 @@
-#include "DataFormView.h"
+#include "DataForm.h"
 
 
-DataFormView::DataFormView(BRect rect)
+DataForm::DataForm(BRect rect)
 : BWindow(rect, "DataForm", B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
 {
 	BRect b = Bounds();
@@ -27,18 +27,12 @@ DataFormView::DataFormView(BRect rect)
 					
 }
 
-DataFormView::~DataFormView()
+DataForm::~DataForm()
 {
 }
 
 void
-DataFormView::ShowWindow()
-{
-	BWindow::Show();
-}
-
-void
-DataFormView::FrameResized(float width, float height)
+DataForm::FrameResized(float width, float height)
 {
 	BWindow::FrameResized(width, height);
 	
@@ -49,7 +43,7 @@ DataFormView::FrameResized(float width, float height)
 }
 
 void
-DataFormView::LoadDataForm(XMLEntity *_entity)
+DataForm::LoadDataForm(XMLEntity *_entity)
 {
 	entity = _entity;
 	
@@ -139,6 +133,7 @@ DataFormView::LoadDataForm(XMLEntity *_entity)
 				label->SetWordWrap(true);
 				label->SetText(entity->Child(i)->Attribute("label"));
 				label->MakeEditable(false);
+				label->SetViewColor(216, 216, 216, 255);
 		
 				BRect text_rect(rect);
 				text_rect.top += 2;
