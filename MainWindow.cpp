@@ -633,7 +633,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	_login_full_view->Hide();
 
 	// attach all-encompassing main view to window
-	AddChild(_login_full_view);
+	
 
 	//_login_full_view->AddChild(_login_realname);
 	_login_full_view->AddChild(_login_username);
@@ -642,6 +642,8 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	_login_full_view->AddChild(_login_new_account);
 	_login_full_view->AddChild(_login_auto_login);
 	_login_full_view->AddChild(_login_login);
+	
+	AddChild(_login_full_view);
 	
 	/*
 	// default
