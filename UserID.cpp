@@ -9,7 +9,7 @@
 UserID::UserID(std::string handle)
 {
 	SetHandle(handle);
-	
+	_status = UserID::UNKNOWN;
 	SetUsertype(UserID::JABBER);
 	_autojoin = false;
 }
@@ -17,8 +17,6 @@ UserID::UserID(std::string handle)
 UserID::UserID(const UserID &copied_userid)
 {
 	SetHandle(copied_userid.Handle());
-	
-	SetUsertype(UserID::JABBER);
 	
 	_autojoin = copied_userid._autojoin;
 	_friendly_name = copied_userid.FriendlyName();
@@ -114,8 +112,8 @@ const std::string UserID::JabberUsername() const { return _jabber_username; }
 const std::string UserID::JabberServer() const { return _jabber_server; }
 
 void UserID::SetJabberServer(std::string server) { _jabber_server = server; }
-void UserID::SetRoomNick(std::string nick) { _room_nick = nick; }
 
+void UserID::SetRoomNick(std::string nick) { _room_nick = nick; }
 
 const std::string UserID::JabberResource() const { return _jabber_resource; }
 
@@ -161,7 +159,7 @@ std::string UserID::WhyNotValidJabberHandle()
 void UserID::SetHandle(std::string handle)
 {
 	_handle = handle;
-	_subscription_status = "00000000000";
+	_subscription_status = "000 just created 000";
 
 	_ProcessHandle();
 }
@@ -178,23 +176,7 @@ void UserID::SetExactOnlineStatus(std::string exact_status)
 
 void UserID::SetMoreExactOnlineStatus(std::string more_exact_status) { _more_exact_status = more_exact_status; }
 
-void UserID::SetSubscriptionStatus(std::string status) {
-	// only set legal status
-	_subscription_status = status;
-	/*
-	if (UserType() == JABBER)
-	{	
-		if (_subscription_status == "none")
-			SetOnlineStatus(UserID::UNKNOWN);
-		else 
-			SetOnlineStatus(UserID::OFFLINE);
-	}
-	else if (UserType() == CONFERENCE)
-	{
-		SetOnlineStatus(UserID::CONF_STATUS);
-	}
-	*/
-}
+void UserID::SetSubscriptionStatus(std::string status) { _subscription_status = status; }
 
 void UserID::_ProcessHandle()
 {
@@ -213,6 +195,7 @@ void UserID::_ProcessHandle()
 		if (squigly_pos != std::string::npos && squigly_pos != 0) {
 			// extract the abbreviated username
 			_jabber_username = _handle.substr(0, squigly_pos);
+			//fprintf(stderr, "_ParseHandle username: %s", _jabber_username.c_str());
 		} else {
 			return;
 		}
@@ -225,12 +208,19 @@ void UserID::_ProcessHandle()
 			if (slash_pos == std::string::npos) {
 				// all the rest is the server name (there is no resource)
 				_jabber_server = _handle.substr(squigly_pos + 1, _handle.size() - squigly_pos);
+				
+				//fprintf(stderr, "_ParseHandle server: %s", _jabber_server.c_str());
+				
 			} else {
 				// extract server name
 				_jabber_server = _handle.substr(squigly_pos + 1, slash_pos - squigly_pos - 1);
+				
+				//fprintf(stderr, "_ParseHandle server: %s", _jabber_server.c_str());
 
 				// extract resource name
 				_jabber_resource = _handle.substr(slash_pos + 1, _handle.size() - slash_pos - 1);
+				
+				//fprintf(stderr, "_ParseHandle resource: %s", _jabber_server.c_str());
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 //////////////////////////////////////////////////
-// Blabber [UserID.h]
+// Haiku Chat [UserID.h]
 //     Encapsulates user data for any account,
 //     Jabber or otherwise.
 //////////////////////////////////////////////////
@@ -13,7 +13,7 @@ class UserID
 {
 	public:
 	
-		enum online_status  { UNKNOWN, OFFLINE, ONLINE, TRANSPORT, CONF_STATUS };
+		enum online_status  { UNKNOWN = 0, OFFLINE = 1, ONLINE = 2, CONF_STATUS = 3 };
 		enum affiliation	{ OWNER, ADMIN, MODERATOR, MEMBER, GUEST };
 		enum user_type      { INVALID, JABBER, CONFERENCE };
 
@@ -41,10 +41,6 @@ class UserID
 		const	std::string		JabberUsername() const;       // xxx
 		const	std::string		JabberServer() const;         // yyy
 		const	std::string		JabberResource() const;       // zzz
-
-	const std::string    TransportID() const;
-	const std::string    TransportUsername() const;
-	const std::string    TransportPassword() const;
 
 				void			StripJabberResource();        // xxx@yyy/zzz -> xxx@yyy
 				std::string		WhyNotValidJabberHandle();
@@ -80,10 +76,6 @@ class UserID
 				std::string		_jabber_server;
 				std::string		_jabber_resource;
 				bool	_autojoin;
-
-	std::string          _transport_id;
-	std::string          _transport_username;
-	std::string          _transport_password;
 };
 
 #endif

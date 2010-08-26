@@ -6,7 +6,7 @@
 #include "AppLocation.h"
 #include <TranslationUtils.h>
 
-RosterItem::RosterItem(const UserID *userid)
+RosterItem::RosterItem(UserID *userid)
 	: BStringItem(userid->FriendlyName().c_str()) {
 	_userid           = userid;
 	_is_stale_pointer = false;
@@ -128,7 +128,7 @@ bool RosterItem::StalePointer() const {
 	return _is_stale_pointer;
 }
 
-const UserID *RosterItem::GetUserID() const {
+UserID *RosterItem::GetUserID() {
 	if (StalePointer()) {
 		return NULL;
 	} else {

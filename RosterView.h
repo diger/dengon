@@ -36,13 +36,9 @@ public:
 	void                RemoveSelected();
 	void                SelectionChanged();
 
-	void                LinkUser(const UserID *added_user);
-	void                LinkTransport(const UserID *added_transport);
-	void                UnlinkUser(const UserID *removed_user);
-	void                UnlinkTransport(const UserID *removed_transport);
-
-	int32               FindUser(const UserID *compare_user);
-	int32               FindTransport(const UserID *compare_transport);
+	void                LinkUser(UserID *added_user);
+	void                UnlinkUser(UserID *removed_user);
+	int32               FindUser(UserID *compare_user);
 
 	void                UpdatePopUpMenu();
 	void                UpdateRoster();

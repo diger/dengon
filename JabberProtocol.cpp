@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Maxim Sokhatsky <maxim.sokhatsky@gmai.com>
+ * Copyright 2010 Maxim Sokhatsky <maxim.sokhatsky@gmail.com>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
  
@@ -171,13 +171,13 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			Session();
 		}
 		
-		if (!strcasecmp(entity->Attribute("type"), "result") &&
+		if (!strcasecmp(entity->Attribute("type"), "result") && entity->Child("query") &&
 			entity->Child("query", "xmlns", "jabber:iq:register"))
 		{
 			Authorize();
 		}
 		
-		if (!strcasecmp(entity->Attribute("type"), "result") &&
+		if (!strcasecmp(entity->Attribute("type"), "result") && entity->Attribute("id") &&
 			!strcasecmp(entity->Attribute("id"), "request_room_info"))
 		{
 			BMessage msg(JAB_PREFERENCES_DATAFORM);
@@ -614,10 +614,12 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			{
 				msg.what = JAB_GROUP_CHATTER_OFFLINE;
 			}
+			
+			roster->Unlock();
 
 			MessageRepeater::Instance()->PostMessage(&msg);
 
-			roster->Unlock();
+			
 			return;
 		}		
 		
@@ -1048,18 +1050,18 @@ JabberProtocol::ParseStorage(XMLEntity *storage)
 	
 	for (int i=0; i<storage->CountChildren(); ++i)
 	{
-		UserID user(storage->Child(i)->Attribute("jid"));
+		UserID user(string(storage->Child(i)->Attribute("jid")));
 		UserID *roster_user = JRoster::Instance()->FindUser(&user);
 		
 		if (roster_user)
 		{
-			fprintf(stderr, "Modified conference %s in roster.\n", user.JabberHandle());
+			fprintf(stderr, "Cnference %s already in roster. Remove it first.\n", user.JabberHandle().c_str());
 		}
 		else
 		{
+			fprintf(stderr, "Added conference %s to roster.\n", user.JabberHandle().c_str());
 			roster_user = new UserID(user.JabberHandle());
 			JRoster::Instance()->AddRosterUser(roster_user);
-			fprintf(stderr, "Added conference %s to roster.\n", user.JabberHandle());
 		}
 		
 		roster_user->SetFriendlyName(string(storage->Child(i)->Attribute("name")));
@@ -1071,6 +1073,8 @@ JabberProtocol::ParseStorage(XMLEntity *storage)
 	}
 	
 	JRoster::Instance()->Unlock();
+	
+	JRoster::Instance()->RefreshRoster();
 }
 
 void
@@ -1085,8 +1089,8 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 		return;
 	}
 	
-	JRoster::Instance()->Lock();
-
+	
+	
 	for (int i=0; i<entity->CountChildren(); ++i)
 	{
 
@@ -1097,6 +1101,8 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 			{
 				continue;
 			}
+			
+			
 
 			// make a user
 			UserID user(string(entity->Child(i)->Attribute("jid")));
@@ -1130,6 +1136,8 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 			if (entity->Child(i)->Attribute("name")) {
 				user.SetFriendlyName(string(entity->Child(i)->Attribute("name")));
 			}
+			
+			JRoster::Instance()->Lock();
 
 			UserID *roster_user = JRoster::Instance()->FindUser(&user);
 			
@@ -1138,11 +1146,10 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				// Roster item updating never changes Online Status
 				// Online Status can only be changed by <presence> messages
 			
-				if (entity->Child(i)->Attribute("subscription"))
+				if (!user.SubscriptionStatus().empty())
 				{
-					if (!strcasecmp(entity->Child(i)->Attribute("subscription"), "remove"))
+					if (user.SubscriptionStatus() == "remove")
 					{
-						
 						JRoster::Instance()->RemoveUser(roster_user);
 												
 						fprintf(stderr, "User %s was removed from roster.\n",
@@ -1152,23 +1159,28 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 					}
 					else
 					{
+			
 						if (user.SubscriptionStatus() == "from" && 
-							roster_user->OnlineStatus() == UserID::UNKNOWN)
+							(roster_user->OnlineStatus() == UserID::UNKNOWN))
+						{
 							roster_user->SetOnlineStatus(UserID::OFFLINE);
+						}
 						else if (user.SubscriptionStatus() == "none" &&
 							roster_user->OnlineStatus() == UserID::OFFLINE)
+						{
 							roster_user->SetOnlineStatus(UserID::UNKNOWN);
+						}
 						
-						fprintf(stderr, "User %s in roster was updated with subscription='%s' from '%s'.\n",
+						fprintf(stderr, "User %s in roster just updated subscription from '%s' to '%s'.\n",
 							roster_user->JabberHandle().c_str(),
-							roster_user->SubscriptionStatus().c_str(),
-							user.SubscriptionStatus());
+							user.SubscriptionStatus().c_str(),
+							roster_user->SubscriptionStatus().c_str());
 					
 						roster_user->SetSubscriptionStatus(user.SubscriptionStatus());
 					}
 				}
 				
-				if (entity->Child(i)->Attribute("name"))
+				if (!user.FriendlyName().empty())
 					roster_user->SetFriendlyName(user.FriendlyName());
 
 			}
@@ -1197,10 +1209,13 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 				fprintf(stderr, "User %s was added to roster subscription='%s'.\n",
 					roster_user->JabberHandle().c_str(), roster_user->SubscriptionStatus().c_str());
 			}
+			
+			JRoster::Instance()->Unlock();
+			
 		}
 	}
 	
-	JRoster::Instance()->Unlock();
+	
 
 	JRoster::Instance()->RefreshRoster();
 
@@ -1222,7 +1237,7 @@ static int32 SessionDispatcher(void *args)
 		
 		release_sem(jabber->read_queue);
 		
-		snooze(5000);
+		snooze(1000);
 	}
 	
 	return 0;

@@ -100,7 +100,7 @@ JRoster::ExistingUserObject(const UserID *comparing_user)
 }
 
 UserID *
-JRoster::FindUser(const UserID *comparing_user)
+JRoster::FindUser(UserID *comparing_user)
 {
 	return FindUser(JRoster::HANDLE, comparing_user->JabberHandle());
 }

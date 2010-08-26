@@ -143,7 +143,7 @@ void RosterView::AttachedToWindow() {
 	_item_to_status_map[_online]  = UserID::ONLINE;
 	_item_to_status_map[_unknown] = UserID::UNKNOWN;
 	//_item_to_status_map[_unaccepted] = UserID::UNACCEPTED;
-	_item_to_status_map[_transports] = UserID::TRANSPORT;
+	//_item_to_status_map[_transports] = UserID::TRANSPORT;
 	_item_to_status_map[_conferences] = UserID::CONF_STATUS;
 
 	// ignore online...doesn't seem to work...?
@@ -233,7 +233,7 @@ void RosterView::SelectionChanged() {
 	BOutlineListView::SelectionChanged();
 }
 
-void RosterView::LinkUser(const UserID *added_user)
+void RosterView::LinkUser(UserID *added_user)
 {
 	if (added_user->UserType() == UserID::CONFERENCE)
 	{
@@ -248,7 +248,7 @@ void RosterView::LinkUser(const UserID *added_user)
 	}
 }
 
-void RosterView::UnlinkUser(const UserID *removed_user) {
+void RosterView::UnlinkUser(UserID *removed_user) {
 	// does user exist
 	uint32 index = FindUser(removed_user);
 	
@@ -257,7 +257,7 @@ void RosterView::UnlinkUser(const UserID *removed_user) {
 	}
 }
 
-int32 RosterView::FindUser(const UserID *compare_user) {
+int32 RosterView::FindUser(UserID *compare_user) {
 	// handle NULL argument
 	if (compare_user == NULL) {
 		return -1;
@@ -387,6 +387,8 @@ void RosterView::UpdateRoster()
 
 	}
 	
+	roster->Unlock();
+	
 	SortItemsUnder(_online, true, _ListComparison);
 	SortItemsUnder(_offline, true, _ListComparison);
 	SortItemsUnder(_unknown, true, _ListComparison);
@@ -394,5 +396,5 @@ void RosterView::UpdateRoster()
 	
 	Invalidate();
 
-	roster->Unlock();
+	
 }

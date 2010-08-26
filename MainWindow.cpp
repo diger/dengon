@@ -134,9 +134,10 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 		{
 			SetTitle((string("Chat − ") + UserID(string(jabber->jid.String())).JabberHandle()).c_str());
 			
-			_status_view->SetMessage("gathering agents, roster and presence info");
-			
 			jabber->RequestRoster();
+			
+			_status_view->SetMessage("gathering agents, roster and presence info");
+						
 			jabber->SendStorageRequest("storage", "storage:bookmarks");
 			
 			utsname uname_info;
@@ -162,6 +163,8 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			//BlabberSettings::Instance()->SetIntData("last-ssl_enabled", _ssl_enabled->Value());
 			BlabberSettings::Instance()->SetTag("auto-login", _login_auto_login->Value());
 			BlabberSettings::Instance()->WriteToFile();
+			
+			
 
 			break;
 		}

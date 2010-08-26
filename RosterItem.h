@@ -12,7 +12,7 @@
 
 class RosterItem : public BStringItem {
 public:
-			         RosterItem(const UserID *userid);
+			         RosterItem(UserID *userid);
   			        ~RosterItem();
 
 	void             DrawItem(BView *owner, BRect frame, bool complete = false);
@@ -20,11 +20,11 @@ public:
 	
 	bool             StalePointer() const;
 
-	const UserID    *GetUserID() const;
+	UserID    *GetUserID();
 	void             SetStalePointer(bool is_stale);	
 	
 private:
-	const UserID   *_userid;
+	UserID   *_userid;
 	bool            _is_stale_pointer;
 };
 

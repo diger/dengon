@@ -30,7 +30,7 @@ public:
 	void                         RemoveAllUsers();
 
 	UserID                      *FindUser(search_method search_type, std::string key);
-	UserID                      *FindUser(const UserID *comparing_user);
+	UserID                      *FindUser(UserID *comparing_user);
 	bool                         ExistingUserObject(const UserID *comparing_user);
 
 	void                         SetUserStatus(std::string username, UserID::online_status status);
