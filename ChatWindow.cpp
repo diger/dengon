@@ -385,6 +385,10 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 			historyTextView->Insert(historyTextView->TextLength(), ": ", BString(": ").Length(), &tra_thin_black);
 		}
 
+		// проебался с этой хуйней двое суток.ъ
+		// оно вылазит где-то за границы, и затирает код,в результате чего ошибка
+		// становиться очень сложно обнаоуживаемой
+		
 		//text_run_array *this_array;
 		//GenerateHyperlinkText(message, tr_thin_black, &this_array);
 		historyTextView->Insert(historyTextView->TextLength(), message.c_str(), message.size(), &tra_thin_black);//this_array);
