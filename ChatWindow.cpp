@@ -797,7 +797,6 @@ ChatWindow::MessageReceived(BMessage *msg)
 				break;
 			}
 			
-			Lock();
 			if (GetGroupRoom() == string(msg->FindString("room")))
 			{
 				
@@ -816,7 +815,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 					string(msg->FindString("affiliation")));
 				
 			}
-			Unlock();
+
 			break;
 		}
 
@@ -827,12 +826,8 @@ ChatWindow::MessageReceived(BMessage *msg)
 			if (_type != GROUP) {
 				break;
 			}
-			
-			Lock();
 
 			RemoveGroupChatter(string(msg->FindString("username")));
-			
-			Unlock();
 			
 			break;
 		}
@@ -852,6 +847,7 @@ ChatWindow::QuitRequested(void)
 	MessageRepeater::Instance()->RemoveTarget(this);
 	//TalkManager::Instance()->Lock();
 	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
+	
 	//TalkManager::Instance()->Unlock();
 	//jabber->mainWindow->Unlock();
 	

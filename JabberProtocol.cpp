@@ -674,6 +674,8 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			
 			TalkManager::Instance()->Unlock();
 			
+			delete entity;
+			
 			return;
 		}		
 		
@@ -703,6 +705,8 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 		}
 			
 		roster->Unlock();
+		
+		delete entity;
 
 		mainWindow->PostMessage(BLAB_UPDATE_ROSTER);			
 

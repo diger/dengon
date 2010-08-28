@@ -74,6 +74,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	// must be sender to continue
 	if (!entity->Attribute("from"))
 	{
+		delete entity;
 		return;
 	}
 
@@ -105,11 +106,16 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			ModalAlertFactory::Alert(buffer, "Oh, well.", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT);
 		}
 		
+		delete entity;
+		
 		return;
 	}
 	else if (!strcasecmp(entity->Attribute("type"), "headline"))
 	{
 		fprintf(stderr, "Tune message.\n");
+		
+		delete entity;
+		
 		return;
 	}
 	else
@@ -161,6 +167,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			window->jabber = jabber;
 		} else {
 			fprintf(stderr, "Unexisted Groupchat Window. No route\n");
+			delete entity;
 			return;
 		}
 	}
@@ -191,6 +198,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
 		{
 			window->Unlock();
+			delete entity;
 			return;
 		}
 		
@@ -209,6 +217,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	}
 		
 	window->Unlock();
+	delete entity;
 	
 }
 
