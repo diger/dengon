@@ -462,6 +462,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 void
 ChatWindow::RemoveGroupChatter(string username)
 {
+	Lock();
 	// remove user
 	for (int i=0; i < _people->CountItems(); ++i) {
 		if (dynamic_cast<PeopleListItem *>(_people->ItemAt(i))->User() == username) {
@@ -470,6 +471,7 @@ ChatWindow::RemoveGroupChatter(string username)
 			return;
 		}
 	}
+	Unlock();
 }
 
 BString
