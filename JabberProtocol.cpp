@@ -341,9 +341,9 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	// handle incoming messages
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "message"))
 	{
-		TalkManager::Instance()->Lock();
+		//TalkManager::Instance()->Lock();
 		TalkManager::Instance()->ProcessMessageData(entity);
-		TalkManager::Instance()->Unlock();
+		//TalkManager::Instance()->Unlock();
 	}
 	
 	//delete entity;
@@ -1306,8 +1306,8 @@ static int32 SessionDispatcher(void *args)
 void
 JabberProtocol::ReceiveData(BMessage *msg)
 {
-	BMessage *packet = new BMessage(PORT_TALKER_DATA);
-	BString msgData("", 65536);
+	BMessage packet;
+	BString msgData;
 	
 	msg->MakeEmpty();
 	
@@ -1316,14 +1316,14 @@ JabberProtocol::ReceiveData(BMessage *msg)
 	
 	do 
 	{
-		BString data("", 4096);
+		BString data;
 		int32 length;
 		
-		packet->MakeEmpty();
-		socketAdapter->ReceiveData(packet);
+		packet.MakeEmpty();
+		socketAdapter->ReceiveData(&packet);
 	
-		packet->FindString("data", &data);
-		packet->FindInt32("length", &length);
+		packet.FindString("data", &data);
+		packet.FindInt32("length", &length);
 
 		if (data.FindFirst("<stream:stream") >= 0)
 			found_stream_start = true;
@@ -1331,7 +1331,7 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		if (data.FindFirst("</stream:stream") >= 0)
 			found_stream_end = true;
 			
-		msgData.Append(BString(data.String()));
+		msgData.Append(data);
 		
 	} while (FXMLCheck(msgData.String()) == NULL && 
 				!found_stream_start && !found_stream_end);
@@ -1341,7 +1341,7 @@ JabberProtocol::ReceiveData(BMessage *msg)
 	msgData.RemoveFirst("<?xml version='1.0'?>").Append("</dengon>").Prepend("<dengon>");
 					
 	msg->AddInt32("length", msgData.Length());
-	msg->AddString("data", msgData.String());
+	msg->AddString("data", msgData);
 	
 }
 

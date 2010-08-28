@@ -57,7 +57,7 @@ Socket::ReceiveData(BMessage *message)
 	if (length > 0)
 	{
 		data[length] = 0;
-		message->AddString("data", data);
+		message->AddString("data", BString(data));
 		message->AddInt32("length", length);
 	}
 	//fprintf(stderr, "RECV: %s\n", data);

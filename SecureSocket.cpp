@@ -159,10 +159,6 @@ SSLAdapter::ReceiveData(BMessage *mdata)
 		data[length] = 0;
 		mdata->AddString("data", data);
 		
-#ifdef DEBUG
-		//fprintf(stderr, "RECV SSL: %s\n", data);
-#endif
-
 	}
 	
 	mdata->AddInt32("length", length);
