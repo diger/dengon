@@ -362,9 +362,13 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 		// print message
 		if (last_username.empty() || last_username != username || type == ChatWindow::TOPIC)
 		{
+
 			if (type == MAIN_RECIPIENT)
+			{
 				historyTextView->Insert(historyTextView->TextLength(),
 					username.c_str(), username.length(), &tra_thick_black);
+				last_username = username;
+			}
 			else if (type == TOPIC)
 			{
 				historyTextView->Insert(historyTextView->TextLength(),
@@ -372,8 +376,11 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 						&tra_thick_blue);
 				last_username = "";
 			} else
+			{
 				historyTextView->Insert(historyTextView->TextLength(),
 					username.c_str(), username.length(), &tra_thick_blue);
+				last_username = username;
+			}
 		
 			historyTextView->Insert(historyTextView->TextLength(), ": ", BString(": ").Length(), &tra_thin_black);
 		}
@@ -387,11 +394,6 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	
 	historyTextView->ScrollTo(0.0, historyTextView->Bounds().bottom);
 	
-	
-	
-	//historyTextView->Invalidate();
-	
-	last_username = username;
 }
 
 static int _PeopelListComparison(const void *a, const void *b)

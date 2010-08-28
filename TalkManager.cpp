@@ -157,57 +157,59 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		if (type==ChatWindow::CHAT)
 		{
 			window = CreateTalkSession(type, user, "", "");
+			fprintf(stderr, "Create Window for incoming message.\n");
 			window->jabber = jabber;
 		} else {
 			fprintf(stderr, "Unexisted Groupchat Window. No route\n");
 			return;
 		}
 	}
-	
+	else
 	{
 		fprintf(stderr, "Redirected to Existed Window: %s.\n",
-				window->GetUserID()->JabberHandle().c_str());
-				
-		window->Lock();
-		
-		string body;
-		string subject;
-		
-		if (entity->Child("body") && entity->Child("body")->Data())
-			body = string(entity->Child("body")->Data());
-		
-		if (entity->Child("subject") && entity->Child("subject")->Data())
-			subject = string(entity->Child("subject")->Data());
-				
-		if (type == ChatWindow::CHAT && !body.empty())
-		{
-			window->NewMessage(body);
-		}
-		else if (type == ChatWindow::GROUP && (!body.empty() || !subject.empty()))
-		{
-			// Accept exectly our JID in destinations 
-			//if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
-			{
-			//	window->Unlock();
-			//	return;
-			}
-			
-			if (group_username == "")
-				window->AddToTalk(group_room, body, ChatWindow::MAIN_RECIPIENT); // channel messages
-			else
-			{
-				if (!subject.empty())
-				{
-					window->AddToTalk(group_username, subject, ChatWindow::TOPIC); // topic messages
-					fprintf(stderr, "Topic message.\n");
-				}
-				else			
-					window->AddToTalk(group_username, body, ChatWindow::MAIN_RECIPIENT); // user messages
-			}
-		}
-		
-		window->Unlock();
+				window->GetUserID()->JabberHandle().c_str());		
 	}
+				
+	window->Lock();
+		
+	string body;
+	string subject;
+		
+	if (entity->Child("body") && entity->Child("body")->Data())
+		body = string(entity->Child("body")->Data());
+		
+	if (entity->Child("subject") && entity->Child("subject")->Data())
+		subject = string(entity->Child("subject")->Data());
+				
+	if (type == ChatWindow::CHAT && !body.empty())
+	{
+		window->NewMessage(body);
+	}
+	else if (type == ChatWindow::GROUP && (!body.empty() || !subject.empty()))
+	{
+		//Accept exectly our JID in destinations 
+		if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
+		{
+			window->Unlock();
+			return;
+		}
+		
+		if (group_username == "")
+			window->AddToTalk(group_room, body, ChatWindow::MAIN_RECIPIENT); // channel messages
+		else
+		{
+			if (!subject.empty())
+			{
+				window->AddToTalk(group_username, subject, ChatWindow::TOPIC); // topic messages
+				fprintf(stderr, "Topic message.\n");
+			}
+			else			
+				window->AddToTalk(group_username, body, ChatWindow::MAIN_RECIPIENT); // user messages
+		}
+	}
+		
+	window->Unlock();
+	
 }
 
 ChatWindow* TalkManager::FindWindow(string username) {
