@@ -74,13 +74,13 @@ JabberProtocol::LogOn()
 	if (BeginSession())
 	{
 	
-		if (mainWindow->_login_new_account->Value() == B_CONTROL_ON) {
-			// create account
-			SendUserRegistration(user, pass, "haiku");
-		} else {
-			// log in
-			Authorize();
-		}
+		//if (mainWindow->_login_new_account->Value() == B_CONTROL_ON) {
+		//	// create account
+		//	SendUserRegistration(user, pass, "haiku");
+		//} else {
+		//	// log in
+		//	Authorize();
+		//}
 		
 		acquire_sem(logged);
 		resume_thread(reciever_thread);
@@ -212,7 +212,9 @@ JabberProtocol::OnTag(XMLEntity *entity)
 				return;
 			}
 				
-			if (entity->Child("error")->Child("text"))
+			if (entity->Child("error")->Child("text") &&
+				entity->Child("error")->Attribute("code") &&
+				entity->Child("error"))
 				sprintf(buffer, "Error %s:\n\n%s", entity->Child("error")->Attribute("code"),
 					entity->Child("error")->Child("text")->Data());
 			else
@@ -260,7 +262,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "success"))
 	{
 		InitSession();
-		Bind();
+		
 	}
 	
 	// handle presence messages
@@ -275,6 +277,41 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
 		
 		Disconnect();
+	}
+	
+	// handle stream error
+	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:features"))
+	{
+		mainWindow->Lock();
+		if (mainWindow->_login_new_account->Value() == B_CONTROL_ON)
+		{
+			if (entity->Child("register"))
+			{
+				mainWindow->_login_new_account->SetValue(B_CONTROL_OFF);
+				SendUserRegistration(user, pass, "haiku");
+			} else
+			{
+				sprintf(buffer, "Registration not supported on this server.");
+				ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
+				
+				Disconnect();
+			}
+		}
+		else if (entity->Child("mechanisms"))
+			Authorize();
+		else if (entity->Child("bind"))
+			Bind();
+		else if (entity->Child("session"))
+			Session();
+		mainWindow->Unlock();
+		
+		//if (mainWindow->_login_new_account->Value() == B_CONTROL_ON) {
+		//	// create account
+		//	SendUserRegistration(user, pass, "haiku");
+		//} else {
+		//	// log in
+		//	Authorize();
+		//})
 	}
 	
 	// handle failures
@@ -297,7 +334,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:stream"))
 	{
 		++seen_streams;
-		if (seen_streams % 2 == 1) Disconnect();
+		if (seen_streams % 2 == 1)
+			Disconnect();
 	}
 	
 	// handle incoming messages
@@ -307,6 +345,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		TalkManager::Instance()->ProcessMessageData(entity);
 		TalkManager::Instance()->Unlock();
 	}
+	
+	//delete entity;
 }
 
 void
@@ -533,7 +573,7 @@ void
 JabberProtocol::SendGroupPresence(string _group_room, string _group_username)
 {
 	XMLEntity             *entity_presence;
-	char **atts_presence = CreateAttributeMemory(2);
+	char **atts_presence = CreateAttributeMemory(4);
 
 	// assemble group ID
 	string group_presence = _group_room + "/" + _group_username;	
@@ -541,6 +581,9 @@ JabberProtocol::SendGroupPresence(string _group_room, string _group_username)
 	// assemble attributes;
 	strcpy(atts_presence[0], "to");
 	strcpy(atts_presence[1], group_presence.c_str());
+	
+	strcpy(atts_presence[2], "from");
+	strcpy(atts_presence[3], jid.String());
 
 	// construct XML tagset
 	entity_presence = new XMLEntity("presence", (const char **)atts_presence);
@@ -570,67 +613,63 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 		
 		if (entity->Child("x", "xmlns", "http://jabber.org/protocol/muc#user"))
 		{
-			UserID from = UserID(entity->Attribute("from"));
+			UserID from = UserID(string(entity->Attribute("from")));
 			room = from.JabberUsername();
 			server = from.JabberServer();
 			user = from.JabberResource();
 			fprintf(stderr, "Group Presence in room %s from user %s.\n", 
-				(room + '@' + server).c_str(), user.c_str());
+				from.JabberHandle().c_str(), user.c_str());
 						
-			BMessage msg;
-			msg.AddString("room", (room + '@' + server).c_str());
-			msg.AddString("server", server.c_str());
-			msg.AddString("username", user.c_str());
+			BMessage *msg = new BMessage(JAB_GROUP_CHATTER_ONLINE);
+			msg->AddString("room", (room + '@' + server).c_str());
+			msg->AddString("server", server.c_str());
+			msg->AddString("username", user.c_str());
 			
 			if (!entity->Attribute("type") || !strcasecmp(entity->Attribute("type"), "available"))
 			{
 				if (entity->Child("show") && entity->Child("show")->Data())
 				{
-					msg.AddString("show", entity->Child("show")->Data());
+					msg->AddString("show", entity->Child("show")->Data());
 				} else
-					msg.AddString("show", "online");
+					msg->AddString("show", "online");
 
 				if (entity->Child("status") && entity->Child("status")->Data())
 				{
-					msg.AddString("status", entity->Child("status")->Data());
+					msg->AddString("status", entity->Child("status")->Data());
 				} else
-					msg.AddString("status", "");
+					msg->AddString("status", "");
 				
 				if (entity->Child("x")->Child("item") &&
 					entity->Child("x")->Child("item")->Attribute("role"))
-					msg.AddString("role", entity->Child("x")->Child("item")->Attribute("role"));
+					msg->AddString("role", entity->Child("x")->Child("item")->Attribute("role"));
 				else
-					msg.AddString("role", "admin");
+					msg->AddString("role", "admin");
 				
 				if (entity->Child("x")->Child("item") &&
 					entity->Child("x")->Child("item")->Attribute("affiliation"))
-					msg.AddString("affiliation", entity->Child("x")->Child("item")->Attribute("affiliation"));
+					msg->AddString("affiliation", entity->Child("x")->Child("item")->Attribute("affiliation"));
 				else
-					msg.AddString("affiliation", "none");
+					msg->AddString("affiliation", "none");
 		
-				msg.what = JAB_GROUP_CHATTER_ONLINE;
-				
-				fprintf(stderr, "JAB_GROUP_CHATTER_ONLINE\n");
+				msg->what = JAB_GROUP_CHATTER_ONLINE;
 			}
 			else if (!strcasecmp(entity->Attribute("type"), "unavailable"))
 			{
-				msg.what = JAB_GROUP_CHATTER_OFFLINE;
-				
-				fprintf(stderr, "JAB_GROUP_CHATTER_OFFLINE\n");
+				msg->what = JAB_GROUP_CHATTER_OFFLINE;
 			}
-			
-			ChatWindow *window = NULL;
 			
 			TalkManager::Instance()->Lock();
 			
-			if (TalkManager::Instance()->IsExistingWindowToUser(from.JabberHandle()) != "")
+			ChatWindow *window = TalkManager::Instance()->FindWindow(from.JabberHandle());
+			
+			if (window != NULL)
 			{
-				window = TalkManager::Instance()->_talk_map[TalkManager::Instance()->IsExistingWindowToUser(from.JabberHandle())];
-				if (window != NULL)
-				{
-					fprintf(stderr, "JAB_GROUP_CHATTER presence: %s.\n",window->GetUserID()->JabberHandle().c_str());
-					window->PostMessage(&msg);
-				}
+				fprintf(stderr, "JAB_GROUP_CHATTER presence: %s.\n",window->GetUserID()->JabberHandle().c_str());
+				window->PostMessage(msg);
+			}
+			else
+			{
+				fprintf(stderr, "There is no Window JAB_GROUP_CHATTER route to.\n");
 			}
 			
 			TalkManager::Instance()->Unlock();
@@ -652,18 +691,21 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 				++num_matches;
 				user = *i;
 				ProcessUserPresence(user, entity);
+				fprintf(stderr, "Process roster presence %s.\n", user->JabberHandle().c_str());
 			}
 		}
 		
 		if (num_matches == 0)
 		{
-			UserID user(entity->Attribute("from"));
+			UserID user(string(entity->Attribute("from")));
+			fprintf(stderr, "Process self presence %s.\n", user.JabberHandle().c_str());
 			ProcessUserPresence(&user, entity);
 		}
 			
 		roster->Unlock();
 
 		mainWindow->PostMessage(BLAB_UPDATE_ROSTER);			
+
 	}
 }
 
@@ -1244,16 +1286,15 @@ JabberProtocol::ParseRosterList(XMLEntity *iq_roster_entity)
 static int32 SessionDispatcher(void *args) 
 {
 	JabberProtocol *jabber = (JabberProtocol*)args;
-	BMessage msg(PORT_TALKER_DATA);
+	BMessage *msg = new BMessage(PORT_TALKER_DATA);
 	
 	while (true)
 	{
 		acquire_sem(jabber->read_queue);
+			
+		jabber->ReceiveData(msg);
+		jabber->ReceivedMessageHandler(msg);
 				
-		jabber->ReceiveData(&msg);
-		jabber->ReceivedMessageHandler(&msg);
-		msg.MakeEmpty();
-		
 		release_sem(jabber->read_queue);
 		
 		snooze(1000);
@@ -1265,24 +1306,24 @@ static int32 SessionDispatcher(void *args)
 void
 JabberProtocol::ReceiveData(BMessage *msg)
 {
-	BMessage packet(PORT_TALKER_DATA);
-	BString msgData;
+	BMessage *packet = new BMessage(PORT_TALKER_DATA);
+	BString msgData("", 65536);
+	
+	msg->MakeEmpty();
 	
 	bool found_stream_start = false;
 	bool found_stream_end = false;
 	
-	int no = 0;
-	
 	do 
 	{
-		BString data;
+		BString data("", 4096);
 		int32 length;
 		
-		packet.MakeEmpty();
-		socketAdapter->ReceiveData(&packet);
+		packet->MakeEmpty();
+		socketAdapter->ReceiveData(packet);
 	
-		packet.FindString("data", &data);
-		packet.FindInt32("length", &length);
+		packet->FindString("data", &data);
+		packet->FindInt32("length", &length);
 
 		if (data.FindFirst("<stream:stream") >= 0)
 			found_stream_start = true;
@@ -1290,22 +1331,17 @@ JabberProtocol::ReceiveData(BMessage *msg)
 		if (data.FindFirst("</stream:stream") >= 0)
 			found_stream_end = true;
 			
-		msgData.Append(data);
+		msgData.Append(BString(data.String()));
 		
-#ifdef DEBUG
-
-		//fprintf(stderr, "IQ PACKET %i LEN: %i.\n", no++, length);
-			
-#endif
-
-	} while (CheckXML(msgData.String()) == NULL && 
+	} while (FXMLCheck(msgData.String()) == NULL && 
 				!found_stream_start && !found_stream_end);
 	
+	// TODO: handle XML head more accurately
+	
+	msgData.RemoveFirst("<?xml version='1.0'?>").Append("</dengon>").Prepend("<dengon>");
+					
 	msg->AddInt32("length", msgData.Length());
-	
-	msgData << BString(FXMLSkipHead(msgData.String())).Prepend("<dengon>").Append("</dengon>");
-	
-	msg->AddString("data", msgData);
+	msg->AddString("data", msgData.String());
 	
 }
 

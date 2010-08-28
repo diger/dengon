@@ -38,14 +38,11 @@ TalkManager::~TalkManager()
 
 ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *user, string group_room, string group_username)
 {
-	ChatWindow *window = NULL;
+	ChatWindow *window = FindWindow(user->JabberHandle());
 	
-	if (!IsExistingWindowToUser(user->JabberHandle()).empty())
+	if (window)
 	{
-		window = _talk_map[IsExistingWindowToUser(user->JabberHandle())];
-		window->Lock();
 		window->Activate();
-		window->Unlock();
 	} 
 	else
 	{
@@ -68,7 +65,6 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	string                thread_id;
 	string                sender;
 	string				  receiver;
-	ChatWindow           *window = NULL;
 
 	string                group_room;
 	string                group_server;
@@ -123,65 +119,63 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	}
 	
 	// configure routing information
-	sender = entity->Attribute("from");
-	receiver = entity->Attribute("to");
+	sender = string(entity->Attribute("from"));
+	receiver = string(entity->Attribute("to"));
 	group_username = UserID(sender).JabberResource();
 	group_room = UserID(sender).JabberUsername();
+	UserID sender_user(sender);
 
-	// find window or create new
-	if (type == ChatWindow::CHAT || type == ChatWindow::GROUP)
+	ChatWindow *window = FindWindow(sender_user.JabberHandle());
+		
+	if (!window)
 	{
-		if (IsExistingWindowToUser(UserID(sender).JabberHandle()) != "")
-		{
-			window = _talk_map[IsExistingWindowToUser(UserID(sender).JabberHandle())];
-			if (window != NULL)
-				fprintf(stderr, "Redirected to Existed Window: %s.\n",window->GetUserID()->JabberHandle().c_str());
-		}
-		else
-		{
-			JRoster::Instance()->Lock();
+		JRoster::Instance()->Lock();
 			
-			UserID *user = JRoster::Instance()->FindUser(new UserID(sender));
+			  
+		UserID *user = JRoster::Instance()->FindUser(&sender_user);
+		
+		if (!user)
+		{
+			user = new UserID(sender_user);
 			
-			if (!user)
+			fprintf(stderr, "Username: %s.\n", user->JabberUsername().c_str());
+			fprintf(stderr, "Server: %s.\n", user->JabberServer().c_str());
+			fprintf(stderr, "Resource: %s.\n", user->JabberResource().c_str());
+			fprintf(stderr, "Valid?: %s.\n", user->WhyNotValidJabberHandle().c_str());
+			if (user->JabberServer().empty())
 			{
-				user = new UserID(sender);
+				user->SetFriendlyName(string("Server Chat"));
+				user->SetJabberServer(sender);
 				fprintf(stderr, "Username: %s.\n", user->JabberUsername().c_str());
 				fprintf(stderr, "Server: %s.\n", user->JabberServer().c_str());
 				fprintf(stderr, "Resource: %s.\n", user->JabberResource().c_str());
-				fprintf(stderr, "Valid?: %s.\n", user->WhyNotValidJabberHandle().c_str());
-				if (user->JabberServer().empty())
-				{
-					user->SetFriendlyName(string("Server Chat"));
-					user->SetJabberServer(sender);
-					fprintf(stderr, "Username: %s.\n", user->JabberUsername().c_str());
-					fprintf(stderr, "Server: %s.\n", user->JabberServer().c_str());
-					fprintf(stderr, "Resource: %s.\n", user->JabberResource().c_str());
-				}
-				fprintf(stderr, "Not found incoming message user in roster.\n");
 			}
+			fprintf(stderr, "Not found incoming message user in roster.\n");
+		}
 
-			JRoster::Instance()->Unlock();
+		JRoster::Instance()->Unlock();
 			
-			if (type==ChatWindow::CHAT)
-			{
-				window = CreateTalkSession(type, user, "", "");
-				window->jabber = jabber;
-			} else {
-				fprintf(stderr, "Unexisted Groupchat Window. No route\n");
-				return;
-			}
+		if (type==ChatWindow::CHAT)
+		{
+			window = CreateTalkSession(type, user, "", "");
+			window->jabber = jabber;
+		} else {
+			fprintf(stderr, "Unexisted Groupchat Window. No route\n");
+			return;
 		}
 	}
-	
-	// submit the chat to window
-	if (window)
+	else
 	{
+		fprintf(stderr, "Redirected to Existed Window: %s.\n",
+				window->GetUserID()->JabberHandle().c_str());
+				
 		window->Lock();
+		
+		string body = string(entity->Child("body")->Data());
 		
 		if (type == ChatWindow::CHAT)
 		{
-			window->NewMessage(entity->Child("body")->Data());
+			window->NewMessage(body);
 		}
 		else if (type == ChatWindow::GROUP)
 		{
@@ -193,39 +187,27 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			}
 							
 			if (group_username == "")
-				window->NewMessage(group_room, entity->Child("body")->Data()); // channel messages
+				window->NewMessage(group_room, body); // channel messages
 			else
-				window->NewMessage(group_username, entity->Child("body")->Data()); // user messages
+				window->NewMessage(group_username, body); // user messages
 		}
 		
 		window->Unlock();
 	}
 }
 
-string TalkManager::IsExistingWindowToUser(string username) {
+ChatWindow* TalkManager::FindWindow(string username) {
 	// check handles (with resource)
 	int j = 0;
 	for (TalkIter i = _talk_map.begin(); i != _talk_map.end(); i++) {
 		//fprintf(stderr, "iter %i: %s\n", j++, (*i).second->GetUserID()->JabberHandle().c_str());
 		if ((*i).second->GetUserID()->JabberHandle() == UserID(username).JabberHandle()) {
-			return UserID(username).JabberHandle();
+			return (*i).second;
 		}
 	}
 
 	// no matches
-	return "";
-}
-
-string TalkManager::IsExistingWindowToGroup(string group_room) {
-	// check names
-	for (TalkIter i = _talk_map.begin(); i != _talk_map.end(); ++i) {
-		if ((*i).second->GetGroupRoom() == group_room) {
-			return (*i).first;
-		}
-	}
-
-	// no matches
-	return "";
+	return NULL;
 }
 
 void TalkManager::UpdateWindowTitles(const UserID *user) {

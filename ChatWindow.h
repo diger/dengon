@@ -5,6 +5,7 @@
 #include <MenuBar.h>
 #include "StatusView.h"
 #include "SplitView.h"
+#include "MainWindow.h"
 #include "JabberProtocol.h"
 #include "UserID.h"
 #include <cstdio>

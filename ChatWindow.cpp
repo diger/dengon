@@ -48,13 +48,12 @@ string ChatWindow::GetGroupUsername()
 
 ChatWindow::~ChatWindow()
 {
-	historyView->RemoveChild(historyScroller);
 	fprintf(stderr, "ChatWindow desctructor called.\n");
 }
 
 ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 				std::string group_username)
-	:BWindow(BRect(100,100,500,400),"Travis",B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
+	:BWindow(BRect(100,100,500,400),"Travis2",B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
 {
 	_chat_index = -1;
 	
@@ -66,7 +65,7 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	_group_username = group_username;
 	
 	if (_type != ChatWindow::GROUP) {
-		_current_status = user->OnlineStatus();
+		_current_status = _user->OnlineStatus();
 	}
 	
 	_thread = GenericFunctions::GenerateUniqueID();
@@ -203,21 +202,21 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	
 	messageTextView->MakeFocus(true);
 	
-	if (user->FriendlyName().size() && user->FriendlyName() != user->JabberHandle())
+	if (_user->FriendlyName().size() && _user->FriendlyName() != _user->JabberHandle())
 	{
-		SetTitle((user->FriendlyName() +  " − " + user->JabberHandle()).c_str());
-		originalWindowTitle.SetTo(user->FriendlyName().c_str());
+		SetTitle((_user->FriendlyName() +  " − " + _user->JabberHandle()).c_str());
+		//originalWindowTitle.SetTo(_user->FriendlyName().c_str());
 	}
 	else
 	{
-		SetTitle(user->JabberHandle().c_str());
-		originalWindowTitle.SetTo(user->JabberHandle().c_str());
+		SetTitle(_user->JabberHandle().c_str());
+		//originalWindowTitle.SetTo(_user->JabberHandle().c_str());
 	}
 	
 	
 	
 	if (_type != GROUP)
-		fprintf(stderr, "Show Chat Window %s.\n", user->JabberCompleteHandle().c_str());
+		fprintf(stderr, "Show Chat Window %s.\n", _user->JabberCompleteHandle().c_str());
 	else
 		fprintf(stderr, "Show Group Chat Window Room %s Username %s.\n", 
 			group_room.c_str(),
@@ -246,8 +245,7 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 		_edit_menu->AddItem(_affiliations);
 		menu->AddItem(_edit_menu);
 	}
-	
-	
+		
 	Show();
 }
 
@@ -307,7 +305,7 @@ ChatWindow::NewMessage(string username, string new_message)
 void
 ChatWindow::AddToTalk(string username, string message, user_type type)
 {
-	Lock();
+	//fprintf(stderr, "AddTalk called.\n");
 	
 	BFont thin(be_plain_font);
 	BFont thick(be_bold_font);
@@ -332,7 +330,10 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	text_run_array tra_thick_black = {1, {tr_thick_black}}; 
 	text_run_array tra_thin_black  = {1, {tr_thin_black}}; 
 	
-	if (historyTextView == NULL) return;
+	if (historyTextView == NULL) 
+	{
+		return;
+	}
 	
 	if (message.substr(0,4) == "/me ")
 	{
@@ -380,9 +381,9 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	
 	historyTextView->ScrollTo(0.0, historyTextView->Bounds().bottom);
 	
-	last_username = username;
+	//historyTextView->Invalidate();
 	
-	Unlock();
+	last_username = username;
 }
 
 static int _PeopelListComparison(const void *a, const void *b)
@@ -753,8 +754,9 @@ ChatWindow::MessageReceived(BMessage *msg)
 		
 		case JAB_CHAT_SENT:
 		{
+			Lock();
 			const char *messageTextANSI = messageTextView->Text();
-			string messageTextSTL = string(messageTextView->Text());
+			string messageTextSTL = string(messageTextANSI);
 			BString message = BString(messageTextANSI);
 			string s = OurRepresentation().String();
 			
@@ -768,6 +770,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 			else
 				jabber->SendMessage(BString(_user->JabberHandle().c_str()), message);
 
+			Unlock();
 			break;
 		}
 		
@@ -778,8 +781,9 @@ ChatWindow::MessageReceived(BMessage *msg)
 			if (_type != GROUP) {
 				break;
 			}
-
-			if (GetGroupRoom() == msg->FindString("room"))
+			
+			Lock();
+			if (GetGroupRoom() == string(msg->FindString("room")))
 			{
 				
 				fprintf(stderr, "User %s show '%s' status '%s' role '%s' affiliation '%s'.\n",
@@ -790,25 +794,30 @@ ChatWindow::MessageReceived(BMessage *msg)
 					msg->FindString("affiliation"));
 				
 				AddGroupChatter(
-					msg->FindString("username"),
-					msg->FindString("show"),
-					msg->FindString("status"),
-					msg->FindString("role"),
-					msg->FindString("affiliation"));
+					string(msg->FindString("username")),
+					string(msg->FindString("show")),
+					string(msg->FindString("status")),
+					string(msg->FindString("role")),
+					string(msg->FindString("affiliation")));
 				
 			}
-			
+			Unlock();
 			break;
 		}
 
 		case JAB_GROUP_CHATTER_OFFLINE:
 		{
+			
 			// only for groupchat
 			if (_type != GROUP) {
 				break;
 			}
+			
+			Lock();
 
-			RemoveGroupChatter(msg->FindString("username"));
+			RemoveGroupChatter(string(msg->FindString("username")));
+			
+			Unlock();
 			
 			break;
 		}
@@ -824,11 +833,12 @@ ChatWindow::MessageReceived(BMessage *msg)
 bool
 ChatWindow::QuitRequested(void)
 {
+	jabber->mainWindow->Lock();
 	MessageRepeater::Instance()->RemoveTarget(this);
-	
 	TalkManager::Instance()->Lock();
 	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
 	TalkManager::Instance()->Unlock();
+	jabber->mainWindow->Unlock();
 	
 	if (_type == GROUP)
 		jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've enlightened"));

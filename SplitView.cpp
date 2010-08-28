@@ -18,6 +18,7 @@
 #include <TranslationKit.h>
 #include <TranslationUtils.h>
 #include <iostream>
+#include<stdio.h>
 
 #include "SplitView.h"
 

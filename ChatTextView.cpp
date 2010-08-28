@@ -31,7 +31,7 @@ void ChatTextView::MouseDown(BPoint pt)
 {
 	fprintf(stderr, "ChatTextView::MouseDown.\n");
 	
-	const char *text = Text();
+	const char *text = BString(Text()).String();
 	std::string url;
 
 	// base

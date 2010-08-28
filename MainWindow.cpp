@@ -424,7 +424,7 @@ bool BlabberMainWindow::QuitRequested() {
 }
 
 BlabberMainWindow::BlabberMainWindow(BRect frame)
-	: BWindow(frame, "Chat", B_DOCUMENT_WINDOW, 0) {
+	: BWindow(frame, "Chat", B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS) {
 
 	// editing filter for taksing
 //	AddCommonFilter(new RotateChatFilter(NULL));

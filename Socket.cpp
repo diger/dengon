@@ -51,7 +51,7 @@ Socket::SendData(BString xml)
 int
 Socket::ReceiveData(BMessage *message)
 {
-	int LEN = 1024;
+	int LEN = 4096;
 	char data[LEN];
 	int length = recv(sock, data, LEN, 0);
 	if (length > 0)

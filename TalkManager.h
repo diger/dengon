@@ -33,8 +33,7 @@ public:
 				
 	void                 ProcessMessageData(XMLEntity *entity);	
 
-	std::string          IsExistingWindowToUser(string username);
-	std::string          IsExistingWindowToGroup(string group_room);
+	ChatWindow*          FindWindow(string username);
 	void                 UpdateWindowTitles(const UserID *user);
 	void                 RemoveWindow(string thread_id);
 

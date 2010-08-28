@@ -112,7 +112,7 @@ void XMLReader::_OnStartTag(const char *name, const char **atts) {
 	OnStartTag(_curr_entity);
 }
 
-const char *XMLReader::FXMLSkipHead(const char *xml) {
+const char *FXMLSkipHead(const char *xml) {
 	const char *ptr = xml;
 	const char *tmp;
 	int nopen = 0;
@@ -166,11 +166,6 @@ const char *XMLReader::FXMLCheck(const char *xml) {
 		tmp = strchr(tmp, '<');
 	}
 	return (nopen == 0) ? ptr : NULL;
-}
-
-const char *XMLReader::CheckXML(const char *data)
-{
-	return FXMLCheck(data);
 }
 
 void XMLReader::_OnEndTag(const char *name) {

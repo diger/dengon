@@ -7,6 +7,7 @@
 #define CHAT_TEXT_VIEW_H
 
 #include <interface/TextView.h>
+#include <String.h>
 
 class ChatTextView : public BTextView {
 public:

@@ -161,7 +161,7 @@ void RosterView::AttachedToWindow() {
 	_status_to_item_map[UserID::CONF_STATUS] = _conferences;
 	
 	// BUGBUG events
-	_presence->SetTargetForItems(Window());
+	//_presence->SetTargetForItems(Window());
 	_popup->SetTargetForItems(Window());
 }
 
@@ -180,7 +180,7 @@ void RosterView::KeyDown(const char *bytes, int32 len) {
 
 void RosterView::MouseDown(BPoint point) {
 	// accept first click
-	Window()->Activate(true);
+	//Window()->Activate(true);
 
 	// get mouse info before it's too late!
 	uint32 buttons = 0;
