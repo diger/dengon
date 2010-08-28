@@ -204,19 +204,24 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			RosterItem *item = _roster->CurrentItemSelection();
 			
 			if (item != NULL) {
+				
+				TalkManager::Instance()->Lock();
+				
 				UserID *user = (UserID*)item->GetUserID();
 				if (user->UserType() == UserID::CONFERENCE)
-				{
+				
 					ChatWindow *window = 
 						TalkManager::Instance()->CreateTalkSession(
 							ChatWindow::GROUP, user, user->JabberHandle(),
-								jabber->_storage_supported ? user->_room_nick : string(BString("_").Append(jabber->user).String())
-								);
-				} else
+								jabber->_storage_supported ? user->_room_nick :
+									string(BString("_").Append(jabber->user).String())
+										);
+				else
 
-					// open chat window
 					ChatWindow *window = TalkManager::Instance()->CreateTalkSession(
 						ChatWindow::CHAT, user, "", "");
+						
+				TalkManager::Instance()->Unlock();
 
 			}
 			Unlock();

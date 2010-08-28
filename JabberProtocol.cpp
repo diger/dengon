@@ -303,7 +303,9 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	// handle incoming messages
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "message"))
 	{
+		TalkManager::Instance()->Lock();
 		TalkManager::Instance()->ProcessMessageData(entity);
+		TalkManager::Instance()->Unlock();
 	}
 }
 
@@ -556,15 +558,13 @@ JabberProtocol::SendGroupPresence(string _group_room, string _group_username)
 void
 JabberProtocol::ProcessPresence(XMLEntity *entity)
 {
-	JRoster *roster = JRoster::Instance();
+	
 
 	int num_matches = 0;
 
 	// verify we have a username
 	if (entity->Attribute("from"))
 	{
-		roster->Lock();
-
 		// circumvent groupchat presences
 		string room, server, user;
 		
@@ -609,19 +609,38 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 					msg.AddString("affiliation", "none");
 		
 				msg.what = JAB_GROUP_CHATTER_ONLINE;
+				
+				fprintf(stderr, "JAB_GROUP_CHATTER_ONLINE\n");
 			}
 			else if (!strcasecmp(entity->Attribute("type"), "unavailable"))
 			{
 				msg.what = JAB_GROUP_CHATTER_OFFLINE;
+				
+				fprintf(stderr, "JAB_GROUP_CHATTER_OFFLINE\n");
 			}
 			
-			roster->Unlock();
-
-			MessageRepeater::Instance()->PostMessage(&msg);
-
+			ChatWindow *window = NULL;
+			
+			TalkManager::Instance()->Lock();
+			
+			if (TalkManager::Instance()->IsExistingWindowToUser(from.JabberHandle()) != "")
+			{
+				window = TalkManager::Instance()->_talk_map[TalkManager::Instance()->IsExistingWindowToUser(from.JabberHandle())];
+				if (window != NULL)
+				{
+					fprintf(stderr, "JAB_GROUP_CHATTER presence: %s.\n",window->GetUserID()->JabberHandle().c_str());
+					window->PostMessage(&msg);
+				}
+			}
+			
+			TalkManager::Instance()->Unlock();
 			
 			return;
 		}		
+		
+		JRoster *roster = JRoster::Instance();
+		
+		roster->Lock();
 		
 		for (JRoster::ConstRosterIter i = roster->BeginIterator(); i != roster->EndIterator(); ++i)
 		{
@@ -1284,7 +1303,7 @@ JabberProtocol::ReceiveData(BMessage *msg)
 	
 	msg->AddInt32("length", msgData.Length());
 	
-	msgData = BString(FXMLSkipHead(msgData.String())).Prepend("<dengon>").Append("</dengon>");
+	msgData << BString(FXMLSkipHead(msgData.String())).Prepend("<dengon>").Append("</dengon>");
 	
 	msg->AddString("data", msgData);
 	

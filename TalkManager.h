@@ -43,13 +43,17 @@ public:
 	void                 Reset();
 	JabberProtocol		 *jabber;
 	
+	TalkMap             _talk_map;
+	void                         Lock();
+	void                         Unlock();
+	sem_id				_windows_map_lock;
+	
 protected:
  	                     TalkManager();
 
 private:
 	static TalkManager *_instance;
-	
-	TalkMap             _talk_map;
+
 };
 
 #endif

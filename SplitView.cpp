@@ -58,6 +58,11 @@ SplitPane::SplitPane(BRect frame, BView *one, BView *two,uint32 Mode):BView(fram
    AddChild(two);
 }
 
+SplitPane::~SplitPane()
+{
+	fprintf(stderr, "SplitPane descructor called.\n");
+}
+
 /*******************************************************
 *   When ready grap the parents color and refreash.
 *******************************************************/

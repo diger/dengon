@@ -21,21 +21,26 @@ TalkManager *TalkManager::Instance() {
 	return _instance;
 }
 
-TalkManager::TalkManager() { }
+TalkManager::TalkManager()
+{
+	_windows_map_lock = create_sem(1, "TalkManager lock"); 
+}
 
-TalkManager::~TalkManager() {
+TalkManager::~TalkManager()
+{
 	for (TalkIter i = _talk_map.begin(); i != _talk_map.end(); ++i) {
 		i->second->PostMessage(B_QUIT_REQUESTED);
 	}
 
 	_instance = NULL;
+	delete_sem(_windows_map_lock);
 }
 
 ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *user, string group_room, string group_username)
 {
 	ChatWindow *window = NULL;
 	
-	if (IsExistingWindowToUser(user->JabberHandle()).size())
+	if (!IsExistingWindowToUser(user->JabberHandle()).empty())
 	{
 		window = _talk_map[IsExistingWindowToUser(user->JabberHandle())];
 		window->Lock();
@@ -162,6 +167,9 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			{
 				window = CreateTalkSession(type, user, "", "");
 				window->jabber = jabber;
+			} else {
+				fprintf(stderr, "Unexisted Groupchat Window. No route\n");
+				return;
 			}
 		}
 	}
@@ -287,7 +295,19 @@ void TalkManager::RotateToNextWindow(ChatWindow *current, rotation direction) {
 	}
 }
 
+void
+TalkManager::Lock()
+{
+	acquire_sem(_windows_map_lock);
+}
+
+void
+TalkManager::Unlock()
+{
+	release_sem(_windows_map_lock);
+}
+
 void TalkManager::Reset() {
 	MessageRepeater::Instance()->PostMessage(JAB_CLOSE_TALKS);
-	//_talk_map.clear();
+	_talk_map.clear();
 }

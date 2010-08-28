@@ -22,6 +22,7 @@ enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER};
 							UserID *user,
 							std::string group_room,
 							std::string group_username);
+						~ChatWindow();
 							
 			void		MessageReceived(BMessage *msg);
 			bool		QuitRequested(void);

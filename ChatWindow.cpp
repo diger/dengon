@@ -46,6 +46,12 @@ string ChatWindow::GetGroupUsername()
 	return _group_username;
 }
 
+ChatWindow::~ChatWindow()
+{
+	historyView->RemoveChild(historyScroller);
+	fprintf(stderr, "ChatWindow desctructor called.\n");
+}
+
 ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 				std::string group_username)
 	:BWindow(BRect(100,100,500,400),"Travis",B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
@@ -301,6 +307,8 @@ ChatWindow::NewMessage(string username, string new_message)
 void
 ChatWindow::AddToTalk(string username, string message, user_type type)
 {
+	Lock();
+	
 	BFont thin(be_plain_font);
 	BFont thick(be_bold_font);
 
@@ -373,6 +381,8 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 	historyTextView->ScrollTo(0.0, historyTextView->Bounds().bottom);
 	
 	last_username = username;
+	
+	Unlock();
 }
 
 static int _PeopelListComparison(const void *a, const void *b)
@@ -401,6 +411,8 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 {
 	int i;
 
+	Lock();
+	
 	// create a new entry
 	PeopleListItem *people_item = new PeopleListItem(_group_username, user, show, status, role, affiliation);
 	
@@ -409,6 +421,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 		// add the new user
 		_people->AddItem(people_item);
 
+		Unlock();
 		return;
 	}
 	
@@ -442,6 +455,8 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 		_people->SortItems(_PeopelListComparison);
 		
 	}
+	
+	Unlock();
 }
 
 void
@@ -737,7 +752,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 		case JAB_CHAT_SENT:
 		{
 			const char *messageTextANSI = messageTextView->Text();
-			string messageTextSTL = messageTextView->Text();
+			string messageTextSTL = string(messageTextView->Text());
 			BString message = BString(messageTextANSI);
 			string s = OurRepresentation().String();
 			
@@ -773,7 +788,6 @@ ChatWindow::MessageReceived(BMessage *msg)
 					msg->FindString("affiliation"));
 				
 				AddGroupChatter(
-				
 					msg->FindString("username"),
 					msg->FindString("show"),
 					msg->FindString("status"),
@@ -808,10 +822,15 @@ ChatWindow::MessageReceived(BMessage *msg)
 bool
 ChatWindow::QuitRequested(void)
 {
+	MessageRepeater::Instance()->RemoveTarget(this);
+	
+	TalkManager::Instance()->Lock();
+	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
+	TalkManager::Instance()->Unlock();
+	
 	if (_type == GROUP)
 		jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've enlightened"));
-	MessageRepeater::Instance()->RemoveTarget(this);
-	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
+
 	return true;
 }
 

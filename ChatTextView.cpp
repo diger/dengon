@@ -22,8 +22,15 @@ ChatTextView::ChatTextView(BRect frame, const char *name, BRect text_rect,
 {
 }
 
+ChatTextView::~ChatTextView()
+{
+	fprintf(stderr, "ChatTextView desctructor called.\n");
+}
+
 void ChatTextView::MouseDown(BPoint pt)
 {
+	fprintf(stderr, "ChatTextView::MouseDown.\n");
+	
 	const char *text = Text();
 	std::string url;
 
