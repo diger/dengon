@@ -107,6 +107,11 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		
 		return;
 	}
+	else if (!strcasecmp(entity->Attribute("type"), "headline"))
+	{
+		fprintf(stderr, "Tune message.\n");
+		return;
+	}
 	else
 	{
 		type = ChatWindow::CHAT;
