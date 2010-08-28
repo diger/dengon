@@ -17,7 +17,7 @@ class ChatWindow : public BWindow
 {
 public:
 enum        talk_type {MESSAGE, CHAT, GROUP};
-enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER};
+enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER, TOPIC};
 			
 						ChatWindow(talk_type type,
 							UserID *user,

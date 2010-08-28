@@ -71,12 +71,6 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	string                group_identity;
 	string                group_username;
 	
-	// must be content to continue
-	if (!entity->Child("body") || !entity->Child("body")->Data())
-	{
-		return;
-	}
-
 	// must be sender to continue
 	if (!entity->Attribute("from"))
 	{
@@ -164,32 +158,47 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			return;
 		}
 	}
-	else
+	
 	{
 		fprintf(stderr, "Redirected to Existed Window: %s.\n",
 				window->GetUserID()->JabberHandle().c_str());
 				
 		window->Lock();
 		
-		string body = string(entity->Child("body")->Data());
+		string body;
+		string subject;
 		
-		if (type == ChatWindow::CHAT)
+		if (entity->Child("body") && entity->Child("body")->Data())
+			body = string(entity->Child("body")->Data());
+		
+		if (entity->Child("subject") && entity->Child("subject")->Data())
+			subject = string(entity->Child("subject")->Data());
+				
+		if (type == ChatWindow::CHAT && !body.empty())
 		{
 			window->NewMessage(body);
 		}
-		else if (type == ChatWindow::GROUP)
+		else if (type == ChatWindow::GROUP && (!body.empty() || !subject.empty()))
 		{
 			// Accept exectly our JID in destinations 
-			if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
+			//if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
 			{
-				window->Unlock();
-				return;
+			//	window->Unlock();
+			//	return;
 			}
-							
+			
 			if (group_username == "")
-				window->NewMessage(group_room, body); // channel messages
+				window->AddToTalk(group_room, body, ChatWindow::MAIN_RECIPIENT); // channel messages
 			else
-				window->NewMessage(group_username, body); // user messages
+			{
+				if (!subject.empty())
+				{
+					window->AddToTalk(group_username, subject, ChatWindow::TOPIC); // topic messages
+					fprintf(stderr, "Topic message.\n");
+				}
+				else			
+					window->AddToTalk(group_username, body, ChatWindow::MAIN_RECIPIENT); // user messages
+			}
 		}
 		
 		window->Unlock();
