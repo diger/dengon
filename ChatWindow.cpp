@@ -370,6 +370,7 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 				historyTextView->Insert(historyTextView->TextLength(),
 					("* "+ username + " set topic to").c_str(), ("* "+ username + " set topic to").length(),
 						&tra_thick_blue);
+				last_username = "";
 			} else
 				historyTextView->Insert(historyTextView->TextLength(),
 					username.c_str(), username.length(), &tra_thick_blue);
