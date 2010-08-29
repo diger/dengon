@@ -48,14 +48,19 @@ string ChatWindow::GetGroupUsername()
 
 ChatWindow::~ChatWindow()
 {
-	MessageRepeater::Instance()->RemoveTarget(this);
+
 	
+	MessageRepeater::Instance()->RemoveTarget(this);
+
+	RemoveChild(mainView);
+	delete mainView;
+		
 	fprintf(stderr, "ChatWindow desctructor called.\n");
 }
 
 ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 				std::string group_username)
-	:BWindow(BRect(100,100,500,400),"Travis2",B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
+	:BWindow(BRect(100,100,500,400), ("ChatWindow:" + user->JabberHandle()).c_str(),B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
 {
 	_chat_index = -1;
 	
@@ -380,7 +385,7 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 				last_username = username;
 			}
 		
-			historyTextView->Insert(historyTextView->TextLength(), ": ", BString(": ").Length(), &tra_thin_black);
+			historyTextView->Insert(historyTextView->TextLength(), ": ", 2, &tra_thin_black);
 		}
 
 		// проебался с этой хуйней двое суток.ъ
@@ -391,7 +396,7 @@ ChatWindow::AddToTalk(string username, string message, user_type type)
 		//GenerateHyperlinkText(message, tr_thin_black, &this_array);
 		historyTextView->Insert(historyTextView->TextLength(), message.c_str(), message.size(), &tra_thin_black);//this_array);
 		//free(this_array);
-		historyTextView->Insert(historyTextView->TextLength(), "\n", BString("\n").Length(), &tra_thin_black);
+		historyTextView->Insert(historyTextView->TextLength(), "\n", 1, &tra_thin_black);
 	}
 	
 	historyTextView->ScrollTo(0.0, historyTextView->Bounds().bottom);
@@ -485,15 +490,6 @@ ChatWindow::RemoveGroupChatter(string username)
 		}
 	}
 	Unlock();
-}
-
-BString
-ChatWindow::OurRepresentation()
-{
-	if (jabber == NULL) return "MisterX";
-	BString representation;
-	representation << jabber->user << "@" << jabber->domain;
-	return representation;
 }
 
 int ChatWindow::CountHyperlinks(string message)
@@ -771,13 +767,13 @@ ChatWindow::MessageReceived(BMessage *msg)
 			const char *messageTextANSI = messageTextView->Text();
 			string messageTextSTL = string(messageTextANSI);
 			BString message = BString(messageTextANSI);
-			string s = OurRepresentation().String();
 			
 			if (_type != GROUP)
-				AddToTalk(s, messageTextSTL, LOCAL);
+				AddToTalk(UserID(string(jabber->jid)).JabberHandle(), messageTextSTL, LOCAL);
 				
 			messageTextView->SetText("");
 			messageTextView->MakeFocus(true);
+			
 			if (_type == GROUP)
 				jabber->SendGroupchatMessage(BString(_user->JabberHandle().c_str()), message);
 			else

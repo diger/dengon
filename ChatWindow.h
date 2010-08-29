@@ -31,7 +31,6 @@ enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER, TOPIC};
 			void		AddToTalk(string username, string message, user_type type);
 			void		NewMessage(string new_message);
 			void		NewMessage(string username, string new_message);
-			BString		OurRepresentation();
 			string		GetGroupUsername();
 			string		GetGroupRoom();
 			void 		AddGroupChatter(string user, string show, string status, string role, string affiliation);
