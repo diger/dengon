@@ -174,7 +174,9 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	else
 	{
 		fprintf(stderr, "Redirected to Existed Window: %s.\n",
-				window->GetUserID()->JabberHandle().c_str());		
+				window->GetUserID()->JabberHandle().c_str());
+				
+		window->Activate();
 	}
 				
 	window->Lock();

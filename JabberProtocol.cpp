@@ -133,7 +133,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	{
 		
 		// handle roster retrival
-		if (entity->Child("query") &&
+		if (entity->Child("query") && entity->Child("query")->Attribute("xmlns") &&
 			!strcasecmp(entity->Child("query")->Attribute("xmlns"),"jabber:iq:roster"))
 		{
 			ParseRosterList(entity);
