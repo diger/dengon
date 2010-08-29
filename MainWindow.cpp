@@ -245,11 +245,14 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 		case JAB_UNSUBSCRIBE_PRESENCE:
 		{
 			Lock();
+			fprintf(stderr, "Sending unsubscribe...");
 			RosterItem *item = _roster->CurrentItemSelection();
 			
 			if (item != NULL) {
 				UserID *user = (UserID*)item->GetUserID();
 				jabber->SendUnsubscriptionRequest(user->JabberHandle());
+				fprintf(stderr, " for user %s. Done.\n", user->JabberHandle().c_str());
+			
 			}
 			Unlock();
 			_roster->UpdateRoster();
