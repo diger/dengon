@@ -51,9 +51,6 @@ ChatWindow::~ChatWindow()
 
 	
 	MessageRepeater::Instance()->RemoveTarget(this);
-
-	RemoveChild(mainView);
-	delete mainView;
 		
 	fprintf(stderr, "ChatWindow desctructor called.\n");
 }
