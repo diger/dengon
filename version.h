@@ -1,8 +1,8 @@
 
 // Do not edit!
 //
-// generated from ./version.sh on Sun Aug 29 09:06:53 GMT 2010
+// generated from ./version.sh on Sun Aug 29 16:36:56 GMT 2010
 
-#define DENGON_SVNVERSION "170"
-#define DENGON_SVNDATE "2010-08-28"
+#define DENGON_SVNVERSION "173"
+#define DENGON_SVNDATE "2010-08-29"
 
