@@ -664,12 +664,13 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			
 			if (window != NULL)
 			{
-				fprintf(stderr, "JAB_GROUP_CHATTER presence: %s.\n",window->GetUserID()->JabberHandle().c_str());
+				fprintf(stderr, "Process group presence %s.\n", window->GetUserID()->JabberHandle().c_str());
+				
 				window->PostMessage(msg);
 			}
 			else
 			{
-				fprintf(stderr, "There is no Window JAB_GROUP_CHATTER route to.\n");
+				fprintf(stderr, "There is no window group presence route to.\n");
 			}
 			
 			TalkManager::Instance()->Unlock();
@@ -700,7 +701,7 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 		if (num_matches == 0)
 		{
 			UserID user(string(entity->Attribute("from")));
-			fprintf(stderr, "Process self presence %s.\n", user.JabberHandle().c_str());
+			fprintf(stderr, "Process not in roster presence %s.\n", user.JabberHandle().c_str());
 			ProcessUserPresence(&user, entity);
 		}
 			

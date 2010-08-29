@@ -48,6 +48,8 @@ string ChatWindow::GetGroupUsername()
 
 ChatWindow::~ChatWindow()
 {
+	MessageRepeater::Instance()->RemoveTarget(this);
+	
 	fprintf(stderr, "ChatWindow desctructor called.\n");
 }
 
@@ -191,13 +193,12 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	
 	// group chat people list
 	
-
-	
 	AddCommonFilter(new EditingFilter(messageTextView, this));
 	
 	mainView->AddChild(menu);
 	mainView->AddChild(chatView);
 	mainView->AddChild(statusView);
+	
 	AddChild(mainView);
 	
 	messageTextView->MakeFocus(true);
@@ -205,12 +206,10 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 	if (_user->FriendlyName().size() && _user->FriendlyName() != _user->JabberHandle())
 	{
 		SetTitle((_user->FriendlyName() +  " − " + _user->JabberHandle()).c_str());
-		//originalWindowTitle.SetTo(_user->FriendlyName().c_str());
 	}
 	else
 	{
 		SetTitle(_user->JabberHandle().c_str());
-		//originalWindowTitle.SetTo(_user->JabberHandle().c_str());
 	}
 	
 	
@@ -305,8 +304,7 @@ ChatWindow::NewMessage(string username, string new_message)
 void
 ChatWindow::AddToTalk(string username, string message, user_type type)
 {
-	//fprintf(stderr, "AddTalk called.\n");
-	
+
 	BFont thin(be_plain_font);
 	BFont thick(be_bold_font);
 
@@ -843,13 +841,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 bool
 ChatWindow::QuitRequested(void)
 {
-	//jabber->mainWindow->Lock();
-	MessageRepeater::Instance()->RemoveTarget(this);
-	//TalkManager::Instance()->Lock();
 	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
-	
-	//TalkManager::Instance()->Unlock();
-	//jabber->mainWindow->Unlock();
 	
 	if (_type == GROUP)
 		jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've enlightened"));
