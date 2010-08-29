@@ -36,7 +36,7 @@ TalkManager::~TalkManager()
 	delete_sem(_windows_map_lock);
 }
 
-ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *user, string group_room, string group_username)
+ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *user)
 {
 	ChatWindow *window = FindWindow(user->JabberHandle());
 	
@@ -46,13 +46,13 @@ ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *u
 	} 
 	else
 	{
-		window = new ChatWindow(type, user, group_room, group_username);
+		window = new ChatWindow(type, user);
 		window->jabber = jabber;
 		_talk_map[user->JabberHandle()] = window;
 		
 		if (type == ChatWindow::GROUP)
 		{
-			jabber->SendGroupPresence(group_room, group_username);
+			jabber->JoinRoom(BString((user->JabberHandle() + "/" +  user->_room_nick).c_str()), "");
 		}
 	}
 	
@@ -160,9 +160,9 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 
 		JRoster::Instance()->Unlock();
 			
-		if (type==ChatWindow::CHAT)
+		if (type==ChatWindow::CHAT /*|| type==ChatWindow::GROUP*/ )
 		{
-			window = CreateTalkSession(type, user, "", "");
+			window = CreateTalkSession(type, user);
 			fprintf(stderr, "Create Window for incoming message.\n");
 			window->jabber = jabber;
 		} else {

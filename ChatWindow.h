@@ -19,10 +19,7 @@ public:
 enum        talk_type {MESSAGE, CHAT, GROUP};
 enum        user_type {MAIN_RECIPIENT, LOCAL, OTHER, TOPIC};
 			
-						ChatWindow(talk_type type,
-							UserID *user,
-							std::string group_room,
-							std::string group_username);
+						ChatWindow(talk_type type, UserID *user);
 						~ChatWindow();
 							
 			void		MessageReceived(BMessage *msg);

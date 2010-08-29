@@ -499,7 +499,9 @@ JabberProtocol::JoinRoom(BString to, BString password)
 {
 	BString xml = "<presence to='";
 	xml = xml.Append(to);
-	xml << "'><x xmlns='http://jabber.org/protocol/muc#user'>";
+	xml << "'><priority>5</priority>";
+	//xml << "<c xmlns='http://jabber.org/protocol/caps' node='http://dengon.berlios.de/caps' ver='1.0'/>";
+	xml << "<x xmlns='http://jabber.org/protocol/muc'>";
 	if (password.Length() > 0)
 	{
 		xml << "<password>";

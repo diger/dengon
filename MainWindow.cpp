@@ -209,17 +209,14 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 				
 				UserID *user = (UserID*)item->GetUserID();
 				if (user->UserType() == UserID::CONFERENCE)
+				{
+					if (!jabber->_storage_supported)
+						user->_room_nick = string(BString("__").Append(jabber->user).String());
 				
-					ChatWindow *window = 
-						TalkManager::Instance()->CreateTalkSession(
-							ChatWindow::GROUP, user, user->JabberHandle(),
-								jabber->_storage_supported ? user->_room_nick :
-									string(BString("_").Append(jabber->user).String())
-										);
+					ChatWindow *window = TalkManager::Instance()->CreateTalkSession(ChatWindow::GROUP, user);
+				}
 				else
-
-					ChatWindow *window = TalkManager::Instance()->CreateTalkSession(
-						ChatWindow::CHAT, user, "", "");
+					ChatWindow *window = TalkManager::Instance()->CreateTalkSession(ChatWindow::CHAT, user);
 						
 				TalkManager::Instance()->Unlock();
 

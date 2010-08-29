@@ -23,7 +23,7 @@ UserID::UserID(const UserID &copied_userid)
 	_subscription_status = copied_userid.SubscriptionStatus();
 	_status = copied_userid.OnlineStatus();
 	_user_type = copied_userid.UserType();
-
+	_room_nick = copied_userid._room_nick;
 }
 
 UserID::~UserID()

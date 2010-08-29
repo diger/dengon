@@ -55,8 +55,7 @@ ChatWindow::~ChatWindow()
 	fprintf(stderr, "ChatWindow desctructor called.\n");
 }
 
-ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
-				std::string group_username)
+ChatWindow::ChatWindow(talk_type type, UserID *user)
 	:BWindow(BRect(100,100,500,400), ("ChatWindow:" + user->JabberHandle()).c_str(),B_DOCUMENT_WINDOW, B_ASYNCHRONOUS_CONTROLS)
 {
 	_chat_index = -1;
@@ -65,15 +64,15 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 
 	_type           = type;
 	_user           = new UserID(*user);
-	_group_room     = group_room;
-	_group_username = group_username;
+	_group_room     = _user->JabberHandle();
+	_group_username = _user->_room_nick;
 	
 	if (_type != ChatWindow::GROUP) {
 		_current_status = _user->OnlineStatus();
 	}
 	
 	_thread = GenericFunctions::GenerateUniqueID();
-	
+	/*
 	 bool bAutoOpenChatLog = BlabberSettings::Instance()->Tag("autoopen-chatlog");
 	string chatlog_path = "";
 	if (BlabberSettings::Instance()->Data("chatlog-path") != NULL) {
@@ -96,7 +95,7 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 		_log = fopen(chatlog_path.c_str(), "a");
 		_am_logging = (0 != _log);
 	}
-	
+	*/
 	BRect b = Bounds();
 	BRect ori = b;
 	float statusHeight = 12;
@@ -220,8 +219,8 @@ ChatWindow::ChatWindow(talk_type type, UserID *user, std::string group_room,
 		fprintf(stderr, "Show Chat Window %s.\n", _user->JabberCompleteHandle().c_str());
 	else
 		fprintf(stderr, "Show Group Chat Window Room %s Username %s.\n", 
-			group_room.c_str(),
-			group_username.c_str());
+			_user->JabberHandle().c_str(),
+			_user->_room_nick.c_str());
 	
 	// menu
 	
@@ -837,8 +836,10 @@ ChatWindow::QuitRequested(void)
 	TalkManager::Instance()->RemoveWindow(_user->JabberHandle());
 	
 	if (_type == GROUP)
-		jabber->SendUnavailable(BString(_group_room.c_str()), BString("I've enlightened"));
-
+	{
+		jabber->SendUnavailable(BString((_user->JabberHandle() +"/"+ _user->_room_nick).c_str()), BString("I've enlightened"));
+	}
+	
 	return true;
 }
 

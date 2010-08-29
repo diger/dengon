@@ -26,10 +26,7 @@ public:
 	static TalkManager  *Instance();
       	                ~TalkManager();
 
-	ChatWindow          *CreateTalkSession(
-							ChatWindow::talk_type type,
-							UserID *user,
-							string group_room, string group_username);
+	ChatWindow          *CreateTalkSession(ChatWindow::talk_type type, UserID *user);
 				
 	void                 ProcessMessageData(XMLEntity *entity);	
 
