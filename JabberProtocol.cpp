@@ -282,7 +282,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	// handle stream error
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:features"))
 	{
-		mainWindow->Lock();
+		//mainWindow->Lock();
 		if (mainWindow->_login_new_account->Value() == B_CONTROL_ON)
 		{
 			if (entity->Child("register"))
@@ -303,7 +303,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			Bind();
 		else if (entity->Child("session"))
 			Session();
-		mainWindow->Unlock();
+		//mainWindow->Unlock();
 		
 		//if (mainWindow->_login_new_account->Value() == B_CONTROL_ON) {
 		//	// create account
