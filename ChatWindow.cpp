@@ -425,7 +425,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 {
 	int i;
 
-	Lock();
+	//Lock();
 	
 	// create a new entry
 	PeopleListItem *people_item = new PeopleListItem(_group_username, user, show, status, role, affiliation);
@@ -435,7 +435,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 		// add the new user
 		_people->AddItem(people_item);
 
-		Unlock();
+		//Unlock();
 		return;
 	}
 	
@@ -470,13 +470,13 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 		
 	}
 	
-	Unlock();
+	//Unlock();
 }
 
 void
 ChatWindow::RemoveGroupChatter(string username)
 {
-	Lock();
+	//Lock();
 	// remove user
 	for (int i=0; i < _people->CountItems(); ++i) {
 		if (dynamic_cast<PeopleListItem *>(_people->ItemAt(i))->User() == username) {
@@ -485,7 +485,7 @@ ChatWindow::RemoveGroupChatter(string username)
 			return;
 		}
 	}
-	Unlock();
+	//Unlock();
 }
 
 int ChatWindow::CountHyperlinks(string message)
@@ -759,7 +759,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 		
 		case JAB_CHAT_SENT:
 		{
-			Lock();
+			//Lock();
 			const char *messageTextANSI = messageTextView->Text();
 			string messageTextSTL = string(messageTextANSI);
 			BString message = BString(messageTextANSI);
@@ -775,7 +775,7 @@ ChatWindow::MessageReceived(BMessage *msg)
 			else
 				jabber->SendMessage(BString(_user->JabberHandle().c_str()), message);
 
-			Unlock();
+			//Unlock();
 			break;
 		}
 		

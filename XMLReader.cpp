@@ -179,7 +179,7 @@ void XMLReader::_OnEndTag(const char *name) {
 	_curr_entity->SetCompleted(true);
 
 	// Clean character data buffer
-	_curr_character_data = "";
+	_curr_character_data = string("");
 
 	// Callback
 	OnEndTag(_curr_entity);
@@ -205,7 +205,7 @@ void XMLReader::_OnEndTag(const char *name) {
 
 void XMLReader::_OnCharacterData(const XML_Char *data, int len) {
 	// Populate current entity character data
-	char *new_data = (char *)malloc((len + 1) * sizeof(char));
+	char *new_data = (char *)malloc((len*2 + 2) * sizeof(char));
 	strncpy(new_data, data, len);
 	new_data[len] = '\0';
 
@@ -214,7 +214,7 @@ void XMLReader::_OnCharacterData(const XML_Char *data, int len) {
 	}
 
 	// Clean up character data
-	string added_data = new_data;
+	string added_data = string(new_data);
 	
 	if (_curr_character_data.size() == 0)
 		while (added_data.size() > 0 && (added_data[0] == ' ' || added_data[0] == '\n'))

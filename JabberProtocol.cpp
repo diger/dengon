@@ -68,22 +68,18 @@ JabberProtocol::UnlockXMLReader() {
 void 
 JabberProtocol::LogOn() 
 {
-	zeroReceived = 0;
-	separatorReceived = 0;
-
 	if (BeginSession())
 	{
-	
-		//if (mainWindow->_login_new_account->Value() == B_CONTROL_ON) {
-		//	// create account
-		//	SendUserRegistration(user, pass, "haiku");
-		//} else {
-		//	// log in
-		//	Authorize();
-		//}
-		
 		acquire_sem(logged);
 		resume_thread(reciever_thread);
+	}
+	else
+	{
+		char buffer[50 + host.Length()];
+		sprintf(buffer, "Cannot connect to %s:%i.", host.String(), port);
+		ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
+	
+		Disconnect();
 	}
 }
 
@@ -137,14 +133,7 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			!strcasecmp(entity->Child("query")->Attribute("xmlns"),"jabber:iq:roster"))
 		{
 			ParseRosterList(entity);
-		}
-		
-		if (entity->Attribute("id") && entity->Child("query") &&
-			!strcasecmp(entity->Attribute("id"), "storage_request") &&
-			!strcasecmp(entity->Child("query")->Attribute("xmlns"), "jabber:iq:private"))
-		{
-			if (entity->Child("query")->Child("storage"))
-				ParseStorage(entity->Child("query")->Child("storage"));
+			return;
 		}
 		
 		// handle session retrival
@@ -157,6 +146,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			mainWindow->Lock();
 			mainWindow->PostMessage(JAB_LOGGED_IN);
 			mainWindow->Unlock();
+			
+			return;
 		}
 		
 		// handle binding retrival
@@ -169,23 +160,32 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			fprintf(stderr, "JID: %s.\n", jid.String());
 
 			Session();
+			
+			return;
 		}
 		
-		if (!strcasecmp(entity->Attribute("type"), "result") && entity->Child("query") &&
+		if (entity->Attribute("type") && entity->Child("query") &&
+			!strcasecmp(entity->Attribute("type"), "result") &&
 			entity->Child("query", "xmlns", "jabber:iq:register"))
 		{
 			Authorize();
+			
+			return;
 		}
 		
-		if (!strcasecmp(entity->Attribute("type"), "result") && entity->Attribute("id") &&
+		if (entity->Attribute("type") && entity->Attribute("id") &&
+			!strcasecmp(entity->Attribute("type"), "result") &&
 			!strcasecmp(entity->Attribute("id"), "request_room_info"))
 		{
 			BMessage msg(JAB_PREFERENCES_DATAFORM);
 			msg.AddPointer("XMLEntity", entity);
 			MessageRepeater::Instance()->PostMessage(&msg);
+			
+			return;
 		}
 		
-		if (!strcasecmp(entity->Attribute("type"), "error"))
+		if (entity->Attribute("type") && entity->Attribute("id") &&
+			!strcasecmp(entity->Attribute("type"), "error"))
 		{
 			if (!strcasecmp(entity->Attribute("id"), "storage_request"))
 			{
@@ -198,10 +198,13 @@ JabberProtocol::OnTag(XMLEntity *entity)
 				sprintf(buffer, "Storage XEP-0049 is not supported on server. Cannot save conferences.\n\nNext time will try save to roster.");
 				ModalAlertFactory::Alert(buffer, "Pity", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
 				return;
-			} else if (!strcasecmp(entity->Attribute("id"), "request_room_info"))
+			}
+			else if (!strcasecmp(entity->Attribute("id"), "request_room_info"))
 			{
 				
-				if (entity->Child("error")->Child("text"))
+				if (entity->Child("error") &&
+					entity->Child("error")->Child("text") &&
+					entity->Child("error")->Attribute("code"))
 					sprintf(buffer, "Error %s:\n\n%s", entity->Child("error")->Attribute("code"),
 							entity->Child("error")->Child("text")->Data());
 				else
@@ -212,9 +215,9 @@ JabberProtocol::OnTag(XMLEntity *entity)
 				return;
 			}
 				
-			if (entity->Child("error")->Child("text") &&
-				entity->Child("error")->Attribute("code") &&
-				entity->Child("error"))
+			if (entity->Child("error") &&
+				entity->Child("error")->Child("text") &&
+				entity->Child("error")->Attribute("code"))
 				sprintf(buffer, "Error %s:\n\n%s", entity->Child("error")->Attribute("code"),
 					entity->Child("error")->Child("text")->Data());
 			else
@@ -224,9 +227,23 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			
 			Disconnect();
 			
+			return;
+			
 		}
 		
-		if (!strcasecmp(entity->Attribute("type"), "get"))
+		if (entity->Attribute("id") && entity->Child("query") && entity->Child("query")->Attribute("xmlns") &&
+			entity->Attribute("type") &&
+			!strcasecmp(entity->Attribute("id"), "storage_request") &&
+			!strcasecmp(entity->Attribute("type"), "result") &&
+			!strcasecmp(entity->Child("query")->Attribute("xmlns"), "jabber:iq:private"))
+		{
+			if (entity->Child("query")->Child("storage"))
+				ParseStorage(entity->Child("query")->Child("storage"));
+				
+			return;
+		}
+		
+		if (entity->Attribute("type") && !strcasecmp(entity->Attribute("type"), "get"))
 		{
 			BString iq_from;
 			BString iq_id;   
@@ -255,7 +272,12 @@ JabberProtocol::OnTag(XMLEntity *entity)
 					Pong(iq_id, iq_from);
 				}
 			}
+			
+			return;
 		}
+		
+		fprintf(stderr, "Unknown IQ message.\n");
+		return;
 	}
 	
 	// handle authorization success
@@ -263,12 +285,16 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	{
 		InitSession();
 		
+		return;
+		
 	}
 	
 	// handle presence messages
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "presence"))
 	{
 		ProcessPresence(entity);
+		
+		return;
 	}
 	
 	// handle stream error
@@ -277,12 +303,13 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
 		
 		Disconnect();
+		
+		return;
 	}
 	
 	// handle stream error
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:features"))
 	{
-		//mainWindow->Lock();
 		if (mainWindow->_login_new_account->Value() == B_CONTROL_ON)
 		{
 			if (entity->Child("register"))
@@ -303,15 +330,9 @@ JabberProtocol::OnTag(XMLEntity *entity)
 			Bind();
 		else if (entity->Child("session"))
 			Session();
-		//mainWindow->Unlock();
+			
+		return;
 		
-		//if (mainWindow->_login_new_account->Value() == B_CONTROL_ON) {
-		//	// create account
-		//	SendUserRegistration(user, pass, "haiku");
-		//} else {
-		//	// log in
-		//	Authorize();
-		//})
 	}
 	
 	// handle failures
@@ -328,6 +349,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
 		
 		Disconnect();
+		
+		return;
 	}
 	
 	// handle disconnection
@@ -336,6 +359,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		++seen_streams;
 		if (seen_streams % 2 == 1)
 			Disconnect();
+			
+		return;
 	}
 	
 	// handle incoming messages
@@ -344,6 +369,8 @@ JabberProtocol::OnTag(XMLEntity *entity)
 		//TalkManager::Instance()->Lock();
 		TalkManager::Instance()->ProcessMessageData(entity);
 		//TalkManager::Instance()->Unlock();
+		
+		return;
 	}
 	
 	//delete entity;
@@ -677,8 +704,6 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			
 			TalkManager::Instance()->Unlock();
 			
-			delete entity;
-			
 			return;
 		}		
 		
@@ -709,8 +734,6 @@ JabberProtocol::ProcessPresence(XMLEntity *entity)
 			
 		roster->Unlock();
 		
-		delete entity;
-
 		mainWindow->PostMessage(BLAB_UPDATE_ROSTER);			
 
 	}
@@ -1085,7 +1108,8 @@ JabberProtocol::ProcessUserPresence(UserID *user, XMLEntity *entity)
 		if (entity->Child("error") && entity->Child("error")->Child("text"))
 		{
 			string username(entity->Attribute("from"));
-			sprintf(buffer, "Presence error from %s:\n\n%s.\n", username.c_str(), entity->Child("error")->Child("text")->Data());
+			sprintf(buffer, "Presence error from %s:\n\n%s.\n", username.c_str(),
+				entity->Child("error")->Child("text")->Data());
 			fprintf(stderr, buffer);
 			
 			ModalAlertFactory::NonModalAlert(buffer, "Sad");
@@ -1584,12 +1608,6 @@ JabberProtocol::BeginSession()
 		InitSession();
 		return true;
 	}
-
-	char buffer[50 + host.Length()];
-	sprintf(buffer, "Cannot connect to %s:%i.", host.String(), port);
-	ModalAlertFactory::Alert(buffer, "Sorry", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT); 
-	
-	Disconnect();
 
 	return false;
 }

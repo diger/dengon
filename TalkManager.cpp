@@ -42,7 +42,9 @@ ChatWindow *TalkManager::CreateTalkSession(ChatWindow::talk_type type, UserID *u
 	
 	if (window)
 	{
+		window->Lock();
 		window->Activate();
+		window->Unlock();
 	} 
 	else
 	{
@@ -74,7 +76,6 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	// must be sender to continue
 	if (!entity->Attribute("from"))
 	{
-		//delete entity;
 		fprintf(stderr, "From is unspecified. Return.\n");
 		return;
 	}
@@ -86,7 +87,6 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			type = ChatWindow::GROUP;
 		else
 		{
-			//delete entity;
 			fprintf(stderr, "Type is unspecified. Return.\n");
 			return;
 		}
@@ -120,9 +120,6 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	else if (!strcasecmp(entity->Attribute("type"), "headline"))
 	{
 		fprintf(stderr, "Tune message.\n");
-		
-		//delete entity;
-		
 		return;
 	}
 	else
@@ -174,19 +171,20 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			window->jabber = jabber;
 		} else {
 			fprintf(stderr, "Unexisted Groupchat Window. No route\n");
-			delete entity;
 			return;
 		}
 	}
 	else
 	{
-		fprintf(stderr, "Redirected to Existed Window: %s.\n",
-				window->GetUserID()->JabberHandle().c_str());
-				
-		window->Activate();
+		fprintf(stderr, "Redirected to Existed Window: %s.\n", sender_user.JabberHandle().c_str());
 	}
 				
+	fprintf(stderr, "Lock. ");
 	window->Lock();
+	
+	fprintf(stderr, "Activate. ");
+	window->Activate();
+	
 		
 	string body;
 	string subject;
@@ -207,7 +205,8 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 		if (UserID(receiver).JabberHandle() != UserID(jabber->jid.String()).JabberHandle())
 		{
 			window->Unlock();
-			//delete entity;
+			fprintf(stderr, "Unlock.\n");
+			delete entity;
 			return;
 		}
 		
@@ -226,7 +225,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	}
 		
 	window->Unlock();
-	//delete entity;
+	fprintf(stderr, "Unlock.\n");
 	
 }
 
