@@ -12,7 +12,7 @@ SRCS= App.cpp JRoster.cpp \
 	  SplitView.cpp Base64.cpp ChatTextView.cpp DataForm.cpp
 
 RSRCS= Resources.rsrc
-LIBS= stdc++.r4 be root network ssl crypto expat 
+LIBS= stdc++ be root network ssl crypto expat 
       
 LIBPATHS= /boot/develop/lib/x86/ /boot/common/lib/ 
 SYSTEM_INCLUDE_PATHS= /boot/develop/headers/be
