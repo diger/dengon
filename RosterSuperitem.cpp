@@ -13,7 +13,7 @@ RosterSuperitem::~RosterSuperitem() {
 }
 
 void RosterSuperitem::DrawItem(BView *owner, BRect frame, bool complete) {
-	owner->SetFontSize(10.0);
+	owner->SetFontSize(11.0);
 	owner->SetHighColor(0, 0, 0, 255);
 
 	BStringItem::DrawItem(owner, frame, complete);
