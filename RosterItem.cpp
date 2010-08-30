@@ -28,7 +28,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete)
 
 	// text characteristics
 	owner->SetFont(be_plain_font);
-	owner->SetFontSize(10.0);
+	owner->SetFontSize(11);
 	
 				//owner->GetFont(&statusFont);
 				//statusFont.SetFace(B_ITALIC_FACE);
@@ -111,9 +111,6 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete)
 		owner->DrawString(GetUserID()->MoreExactOnlineStatus().c_str());
 		owner->DrawString("");
 	}
-
-	owner->SetFont(be_plain_font);
-	owner->SetFontSize(10.0);
 
 }
 
