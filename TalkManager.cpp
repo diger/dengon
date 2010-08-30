@@ -74,7 +74,8 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	// must be sender to continue
 	if (!entity->Attribute("from"))
 	{
-		delete entity;
+		//delete entity;
+		fprintf(stderr, "From is unspecified. Return.\n");
 		return;
 	}
 
@@ -83,6 +84,12 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	{
 		if (entity->Child("x", "xmlns", "jabber:x:oob"))
 			type = ChatWindow::GROUP;
+		else
+		{
+			//delete entity;
+			fprintf(stderr, "Type is unspecified. Return.\n");
+			return;
+		}
 	}
 	else if (!strcasecmp(entity->Attribute("type"), "normal"))
 	{
@@ -106,7 +113,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 			ModalAlertFactory::Alert(buffer, "Oh, well.", NULL, NULL, B_WIDTH_AS_USUAL, B_STOP_ALERT);
 		}
 		
-		delete entity;
+		//delete entity;
 		
 		return;
 	}
@@ -114,7 +121,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	{
 		fprintf(stderr, "Tune message.\n");
 		
-		delete entity;
+		//delete entity;
 		
 		return;
 	}
@@ -197,10 +204,10 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	else if (type == ChatWindow::GROUP && (!body.empty() || !subject.empty()))
 	{
 		//Accept exectly our JID in destinations 
-		if (receiver != UserID(jabber->jid.String()).JabberCompleteHandle())
+		if (UserID(receiver).JabberHandle() != UserID(jabber->jid.String()).JabberHandle())
 		{
 			window->Unlock();
-			delete entity;
+			//delete entity;
 			return;
 		}
 		
@@ -219,7 +226,7 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	}
 		
 	window->Unlock();
-	delete entity;
+	//delete entity;
 	
 }
 
