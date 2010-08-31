@@ -156,14 +156,20 @@ void BuddyWindow::MessageReceived(BMessage *msg)
 		}
 
 		case AGENT_MENU_CHANGED_TO_JABBER: {
-			_handle->SetLabel("JID:");
-			_full_view->RemoveChild(_room_nick);
+			if (!strcasecmp(_handle->Label(), "MUC JID:"))
+			{
+				_handle->SetLabel("JID:");
+				_full_view->RemoveChild(_room_nick);
+			}
 			break;
 		}
 		
 		case AGENT_MENU_CHANGED_TO_JABBER_CONFERENCE: {
-			_handle->SetLabel("MUC JID:");
-			_full_view->AddChild(_room_nick);
+			if (!strcasecmp(_handle->Label(), "JID:"))
+			{
+				_handle->SetLabel("MUC JID:");
+				_full_view->AddChild(_room_nick);
+			}
 			break;
 		}
 	}
