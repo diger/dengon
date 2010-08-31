@@ -45,13 +45,13 @@ const UserID::online_status UserID::OnlineStatus() const { return _status; }
 
 const std::string UserID::ExactOnlineStatus() const
 {
-	if (OnlineStatus() == ONLINE) {
+	//if (OnlineStatus() == ONLINE) {
 		// exact status only applies for users online
 		return _exact_status;
-	} else {
+	//} else {
 		// user is offline, exact status is invalid
-		return "";
-	}
+	//	return "";
+	//}
 }
 
 const std::string UserID::MoreExactOnlineStatus() const {
