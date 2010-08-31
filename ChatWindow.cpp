@@ -454,7 +454,7 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 			iterating_item->_show = show;
 			iterating_item->_status = status;
 			iterating_item->_role = role;
-			iterating_item->_affiliation = role;
+			iterating_item->_affiliation = affiliation;
 			
 			_people->InvalidateItem(i);
 			has = true;
@@ -467,7 +467,6 @@ ChatWindow::AddGroupChatter(string user, string show, string status, string role
 	{
 		_people->AddItem(people_item);
 		_people->SortItems(_PeopelListComparison);
-		
 	}
 	
 	//Unlock();
