@@ -45,14 +45,13 @@ BuddyWindow::SetUser(UserID *user)
 	{
 		_realname->SetText(userID->FriendlyName().c_str());
 		_handle->SetText(userID->JabberHandle().c_str());
-		
 	}
 	
 	if (!TalkManager::Instance()->jabber->_storage_supported)
 		_room_nick->SetEnabled(false);
 			
-	_chat_services->SetEnabled(!userID);
-	_handle->SetEnabled(!userID);
+	_chat_services->SetEnabled(userID == NULL);
+	_handle->SetEnabled(userID == NULL);
 	//_room_nick->SetEnabled(!userID);
 	
 	if (userID && (userID->UserType() == UserID::CONFERENCE))
