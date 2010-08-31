@@ -182,8 +182,8 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 	fprintf(stderr, "Lock. ");
 	window->Lock();
 	
-	fprintf(stderr, "Activate. ");
-	window->Activate();
+	//fprintf(stderr, "Activate. ");
+	//window->Activate();
 	
 		
 	string body;
