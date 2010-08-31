@@ -310,11 +310,18 @@ JabberProtocol::OnTag(XMLEntity *entity)
 	// handle stream error
 	if (entity->IsCompleted() && !strcasecmp(entity->Name(), "stream:features"))
 	{
-		if (mainWindow->_login_new_account->Value() == B_CONTROL_ON)
+		mainWindow->Lock();
+		int wantRegister = mainWindow->_login_new_account->Value();
+		mainWindow->Unlock();
+		
+		if (wantRegister == B_CONTROL_ON)
 		{
 			if (entity->Child("register"))
 			{
+				mainWindow->Lock();
 				mainWindow->_login_new_account->SetValue(B_CONTROL_OFF);
+				mainWindow->Unlock();
+				
 				SendUserRegistration(user, pass, "haiku");
 			} else
 			{
