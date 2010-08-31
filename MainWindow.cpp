@@ -188,10 +188,10 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			// a message that the roster singleton was updated
 			Lock();
 			_status_view->SetMessage("roster updated.");
-			Unlock();
+			
 			_roster->UpdateRoster();
 			
-	
+			Unlock();
 			break;
 		}
 		
