@@ -468,7 +468,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 		_connect_item    = new BMenuItem("Log On", new BMessage(JAB_CONNECT));
 		_connect_item->SetShortcut('N', 0);
 
-		_disconnect_item = new BMenuItem("Log Off", new BMessage(JAB_DISCONNECT));
+		_disconnect_item = new BMenuItem("Sign-out", new BMessage(JAB_DISCONNECT));
 		_disconnect_item->SetShortcut('B', 0);
 
 		_about_item = new BMenuItem("About...", new BMessage(B_ABOUT_REQUESTED));
@@ -488,7 +488,7 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 	// EDIT MENU
 	_edit_menu = new BMenu("Roster");
 
-		_add_buddy_item = new BMenuItem("Add Contact...", new BMessage(JAB_OPEN_ADD_BUDDY_WINDOW));
+		_add_buddy_item = new BMenuItem("Add Item...", new BMessage(JAB_OPEN_ADD_BUDDY_WINDOW));
 		_add_buddy_item->SetShortcut('N', 0);
 
 		_preferences_item = new BMenuItem("Preferences...", new BMessage(JAB_PREFERENCES));

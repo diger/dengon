@@ -76,7 +76,7 @@ BuddyWindow::SetUser(UserID *user)
 }
 
 BuddyWindow::BuddyWindow(BRect frame, UserID *user)
-	: BWindow(frame, "Contact", B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE)
+	: BWindow(frame, "Item", B_TITLED_WINDOW, B_NOT_RESIZABLE | B_NOT_ZOOMABLE)
 {
 
 	BRect rect;
