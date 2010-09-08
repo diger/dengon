@@ -383,7 +383,7 @@ void RosterView::UpdateRoster()
 	
 	
 	
-	//SortItemsUnder(_online, true, _ListComparison);
+	SortItemsUnder(_online, true, _ListComparison);
 	//SortItemsUnder(_offline, true, _ListComparison);
 	//SortItemsUnder(_unknown, true, _ListComparison);
 	//SortItemsUnder(_conferences, true, _ListComparison);
