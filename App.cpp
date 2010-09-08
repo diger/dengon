@@ -24,8 +24,9 @@ void
 App::AboutRequested()
 {
 	BAlert *alert = new BAlert("about", "Chat\n\n"
-		"By Maxim Sokhatsky.\n"
-		"Based on Jabber for BeOS by John Blanco.\n\n"
+		"By Maxim Sokhatsky.\n\n"
+		"Thanks to John Blanco, Mathieu Brault and "
+		"Oliver Ruiz Dorantes.\n\n"
 		"Revision "DENGON_SVNVERSION" from "
 		""DENGON_SVNDATE"\n", "Chat!");
 	BTextView *view = alert->TextView();

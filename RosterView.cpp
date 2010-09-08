@@ -28,51 +28,55 @@ RosterView::~RosterView() {
 
 static int _ListComparison(const BListItem *a, const BListItem *b)
 {
+	int return_ = 0;
+	
 	if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == 
 			((RosterItem *)b)->GetUserID()->ExactOnlineStatus())
 	{
 		if (((RosterItem *)a)->GetUserID()->FriendlyName() ==
 			((RosterItem *)b)->GetUserID()->FriendlyName())
-			return 0;
+			return_ = 0;
 		else if ( 
 			((RosterItem *)a)->GetUserID()->FriendlyName() >
 			((RosterItem *)b)->GetUserID()->FriendlyName()) 
-			return 1;
-		else return -1;
+			return_ = 1;
+		else return_ = -1;
 	}
 	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "none")
 	{
-		return 1;
+		return_ = 1;
 	}
 	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "xa")
 	{
 		if (((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "none")
-			return -1;
+			return_ = -1;
 		else
-			return 1;
+			return_ = 1;
 	}
 	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "away")
 	{
 		if (((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "xa" ||
 			((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "none" )
-			return -1;
+			return_ = -1;
 		else 
-			return 1;
+			return_ = 1;
 	}
 	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "dnd")
 	{
 		if (((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "away" ||
 			((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "xa" ||
 			((RosterItem *)b)->GetUserID()->ExactOnlineStatus() == "none" )
-			return -1;
+			return_ = -1;
 		else 
-			return 1;
+			return_ = 1;
 	}
 	else if (((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "chat" ||
 			((RosterItem *)a)->GetUserID()->ExactOnlineStatus() == "online")
 	{
-		return -1;
+		return_ = -1;
 	}
+	
+	return return_;
 }   
 
 void RosterView::AttachedToWindow()
@@ -214,13 +218,20 @@ void RosterView::LinkUser(UserID *added_user)
 	if (added_user->UserType() == UserID::CONFERENCE)
 	{
 		AddUnder(new RosterItem(added_user), _conferences);
+		SortItemsUnder(_conferences, true, _ListComparison);
 	}
 	else if (added_user->UserType() == UserID::JABBER)
 	{
 		if (added_user->SubscriptionStatus() == "none")
+		{
 			AddUnder(new RosterItem(added_user), _unknown);
+			SortItemsUnder(_unknown, true, _ListComparison);
+		}
 		else 
+		{
 			AddUnder(new RosterItem(added_user), _offline);
+			SortItemsUnder(_offline, true, _ListComparison);
+		}
 	}
 }
 
@@ -360,6 +371,7 @@ void RosterView::UpdateRoster()
 				UserID::online_status old_status = _item_to_status_map[Superitem(item)];
 				RemoveItem(item);
 				AddUnder(item, _status_to_item_map[item->GetUserID()->OnlineStatus()]);
+				SortItemsUnder(_status_to_item_map[item->GetUserID()->OnlineStatus()], true, _ListComparison);
 				goto RESET;
 			}			
 
@@ -369,10 +381,14 @@ void RosterView::UpdateRoster()
 
 	}
 	
-	SortItemsUnder(_online, true, _ListComparison);
-	SortItemsUnder(_offline, true, _ListComparison);
-	SortItemsUnder(_unknown, true, _ListComparison);
-	SortItemsUnder(_conferences, true, _ListComparison);
+	
+	
+	//SortItemsUnder(_online, true, _ListComparison);
+	//SortItemsUnder(_offline, true, _ListComparison);
+	//SortItemsUnder(_unknown, true, _ListComparison);
+	//SortItemsUnder(_conferences, true, _ListComparison);
+	
+	
 	
 	Invalidate();
 

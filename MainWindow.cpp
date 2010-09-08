@@ -102,7 +102,7 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 			if (username.JabberServer() == "gmail.com" || 
 				username.JabberServer() == "googlemail.com")
 			{
-				jabber->SetConnection(BString("talk.google.com"), 5223, true);
+				jabber->SetConnection(BString("talk.google.com"), 443, true);
 			} else
 			{
 				jabber->SetConnection(BString(username.JabberServer().c_str()), 5223, true);
