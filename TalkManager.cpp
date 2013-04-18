@@ -3,6 +3,10 @@
 //////////////////////////////////////////////////
 
 #include <interface/Window.h>
+#include <Notification.h>
+#include <Roster.h>
+#include <Resources.h>
+#include <IconUtils.h>
 #include "Settings.h"
 #include "ChatWindow.h"
 #include "JRoster.h"
@@ -197,6 +201,26 @@ void TalkManager::ProcessMessageData(XMLEntity *entity)
 				
 	if (type == ChatWindow::CHAT && !body.empty())
 	{
+		//notif
+/*			image_info info;
+			BFile file(info.name, B_READ_ONLY);
+			BResources resources(&file);
+			const void* data = NULL;
+			size_t size;
+			data = resources.LoadResource(B_VECTOR_ICON_TYPE, "BEOS:ICON", &size);
+			
+			BBitmap* notifyIcon = new BBitmap(BRect(0, 0, 31, 31), B_RGBA32);
+			BIconUtils::GetVectorIcon((const uint8 *)data, size, notifyIcon);*/
+
+//			BString::Truncate(39); str << B_UTF8_ELLIPSIS;
+			BNotification notification(B_INFORMATION_NOTIFICATION);
+			notification.SetGroup("Dengon");
+			notification.SetTitle(sender.c_str());
+//			notification.SetMessageID(group_username.c_str());
+			notification.SetContent(body.c_str());
+			notification.Send();
+//			notification.SetIcon(notifyIcon);
+//end_notif					
 		window->NewMessage(body);
 	}
 	else if (type == ChatWindow::GROUP && (!body.empty() || !subject.empty()))
