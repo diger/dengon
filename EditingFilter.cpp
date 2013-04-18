@@ -35,19 +35,24 @@ filter_result EditingFilter::Filter(BMessage *message, BHandler **target) {
 	{
 		//window->RevealNextHistory();
 	}
-	else if (newLinesAllowed && (modifiers & B_COMMAND_KEY) == 0 && byte == B_ENTER)
-	{
-		view->Insert("\n");
-		return B_SKIP_MESSAGE;
-	}
-	else if (!newLinesAllowed && (modifiers & B_COMMAND_KEY) != 0 && byte == B_ENTER)
-	{
-		view->Insert("\n");
-		return B_SKIP_MESSAGE;
-	}
 	else if (newLinesAllowed && (modifiers & B_COMMAND_KEY) != 0 && byte == B_ENTER)
 	{
+		view->Insert("\n");
+		return B_SKIP_MESSAGE;
+	}
+//	else if (newLinesAllowed && (modifiers & B_COMMAND_KEY) == 0 && byte == B_ENTER)
+//	{
+//		view->Insert("\n");
+//		return B_SKIP_MESSAGE;
+//	}
+	else if (newLinesAllowed && byte == B_ENTER)
+	{
 		window->PostMessage(JAB_CHAT_SENT);
+		return B_SKIP_MESSAGE;
+	}
+	else if( byte == B_ESCAPE)
+	{
+		window->Minimize(true);
 	}
 	
 	return B_DISPATCH_MESSAGE;
