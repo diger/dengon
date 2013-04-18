@@ -3,6 +3,9 @@
  * All rights reserved. Distributed under the terms of the MIT license.
  */
  
+#include <Path.h>
+#include <FindDirectory.h>
+#include <AppFileInfo.h>
 #include "JabberProtocol.h"
 #include "ChatWindow.h"
 #include "GenericFunctions.h"
@@ -18,7 +21,7 @@
 #include <unistd.h>
 
 #include "version.h"
-
+extern "C" const char* __get_haiku_revision();
 #define DEBUG 
 
 static int32 SessionDispatcher(void *args);
@@ -576,20 +579,28 @@ JabberProtocol::ProcessVersionRequest(BString req_id, BString req_from)
 	entity_query->AddChild("name", NULL, "Dengon");
 	entity_query->AddChild("version", NULL, "1.0 (rev: "DENGON_SVNVERSION")");
 
+	BString os_info;
 	BString strVersion("Haiku");
 	
-	BString os_info;
-	utsname uname_info;
-	if (uname(&uname_info) == 0) {
-		os_info = uname_info.sysname;
-		long revision = 0;
-		if (sscanf(uname_info.version, "r%ld", &revision) == 1) {
-			char version[16];
-			snprintf(version, sizeof(version), "%ld", revision);
-			os_info += " (rev: ";
-			os_info += version;
-			os_info += ")";
-		}
+	BPath path;
+	if (find_directory(B_BEOS_LIB_DIRECTORY, &path) == B_OK) {
+		path.Append("libbe.so");
+		BAppFileInfo appFileInfo;
+		version_info versionInfo;
+		BFile file;
+		if (file.SetTo(path.Path(), B_READ_ONLY) == B_OK
+			&& appFileInfo.SetTo(&file) == B_OK
+			&& appFileInfo.GetVersionInfo(&versionInfo, 
+				B_APP_VERSION_KIND) == B_OK
+			&& versionInfo.short_info[0] != '\0')
+				strVersion = versionInfo.short_info;
+	}
+	const char* haikuRevision = __get_haiku_revision();
+	if (haikuRevision != NULL) {
+			os_info = "Haiku ";
+			os_info += strVersion;
+			os_info += " Rev. ";
+			os_info += haikuRevision;
 	}
 
 	entity_query->AddChild("os", NULL, os_info.String());
