@@ -360,6 +360,51 @@ void BlabberMainWindow::MessageReceived(BMessage *msg) {
 	}
 }
 
+/*static*/ BMenu*
+BlabberMainWindow::_MakeFontSizeMenu(uint32 command, uint8 defaultSize)
+{
+	BMenu* menu = new (std::nothrow) BMenu("Font size");
+	if (menu == NULL)
+		return NULL;
+
+	int32 sizes[] = {
+		8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 0
+	};
+
+	bool found = false;
+
+	for (uint32 i = 0; sizes[i]; i++) {
+		BString string;
+		string << sizes[i];
+		BMessage* message = new BMessage(command);
+		message->AddString("font_size", string);
+		BMenuItem* item = new BMenuItem(string.String(), message);
+		menu->AddItem(item);
+		if (sizes[i] == defaultSize) {
+			item->SetMarked(true);
+			found = true;
+		}
+	}
+
+	if (!found) {
+		for (uint32 i = 0; sizes[i]; i++) {
+			if (sizes[i] > defaultSize) {
+				BString string;
+				string << defaultSize;
+				BMessage* message = new BMessage(command);
+				message->AddString("font_size", string);
+				BMenuItem* item = new BMenuItem(string.String(), message);
+				item->SetMarked(true);
+				menu->AddItem(item, i);
+				break;
+			}
+		}
+	}
+
+	return menu;
+}
+
+
 void BlabberMainWindow::MenusBeginning() {
 	char buffer[1024];
 
@@ -494,8 +539,12 @@ BlabberMainWindow::BlabberMainWindow(BRect frame)
 		_preferences_item = new BMenuItem("Preferences...", new BMessage(JAB_PREFERENCES));
 		_preferences_item->SetEnabled(false);
 
+		_font_size_item = new BMenuItem("Font Size...", new BMessage(JAB_PREFERENCES));
+		_font_size_item->SetShortcut('F', 0);		
+
 	_edit_menu->AddItem(_add_buddy_item);
 	_edit_menu->AddSeparatorItem();
+	_edit_menu->AddItem(_font_size_item);
 	_edit_menu->AddItem(_preferences_item);
 	_edit_menu->SetTargetForItems(this);
 

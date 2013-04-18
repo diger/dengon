@@ -94,6 +94,7 @@ private:
 	BMenuItem                *_send_groupchat_item;
 
 	BMenuItem                *_preferences_item;
+	BMenuItem                *_font_size_item;
 	BMenuItem                *_beos_user_item;
 	BMenuItem                *_riv_item;
 	BMenuItem                *_jabber_org_item;
@@ -113,6 +114,10 @@ private:
 
 	
 	BScrollView              *_roster_scroller;
+
+static	BMenu*				_MakeFontSizeMenu(uint32 command,
+									uint8 defaultSize);
+	
 };
 
 #endif
