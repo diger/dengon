@@ -85,7 +85,7 @@ void RosterView::AttachedToWindow()
 	BOutlineListView::AttachedToWindow();
 
 	// on double-click
-	//SetInvocationMessage(new BMessage(JAB_OPEN_CHAT_WITH_DOUBLE_CLICK));
+	SetInvocationMessage(new BMessage(JAB_OPEN_CHAT));
 
 	// popup menu
 	_popup = new BPopUpMenu(NULL, false, false);

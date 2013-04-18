@@ -28,7 +28,7 @@ void RosterItem::DrawItem(BView *owner, BRect frame, bool complete)
 
 	// text characteristics
 	owner->SetFont(be_plain_font);
-	owner->SetFontSize(11);
+	owner->SetFontSize(14);
 	
 				//owner->GetFont(&statusFont);
 				//statusFont.SetFace(B_ITALIC_FACE);
