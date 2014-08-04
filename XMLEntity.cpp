@@ -347,7 +347,7 @@ void XMLEntity::SetCompleted(bool is_complete) {
 }
 
 string XMLEntity::EscapeText(string text) {
-	unsigned int replacement;
+	std::string::size_type replacement;
 
 	replacement = 0;
 	while ((replacement = text.find("&", replacement)) != string::npos) {

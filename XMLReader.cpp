@@ -220,7 +220,7 @@ void XMLReader::_OnCharacterData(const XML_Char *data, int len) {
 		while (added_data.size() > 0 && (added_data[0] == ' ' || added_data[0] == '\n'))
 			added_data.erase(0, 1);
 
-	uint replacement;
+	std::string::size_type replacement;
 
 	while ((replacement = _curr_character_data.find("&apos;")) != string::npos) {
 		_curr_character_data.replace(replacement, 6, "&");
