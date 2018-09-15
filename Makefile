@@ -12,9 +12,28 @@ SRCS= App.cpp JRoster.cpp \
 	  SplitView.cpp Base64.cpp ChatTextView.cpp DataForm.cpp
 
 RSRCS= Resources.rsrc
-LIBS= stdc++ be root network ssl crypto expat 
+
+# Determine the CPU type
+MACHINE=$(shell uname -m)
+ifeq ($(MACHINE), BePC)
+	CPU = x86
+else
+	CPU = $(MACHINE)
+endif
+
+# Get the compiler version.
+CC_VER = $(word 1, $(subst -, , $(subst ., , $(shell $(CC) -dumpversion))))
+
+# Set up the local & system check for C++ stdlibs.
+ifneq (,$(filter $(CPU),x86 x86_64))
+ ifeq ($(CC_VER), 2)
+ 	LIBS= stdc++.r4 be root network ssl crypto expat
+ else
+	LIBS = stdc++ supc++ be root network ssl crypto expat
+ endif
+endif
       
-LIBPATHS= /boot/develop/lib/x86/ /boot/common/lib/ 
+LIBPATHS= /boot/develop/lib/x86/ /boot/system/lib/ 
 SYSTEM_INCLUDE_PATHS= /boot/develop/headers/be
 LOCAL_INCLUDE_PATHS=
 OPTIMIZE=-O3
