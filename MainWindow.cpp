@@ -5,7 +5,7 @@
 #include <InterfaceKit.h>
 #include <cstdio>
 #include <app/Application.h>
-#include <be_apps/Deskbar/Deskbar.h>
+#include <interface/Deskbar.h>
 #include <be_apps/NetPositive/NetPositive.h>
 #include <interface/MenuBar.h>
 #include <interface/MenuItem.h>
