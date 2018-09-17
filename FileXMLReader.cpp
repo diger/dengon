@@ -9,6 +9,7 @@
 #include <storage/FindDirectory.h>
 #include <storage/StorageDefs.h>
 
+#include <cstring>
 #include <stdlib.h>
 #include <strings.h>
 

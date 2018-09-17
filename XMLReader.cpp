@@ -5,6 +5,7 @@
 #include "XMLReader.h"
 
 #include <cstdio>
+#include <cstring>
 #include <string>
 #include <strings.h>
 #include <stdlib.h>
